@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Data;
 using System.Linq;
+using ExcelDBviaEntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExcelDBviaEntityFramework
@@ -8,11 +10,51 @@ namespace ExcelDBviaEntityFramework
     {
         static void Main(string[] args)
         {
-            RunDemo();
+            // RunDemo();
+            RunExcelviaEFCore();
+        }
+
+        private static void RunExcelviaEFCore()
+        {
+            // https://www.bricelam.net/2024/03/12/ef-xlsx.html
+
+            using var db = new SignupContext();
+
+            db.Database.OpenConnection();
+            var connection = db.Database.GetDbConnection();
+
+            using var tables = connection.GetSchema("Tables");
+            foreach (DataRow table in tables.Rows)
+            {
+                var tableName = (string)table["TABLE_NAME"];
+                Console.WriteLine(tableName);
+
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.TableDirect;
+                command.CommandText = tableName;
+                using var reader = command.ExecuteReader(CommandBehavior.SchemaOnly);
+
+                using var columns = reader.GetSchemaTable();
+                foreach (DataRow column in columns.Rows)
+                {
+                    Console.WriteLine($"    {column["DataType"]} {column["ColumnName"]}");
+                }
+
+                var partyCount = db.Signups.Count();
+                Console.WriteLine($"Parties: {partyCount}");
+
+                var averagePartySize = db.Signups.Average(s => s.PartySize);
+                Console.WriteLine($"Average size: {averagePartySize}");
+
+                var largestParty = db.Signups.OrderByDescending(s => s.PartySize).First();
+                Console.WriteLine($"Largest: {largestParty.Name}, party of {largestParty.PartySize}");
+            }
         }
 
         private static async void RunDemo()
         {
+            // https://learn.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli
+
             using var db = new BloggingContext();
 
             // Note: This sample requires the database to be created before running.
