@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExcelDBviaEntityFramework.Models
@@ -8,6 +7,8 @@ namespace ExcelDBviaEntityFramework.Models
     public class SignupEntry
     {
         [Key]
+        public string Id { get; set; }
+
         public string? Name { get; set; }
 
         [Column("Phone number")]

@@ -25,69 +25,116 @@ namespace ExcelDBviaEntityFramework
 
         public override int SaveChanges()
         {
-            var modifiedSignups = ChangeTracker.Entries<SignupEntry>()
-                .Where(e => e.State == EntityState.Modified)
+            var changedSignups = ChangeTracker.Entries<SignupEntry>()
+                .Where(e => e.State == EntityState.Modified || e.State == EntityState.Added)
                 .ToList();
 
-            foreach (var entry in modifiedSignups)
+            int affectedRows = 0;
+
+            foreach (var entry in changedSignups)
             {
-                // Build SET clause dynamically
-                var setClauses = new List<string>();
-                var parameters = new List<(string Name, object Value)>();
-                int paramIndex = 0;
-
-                foreach (var prop in typeof(SignupEntry).GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                {
-                    var originalValue = entry.OriginalValues[prop.Name];
-                    var currentValue = entry.CurrentValues[prop.Name];
-
-                    if (!Equals(originalValue, currentValue))
-                    {
-                        var columnAttr = prop.GetCustomAttribute<ColumnAttribute>();
-                        var columnName = columnAttr?.Name ?? prop.Name;
-
-                        string paramName = $"@p{paramIndex++}";
-                        setClauses.Add($"[{columnName}] = {paramName}");
-                        parameters.Add((paramName, currentValue ?? DBNull.Value));
-                    }
-                }
-
-                if (setClauses.Count == 0)
-                {
-                    entry.State = EntityState.Unchanged;
-                    continue;
-                }
-
-                // Use Name as the key
-                var nameParamName = $"@p{paramIndex++}";
-                parameters.Add((nameParamName, entry.OriginalValues[nameof(SignupEntry.Name)] ?? DBNull.Value));
-
-                var sql = $"UPDATE [Sheet1$] SET {string.Join(", ", setClauses)} WHERE [Name] = {nameParamName}";
-
                 var connection = Database.GetDbConnection();
                 if (connection.State != ConnectionState.Open)
                     connection.Open();
 
-                using (var updateCmd = connection.CreateCommand())
+                if (entry.State == EntityState.Modified)
                 {
-                    updateCmd.CommandText = sql;
+                    var setClauses = new List<string>();
+                    var parameters = new List<(string Name, object Value)>();
+                    int paramIndex = 0;
 
-                    foreach (var (Name, Value) in parameters)
+                    foreach (var prop in typeof(SignupEntry).GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
-                        var param = updateCmd.CreateParameter();
-                        param.ParameterName = Name;
-                        param.Value = Value;
-                        updateCmd.Parameters.Add(param);
+                        if (prop.Name == nameof(SignupEntry.Id))
+                            continue; // never update the primary key
+
+                        var originalValue = entry.OriginalValues[prop.Name];
+                        var currentValue = entry.CurrentValues[prop.Name];
+
+                        if (!Equals(originalValue, currentValue))
+                        {
+                            var columnAttr = prop.GetCustomAttribute<ColumnAttribute>();
+                            var columnName = columnAttr?.Name ?? prop.Name;
+
+                            string paramName = $"@p{paramIndex++}";
+                            setClauses.Add($"[{columnName}] = {paramName}");
+                            parameters.Add((paramName, currentValue ?? DBNull.Value));
+                        }
                     }
 
-                    updateCmd.ExecuteNonQuery();
-                }
+                    if (setClauses.Count > 0)
+                    {
+                        var idParamName = $"@p{paramIndex++}";
+                        parameters.Add((idParamName, entry.OriginalValues[nameof(SignupEntry.Id)] ?? DBNull.Value));
 
-                // Now reload the entity from Excel so in-memory object matches the file
-                entry.Reload();
+                        var sql = $"UPDATE [Sheet1$] SET {string.Join(", ", setClauses)} WHERE [Id] = {idParamName}";
+
+                        using (var updateCmd = connection.CreateCommand())
+                        {
+                            updateCmd.CommandText = sql;
+                            foreach (var (Name, Value) in parameters)
+                            {
+                                var param = updateCmd.CreateParameter();
+                                param.ParameterName = Name;
+                                param.Value = Value;
+                                updateCmd.Parameters.Add(param);
+                            }
+
+                            affectedRows += updateCmd.ExecuteNonQuery();
+                        }
+
+                        entry.Reload();
+                    }
+
+                    entry.State = EntityState.Unchanged;
+                }
+                else if (entry.State == EntityState.Added)
+                {
+                    // Assign a new ID if not set
+                    if (string.IsNullOrWhiteSpace(entry.CurrentValues[nameof(SignupEntry.Id)]?.ToString()))
+                    {
+                        entry.CurrentValues[nameof(SignupEntry.Id)] =
+                            Guid.NewGuid().ToString("N").Substring(0, 8);
+                    }
+
+                    var columns = new List<string>();
+                    var placeholders = new List<string>();
+                    var parameters = new List<(string Name, object Value)>();
+                    int paramIndex = 0;
+
+                    foreach (var prop in typeof(SignupEntry).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                    {
+                        var value = entry.CurrentValues[prop.Name];
+                        var columnAttr = prop.GetCustomAttribute<ColumnAttribute>();
+                        var columnName = columnAttr?.Name ?? prop.Name;
+
+                        string paramName = $"@p{paramIndex++}";
+                        columns.Add($"[{columnName}]");
+                        placeholders.Add(paramName);
+                        parameters.Add((paramName, value ?? DBNull.Value));
+                    }
+
+                    var sql = $"INSERT INTO [Sheet1$] ({string.Join(", ", columns)}) VALUES ({string.Join(", ", placeholders)})";
+
+                    using (var insertCmd = connection.CreateCommand())
+                    {
+                        insertCmd.CommandText = sql;
+                        foreach (var (Name, Value) in parameters)
+                        {
+                            var param = insertCmd.CreateParameter();
+                            param.ParameterName = Name;
+                            param.Value = Value;
+                            insertCmd.Parameters.Add(param);
+                        }
+
+                        affectedRows += insertCmd.ExecuteNonQuery();
+                    }
+
+                    entry.State = EntityState.Unchanged;
+                }
             }
 
-            return modifiedSignups.Count;
+            return affectedRows;
         }
     }
 }
