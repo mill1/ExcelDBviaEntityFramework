@@ -14,7 +14,7 @@ namespace ExcelDBviaEntityFramework
             => options.UseJet(
                 $"""
                 Provider = Microsoft.ACE.OLEDB.12.0;
-                Data Source = {ResolvePath()}\Signups.xlsx;
+                Data Source = {FileResolver.ResolveExcelPath("Signups.xlsx")};
                 Extended Properties = 'Excel 12.0 Xml';
                 """);
 
@@ -176,22 +176,6 @@ namespace ExcelDBviaEntityFramework
             }
 
             return affectedRows;
-        }
-
-
-
-        private string ResolvePath()
-        {
-            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Excel files");
-        }
-
-        private string ResolvePath2()
-        {
-            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if (assemblyLocation == null)
-                throw new InvalidOperationException("Could not determine assembly location.");
-            return Path.Combine(assemblyLocation, "Data");
-
         }
     }
 }
