@@ -10,7 +10,7 @@ namespace ExcelDBviaEntityFramework
 {
     public class ExcelDbContext : DbContext
     {
-        public DbSet<SignupEntry> Signups { get; set; }
+        public DbSet<SignupEntry> SignUps { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseJet($"""

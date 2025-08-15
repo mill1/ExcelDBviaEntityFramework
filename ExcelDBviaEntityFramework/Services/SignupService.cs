@@ -5,11 +5,18 @@ namespace ExcelDBviaEntityFramework.Services
 {
     public class SignupService
     {
+        public SignupEntry GetSignUpById(string id)
+        {
+            using var db = new ExcelDbContext();
+
+            return db.SignUps.FirstOrDefault(s => s.Id_ý == id);
+        }
+
         public SignupEntry GetSignUpByName(string name)
         {
             using var db = new ExcelDbContext();
 
-            return db.Signups.FirstOrDefault(s => s.Name == name);
+            return db.SignUps.FirstOrDefault(s => s.Name == name);
         }
 
         public SignupEntry AddSignup(string name, string phone, int partySize)
@@ -25,22 +32,40 @@ namespace ExcelDBviaEntityFramework.Services
                 PartySize = partySize
             };
 
-            db.Signups.Add(newSignUp);
+            db.SignUps.Add(newSignUp);
             db.SaveChanges();
 
             return newSignUp;
+        }
+
+        public SignupEntry UpdateSignup(string id, string name, string phone, int partySize)
+        {
+            using var db = new ExcelDbContext();
+
+            var signUp = db.SignUps.FirstOrDefault(s => s.Id_ý == id);
+
+            if (signUp == null)
+                return null;
+
+            signUp.Name = name;
+            signUp.PhoneNumber = phone;
+            signUp.PartySize = partySize;
+
+            db.SaveChanges();
+
+            return db.SignUps.First(s => s.Id_ý == id);
         }
 
         public bool DeleteSignup(string id)
         {
             using var db = new ExcelDbContext();
 
-            var signup = db.Signups.Where(s => s.Id_ý == id).FirstOrDefault();    
+            var signup = db.SignUps.Where(s => s.Id_ý == id).FirstOrDefault();    
 
             if (signup == null)
                 return false;
 
-            db.Signups.Remove(signup);
+            db.SignUps.Remove(signup);
             db.SaveChanges();
 
             return true;
@@ -50,56 +75,8 @@ namespace ExcelDBviaEntityFramework.Services
         {
             using var db = new ExcelDbContext();
 
-            return db.Signups.ToList();
-        }
-
-        public void CRUDSignUps(string nameOfEntriesToDelete)
-        {
-            using var db = new ExcelDbContext();
-
-            // Read & Update
-            var firstSignup = db.Signups.First();
-            firstSignup.PhoneNumber = GenerateRandomPhoneNumber();
-
-            // Add a new signup
-            db.Signups.Add(new SignupEntry
-            {
-                Id_ý = Guid.NewGuid().ToString("N")[..8],
-                Deleted_ý = false,
-                Name = "Emiel",
-                PhoneNumber = GenerateRandomPhoneNumber(),
-                PartySize = 2
-            });
-
-            // Additions
-            var additions = new List<SignupEntry>
-            {
-                new SignupEntry
-                {
-                    Id_ý = Guid.NewGuid().ToString("N")[..8],
-                    Deleted_ý = false,
-                    Name = "Robin",
-                    PhoneNumber = GenerateRandomPhoneNumber(),
-                    PartySize = 6
-                },
-                new SignupEntry
-                {
-                    Id_ý = Guid.NewGuid().ToString("N")[..8],
-                    Deleted_ý = false,
-                    Name = "Laurens",
-                    PhoneNumber = GenerateRandomPhoneNumber(),
-                    PartySize = 1
-                }
-            };
-
-            db.AddRange(additions);
-
-            // Deletions
-            var deletes = db.Signups.Where(x => x.Name.ToLower() == nameOfEntriesToDelete.ToLower());
-            db.Signups.RemoveRange(deletes);
-
-            db.SaveChanges(); // Inserts, updates AND deletes in one go
-        }
+            return db.SignUps.ToList();
+        }        
 
         private static string GenerateRandomPhoneNumber()
         {

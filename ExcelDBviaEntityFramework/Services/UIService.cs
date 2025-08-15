@@ -11,9 +11,9 @@
         private static class MenuOptions
         {
             public const string AddSignUp = "a";
+            public const string UpdateSignUp = "u";
             public const string DeleteSignUp = "d";
             public const string PrintSignUps = "p";
-            public const string CRUDSignUps = "c";
             public const string Help = "h";
             public const string Quit = "q";
         }
@@ -25,8 +25,8 @@
             _menuItems =
             [
                 new("Add sign up", MenuOptions.AddSignUp, AddSignUp),
+                new("Update sign up", MenuOptions.UpdateSignUp, UpdateSignUp),
                 new("Delete sign up", MenuOptions.DeleteSignUp, DeleteSignUp),
-                new("CRUD sign ups", MenuOptions.CRUDSignUps, CRUDSignUps),
                 new("Print sign ups", MenuOptions.PrintSignUps, PrintSignUps),
                 new("Help", MenuOptions.Help, ShowHelp),
                 new("Quit", MenuOptions.Quit, () => _quit = true)
@@ -91,6 +91,45 @@
             WriteLineColored($"Added sign up: {signUp}", ConsoleColor.Cyan);
         }
 
+        private void UpdateSignUp()
+        {
+            var id = GetUserInput("Id of sign up to update:");
+            var existing = _signUpService.GetSignUpById(id);
+
+            if (existing == null)
+            {
+                WriteLineColored($"Sign up with id '{id}' not found.", ConsoleColor.Magenta);
+                return;
+            }
+
+            WriteLineColored($"Current: {existing}", ConsoleColor.Cyan);
+
+            var newName = GetUserInput($"New name (leave empty to keep '{existing.Name}'):");
+            var newPhone = GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
+            string partySizeInput = GetUserInput($"New party size (leave empty to keep {existing.PartySize}):");
+
+            int partySize = existing.PartySize;
+            if (!string.IsNullOrWhiteSpace(partySizeInput))
+            {
+                if (int.TryParse(partySizeInput, out int parsed)) partySize = parsed;
+                else
+                {
+                    WriteLineColored("Invalid number entered for party size. Keeping old value.", ConsoleColor.Magenta);
+                }
+            }
+
+            var updated = _signUpService.UpdateSignup(
+                id,
+                string.IsNullOrWhiteSpace(newName) ? existing.Name : newName,
+                string.IsNullOrWhiteSpace(newPhone) ? existing.PhoneNumber : newPhone,
+                partySize
+            );
+
+            if (updated != null)
+                WriteLineColored($"Sign up updated successfully:\r\n{updated}", ConsoleColor.Cyan);
+            else
+                WriteLineColored("Update failed.", ConsoleColor.Magenta);
+        }
 
         private void DeleteSignUp()
         {
@@ -101,40 +140,6 @@
             var message = result ? "The Sign up is deleted" : $"Sign up with id '{id}' could not be found.";
 
             WriteLineColored($"{message}", ConsoleColor.Cyan);
-        }
-
-        private void CRUDSignUps()
-        {
-            var firstSignup = _signUpService.GetSignups().FirstOrDefault();
-
-            if (firstSignup == null)
-            {
-                WriteLineColored("Database is empty. This functionality requires at least one entry.", ConsoleColor.Magenta);
-                return;
-            }
-
-            WriteLineColored($"Testing all CRUD operations...", ConsoleColor.Cyan);
-
-            var nameOfEntriesToDelete = GetUserInput($"Enter the name of the sign up(s) to delete (not '{firstSignup.Name}'):");
-
-            if (firstSignup.Name.ToLower() == nameOfEntriesToDelete.ToLower())
-            {
-                WriteLineColored($"The name can not be '{firstSignup.Name}'! You thick?", ConsoleColor.Magenta);
-                return;
-            }
-
-
-            _signUpService.CRUDSignUps(nameOfEntriesToDelete);
-
-            var updatedSignup = _signUpService.GetSignUpByName(firstSignup.Name);
-
-            WriteLineColored($"Before update: {firstSignup}", ConsoleColor.Cyan);
-            WriteLineColored($"After update: {updatedSignup}", ConsoleColor.Cyan);
-
-            var signups = _signUpService.GetSignups();
-
-            WriteLineColored($"Count: {signups.Count}", ConsoleColor.Cyan);
-            WriteLineColored($"Avg party size: {signups.Average(se => se.PartySize)}", ConsoleColor.Cyan);
         }
 
         private void PrintSignUps()
