@@ -1,6 +1,6 @@
 ﻿namespace ExcelDBviaEntityFramework
 {
-    public static class FileResolver
+    public static class FileHelper
     {
         public static string ResolveExcelPath(string fileName)
         {

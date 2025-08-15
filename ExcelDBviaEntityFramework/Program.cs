@@ -1,5 +1,12 @@
 ﻿using ExcelDBviaEntityFramework.Models;
 
+// TODO
+// refactor
+// unit tests
+// log sheet
+// on close: delete all xl rows physically
+
+
 namespace ExcelDBviaEntityFramework
 {
     // https://www.bricelam.net/2024/03/12/ef-xlsx.html
@@ -8,25 +15,26 @@ namespace ExcelDBviaEntityFramework
     {
         static void Main(string[] args)
         {
-            var fullPathExcel = FileResolver.ResolveExcelPath("Signups.xlsx");
+            var fullPathExcel = FileHelper.ResolveExcelPath("Signups.xlsx");
 
-            if (FileResolver.IsExcelFileInUse(fullPathExcel))
+            if (FileHelper.IsExcelFileInUse(fullPathExcel))
             {
                 Console.WriteLine("Excel file is currently in use. Please close it and try again.");
                 return;
             }
 
-            RunExcelviaEFCore();
+            Run();
         }
 
-        private static void RunExcelviaEFCore()
+        private static void Run()
         {
             using var db = new SignupContext();
 
             // Add a new signup
             db.Signups.Add(new SignupEntry
             {
-                Id = Guid.NewGuid().ToString("N").Substring(0, 8),
+                Id_ý = Guid.NewGuid().ToString("N").Substring(0, 8),
+                Deleted_ý = false,
                 Name = "emiel",
                 PhoneNumber = "555-1212",
                 PartySize = 5
@@ -34,37 +42,26 @@ namespace ExcelDBviaEntityFramework
 
             // Update an existing signup
             var firstSignup = db.Signups.First();
-            firstSignup.PhoneNumber = "123-456-7003";
-
-            // Delete a signup(s)
-            //var signupToDelete = db.Signups.FirstOrDefault(s => s.Id == "a2429330");
-            //if (signupToDelete != null)
-            //    db.Signups.Remove(signupToDelete);
+            firstSignup.PhoneNumber = "123-456-7005";
 
             var additions = new List<SignupEntry>
             {
-    new SignupEntry
+                new SignupEntry
                 {
-                    Id = Guid.NewGuid().ToString("N").Substring(0, 8),
+                    Id_ý = Guid.NewGuid().ToString("N").Substring(0, 8),
+                    Deleted_ý = false,
                     Name = "robin 1",
                     PhoneNumber = "555-a",
-                    PartySize = 5
-                },
-    new SignupEntry
-                {
-                    Id = Guid.NewGuid().ToString("N").Substring(0, 8),
-                    Name = "robin 2",
-                    PhoneNumber = "555-b",
                     PartySize = 5
                 }
             };
 
             db.AddRange(additions);
 
-            var deletes = db.Signups.Where(x => x.Name.Contains("Charlie"));
+            var deletes = db.Signups.Where(x => x.Name.Contains("David"));
             db.Signups.RemoveRange(deletes);
 
-            db.SaveChanges(); // Inserts, updates AND DELETES in one go
+            db.SaveChanges(); // Inserts, updates AND deletes in one go
 
             // Re-read to confirm
             var updatedSignup = db.Signups.FirstOrDefault(s => s.Name == firstSignup.Name);

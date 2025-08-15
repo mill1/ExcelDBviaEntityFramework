@@ -7,7 +7,9 @@ namespace ExcelDBviaEntityFramework.Models
     public class SignupEntry
     {
         [Key]
-        public string Id { get; set; }
+        public required string Id_ý { get; set; }
+
+        public required bool Deleted_ý {  get; set; }
 
         public string? Name { get; set; }
 
