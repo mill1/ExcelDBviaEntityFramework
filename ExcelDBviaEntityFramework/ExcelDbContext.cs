@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace ExcelDBviaEntityFramework
 {
-    public class SignupContext : DbContext
+    public class ExcelDbContext : DbContext
     {
         public DbSet<SignupEntry> Signups { get; set; }
 
@@ -22,11 +22,9 @@ namespace ExcelDBviaEntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<SignupEntry>()
-                .HasKey(s => s.Id_ý);
-
-            modelBuilder.Entity<SignupEntry>()
-                .HasQueryFilter(e => !e.Deleted_ý);
+            modelBuilder.Entity<SignupEntry>().ToTable("Sheet1$");
+            modelBuilder.Entity<SignupEntry>().HasKey(s => s.Id_ý);
+            modelBuilder.Entity<SignupEntry>().HasQueryFilter(e => !e.Deleted_ý);
         }
 
         public override int SaveChanges()
@@ -79,7 +77,7 @@ namespace ExcelDBviaEntityFramework
         private int SaveAdditions(DbConnection connection, EntityEntry<SignupEntry> entry)
         {
             if (string.IsNullOrEmpty((string?)entry.CurrentValues[nameof(SignupEntry.Id_ý)]))
-                entry.CurrentValues[nameof(SignupEntry.Id_ý)] = Guid.NewGuid().ToString("N").Substring(0, 8);
+                entry.CurrentValues[nameof(SignupEntry.Id_ý)] = Guid.NewGuid().ToString("N")[..8];
 
             entry.CurrentValues[nameof(SignupEntry.Deleted_ý)] = false;
 
@@ -154,5 +152,4 @@ namespace ExcelDBviaEntityFramework
             cmd.ExecuteNonQuery();
         }
     }
-
 }
