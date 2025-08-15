@@ -76,14 +76,16 @@ namespace ExcelDBviaEntityFramework.UI
         {
             var signups = _signupService.GetSignups();
 
-            WriteLineColored($"Current sign ups:", ConsoleColor.Cyan);
-            WriteLineColored(new string('-', 35), ConsoleColor.Cyan);
+            var maxLength = signups.Max(s => $"{s.Name}{s.PhoneNumber}{s.PartySize}".Length) + 16;
 
-            foreach (var entry in signups)
+            WriteLineColored($"Current sign ups:", ConsoleColor.Cyan);
+            WriteLineColored(new string('-', maxLength), ConsoleColor.Cyan);
+
+            foreach (var signup in signups)
             {
-                WriteLineColored($"* {entry}", ConsoleColor.Cyan);
+                WriteLineColored($"* {signup}", ConsoleColor.Cyan);
             }
-            WriteLineColored(new string('-', 35), ConsoleColor.Cyan);
+            WriteLineColored(new string('-', maxLength), ConsoleColor.Cyan);
             WriteLineColored($"Number of sign ups: {signups.Count}", ConsoleColor.Cyan);
         }
 

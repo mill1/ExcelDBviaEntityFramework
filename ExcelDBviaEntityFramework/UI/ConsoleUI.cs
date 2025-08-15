@@ -66,7 +66,7 @@ namespace ExcelDBviaEntityFramework.UI
             {
                 PrintMenuOptions();
 
-                // TODO: Console. calls verplaatsen naar centrale UIHelper class, ook aanpassen in UIActions
+                // TODO: Console. calls verplaatsen naar centrale UIHelper class, ook aanpassen in UIActions. Ext.methods?
                 Console.ForegroundColor = ConsoleColor.White;
                 string option = Console.ReadLine()?.Trim() ?? string.Empty;
 
