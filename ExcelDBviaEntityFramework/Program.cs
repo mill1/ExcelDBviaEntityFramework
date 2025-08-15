@@ -1,38 +1,29 @@
-﻿using ExcelDBviaEntityFramework.Models;
+﻿using ExcelDBviaEntityFramework.Helpers;
+using ExcelDBviaEntityFramework.Models;
+
+// TODO
+// unit tests
+// log sheet???
+// on close: delete all xl rows physically
+
 
 namespace ExcelDBviaEntityFramework
 {
-    class Program
+    // https://www.bricelam.net/2024/03/12/ef-xlsx.html
+
+    public class Program
     {
-        static void Main()
+        static void Main(string[] args)
         {
-            // Example operations
-            AddSignup("Alice", "555-1234", 2);
-            AddSignup( "Bob", "555-9876", 4);
-            PrintSignups();
-        }
+            var fullPathExcel = FileHelper.ResolveExcelPath("Signups.xlsx");
 
-        static void AddSignup(string name, string phone, double partySize)
-        {
-            using var db = new ExcelDbContext();
-            db.Signups.Add(new SignupEntry
+            if (FileHelper.IsExcelFileInUse(fullPathExcel))
             {
-                Id_ý = Guid.NewGuid().ToString("N")[..8],
-                Deleted_ý = false,
-                Name = name,
-                PhoneNumber = phone,
-                PartySize = partySize
-            });
-            db.SaveChanges();
-        }
-
-        static void PrintSignups()
-        {
-            using var db = new ExcelDbContext();
-            foreach (var s in db.Signups)
-            {
-                Console.WriteLine($"{s.Id_ý}: {s.Name} ({s.PartySize})");
+                Console.WriteLine("Excel file is currently in use. Please close it and try again.");
+                return;
             }
+
+            new Runner().Run();
         }
     }
 }

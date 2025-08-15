@@ -1,4 +1,5 @@
-﻿using ExcelDBviaEntityFramework.Models;
+﻿using ExcelDBviaEntityFramework.Helpers;
+using ExcelDBviaEntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,12 +14,11 @@ namespace ExcelDBviaEntityFramework
         public DbSet<SignupEntry> Signups { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseJet(
-                $"""
-            Provider = Microsoft.ACE.OLEDB.12.0;
-            Data Source = {FileHelper.ResolveExcelPath("Signups.xlsx")};
-            Extended Properties = 'Excel 12.0 Xml';
-            """);
+            => options.UseJet($"""
+            Provider=Microsoft.ACE.OLEDB.12.0;
+            Data Source={FileHelper.ResolveExcelPath("Signups.xlsx")};
+            Extended Properties='Excel 12.0 Xml;HDR=YES';
+        """);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,26 +29,20 @@ namespace ExcelDBviaEntityFramework
 
         public override int SaveChanges()
         {
-            var affectedRows = 0;
-            var connection = Database.GetDbConnection();
-
-            if (connection.State != System.Data.ConnectionState.Open)
-                connection.Open();
+            int affectedRows = 0;
 
             foreach (var entry in ChangeTracker.Entries<SignupEntry>().ToList())
             {
                 switch (entry.State)
                 {
                     case EntityState.Modified:
-                        affectedRows += SaveModifications(connection, entry);
+                        affectedRows += SaveModifications(entry);
                         break;
-
                     case EntityState.Added:
-                        affectedRows += SaveAdditions(connection, entry);
+                        affectedRows += SaveAdditions(entry);
                         break;
-
                     case EntityState.Deleted:
-                        affectedRows += SaveSoftDeletion(connection, entry);
+                        affectedRows += SaveSoftDeletion(entry);
                         break;
                 }
 
@@ -60,21 +54,7 @@ namespace ExcelDBviaEntityFramework
 
         // ---------- Core Actions ----------
 
-        private int SaveSoftDeletion(DbConnection connection, EntityEntry<SignupEntry> entry)
-        {
-            var sql = "UPDATE [Sheet1$] SET [Deleted_ý] = @deleted WHERE [Id_ý] = @id";
-            var parameters = new List<(string, object)>
-        {
-            ("@deleted", true),
-            ("@id", entry.OriginalValues[nameof(SignupEntry.Id_ý)])
-        };
-
-            ExecuteCommand(connection, sql, parameters);
-            entry.State = EntityState.Detached;
-            return 1;
-        }
-
-        private int SaveAdditions(DbConnection connection, EntityEntry<SignupEntry> entry)
+        private int SaveAdditions(EntityEntry<SignupEntry> entry)
         {
             if (string.IsNullOrEmpty((string?)entry.CurrentValues[nameof(SignupEntry.Id_ý)]))
                 entry.CurrentValues[nameof(SignupEntry.Id_ý)] = Guid.NewGuid().ToString("N")[..8];
@@ -82,24 +62,38 @@ namespace ExcelDBviaEntityFramework
             entry.CurrentValues[nameof(SignupEntry.Deleted_ý)] = false;
 
             var (columns, parameters) = BuildParametersFromProperties(entry, includeAll: true);
-            var sql = $"INSERT INTO [Sheet1$] ({string.Join(", ", columns)}) VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
+            string sql = $"INSERT INTO [Sheet1$] ({string.Join(", ", columns)}) VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
 
-            ExecuteCommand(connection, sql, parameters);
+            ExecuteCommand(sql, parameters);
             entry.State = EntityState.Unchanged;
             return 1;
         }
 
-        private int SaveModifications(DbConnection connection, EntityEntry<SignupEntry> entry)
+        private int SaveModifications(EntityEntry<SignupEntry> entry)
         {
             var (setClauses, parameters) = BuildParametersFromProperties(entry, includeAll: false);
             if (!setClauses.Any())
                 return 0;
 
-            var sql = $"UPDATE [Sheet1$] SET {string.Join(", ", setClauses)} WHERE [Id_ý] = @id";
             parameters.Add(("@id", entry.OriginalValues[nameof(SignupEntry.Id_ý)]));
+            string sql = $"UPDATE [Sheet1$] SET {string.Join(", ", setClauses)} WHERE [{nameof(SignupEntry.Id_ý)}] = @id";
 
-            ExecuteCommand(connection, sql, parameters);
+            ExecuteCommand(sql, parameters);
             entry.State = EntityState.Unchanged;
+            return 1;
+        }
+
+        private int SaveSoftDeletion(EntityEntry<SignupEntry> entry)
+        {
+            string sql = $"UPDATE [Sheet1$] SET [{nameof(SignupEntry.Deleted_ý)}] = @deleted WHERE [{nameof(SignupEntry.Id_ý)}] = @id";
+            var parameters = new List<(string, object)>
+        {
+            ("@deleted", true),
+            ("@id", entry.OriginalValues[nameof(SignupEntry.Id_ý)])
+        };
+
+            ExecuteCommand(sql, parameters);
+            entry.State = EntityState.Detached;
             return 1;
         }
 
@@ -121,9 +115,9 @@ namespace ExcelDBviaEntityFramework
                     continue;
 
                 var columnAttr = prop.GetCustomAttribute<ColumnAttribute>();
-                var columnName = columnAttr?.Name ?? prop.Name;
-                var paramName = $"@p{index++}";
-                var value = entry.CurrentValues[prop.Name] ?? DBNull.Value;
+                string columnName = columnAttr?.Name ?? prop.Name;
+                string paramName = $"@p{index++}";
+                object value = entry.CurrentValues[prop.Name] ?? DBNull.Value;
 
                 if (includeAll)
                     resultList.Add($"[{columnName}]");
@@ -136,9 +130,9 @@ namespace ExcelDBviaEntityFramework
             return (resultList, parameters);
         }
 
-        private void ExecuteCommand(DbConnection connection, string sql, List<(string Name, object Value)> parameters)
+        private void ExecuteCommand(string sql, List<(string Name, object Value)> parameters)
         {
-            using var cmd = connection.CreateCommand();
+            using var cmd = Database.GetDbConnection().CreateCommand();
             cmd.CommandText = sql;
 
             foreach (var (name, value) in parameters)
@@ -148,6 +142,9 @@ namespace ExcelDBviaEntityFramework
                 p.Value = value;
                 cmd.Parameters.Add(p);
             }
+
+            if (cmd.Connection.State != ConnectionState.Open)
+                cmd.Connection.Open();
 
             cmd.ExecuteNonQuery();
         }

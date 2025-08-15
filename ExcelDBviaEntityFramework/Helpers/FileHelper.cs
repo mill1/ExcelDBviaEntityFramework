@@ -1,4 +1,4 @@
-﻿namespace ExcelDBviaEntityFramework
+﻿namespace ExcelDBviaEntityFramework.Helpers
 {
     public static class FileHelper
     {

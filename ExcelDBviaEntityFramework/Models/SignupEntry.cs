@@ -17,6 +17,26 @@ namespace ExcelDBviaEntityFramework.Models
         public string? PhoneNumber { get; set; }
 
         [Column("Party size")]
-        public double PartySize { get; set; }
+        public int PartySize { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+
+            if(ReferenceEquals(this, obj)) return true;
+
+            var other = (SignupEntry)obj;
+
+            return other.Id_ý == this.Id_ý &&
+                other.Name == this.Name &&
+                other.Deleted_ý == this.Deleted_ý &&
+                other.PhoneNumber == this.PhoneNumber &&
+                other.PartySize == this.PartySize;
+        }
+
+        public override string? ToString()
+        {
+            return $"{Id_ý}: {Name} {PhoneNumber} ({PartySize})";
+        }
     }
 }
