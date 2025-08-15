@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Data.Common;
 using System.Reflection;
 
 namespace ExcelDBviaEntityFramework
@@ -143,8 +142,8 @@ namespace ExcelDBviaEntityFramework
                 cmd.Parameters.Add(p);
             }
 
-            if (cmd.Connection.State != ConnectionState.Open)
-                cmd.Connection.Open();
+            if (cmd.Connection?.State != ConnectionState.Open)
+                cmd.Connection?.Open();
 
             cmd.ExecuteNonQuery();
         }

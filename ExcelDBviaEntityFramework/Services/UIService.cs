@@ -1,8 +1,6 @@
-﻿using ExcelDBviaEntityFramework.Services;
-
-namespace ExcelDBviaEntityFramework
+﻿namespace ExcelDBviaEntityFramework.Services
 {
-    public class Runner
+    public class UIService
     {
         private readonly Dictionary<string, Action> _menuOptions;
         private readonly List<MenuItem> _menuItems;
@@ -20,7 +18,7 @@ namespace ExcelDBviaEntityFramework
             public const string Quit = "q";
         }
 
-        public Runner()
+        public UIService()
         {
             _signUpService = new SignupService();
 
@@ -28,7 +26,7 @@ namespace ExcelDBviaEntityFramework
             [
                 new("Add sign up", MenuOptions.AddSignUp, AddSignUp),
                 new("Delete sign up", MenuOptions.DeleteSignUp, DeleteSignUp),
-                new("CRUD sign up", MenuOptions.CRUDSignUps, CRUDSignUps),
+                new("CRUD sign ups", MenuOptions.CRUDSignUps, CRUDSignUps),
                 new("Print sign ups", MenuOptions.PrintSignUps, PrintSignUps),
                 new("Help", MenuOptions.Help, ShowHelp),
                 new("Quit", MenuOptions.Quit, () => _quit = true)
@@ -37,7 +35,7 @@ namespace ExcelDBviaEntityFramework
             _menuOptions = _menuItems.ToDictionary(m => m.Key, m => m.Action, StringComparer.OrdinalIgnoreCase);
         }
 
-        public void Run()
+        public void RunUI()
         {
             try
             {
@@ -100,7 +98,7 @@ namespace ExcelDBviaEntityFramework
 
             bool result = _signUpService.DeleteSignup(id);
 
-            var message = result ? "The Sign up is deleted" : $"Sign up with id {id} could not be found.";
+            var message = result ? "The Sign up is deleted" : $"Sign up with id '{id}' could not be found.";
 
             WriteLineColored($"{message}", ConsoleColor.Cyan);
         }
@@ -115,7 +113,7 @@ namespace ExcelDBviaEntityFramework
                 return;
             }
 
-            WriteLineColored($"Testing all CRUD operations...", ConsoleColor.Cyan);            
+            WriteLineColored($"Testing all CRUD operations...", ConsoleColor.Cyan);
 
             var nameOfEntriesToDelete = GetUserInput($"Enter the name of the sign up(s) to delete (not '{firstSignup.Name}'):");
 
@@ -148,7 +146,7 @@ namespace ExcelDBviaEntityFramework
 
             foreach (var entry in signUps)
             {
-                WriteLineColored($"\t{entry}", ConsoleColor.Cyan);
+                WriteLineColored($"* {entry}", ConsoleColor.Cyan);
             }
             WriteLineColored(new string('-', LineWidth), ConsoleColor.Cyan);
             WriteLineColored($"Number of sign ups: {signUps.Count}", ConsoleColor.Cyan);
@@ -176,12 +174,12 @@ namespace ExcelDBviaEntityFramework
         {
             if (!string.IsNullOrWhiteSpace(prompt))
             {
-                WriteLineColored(prompt, ConsoleColor.Yellow);
+                WriteLineColored(prompt, ConsoleColor.Cyan);
             }
 
             Console.ForegroundColor = ConsoleColor.White;
 
-            return Console.ReadLine()?.Trim().ToLowerInvariant() ?? string.Empty;
+            return Console.ReadLine()?.Trim() ?? string.Empty;
         }
 
         private static void WriteLineColored(string message, ConsoleColor color)

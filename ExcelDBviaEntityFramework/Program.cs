@@ -1,5 +1,5 @@
 ﻿using ExcelDBviaEntityFramework.Helpers;
-using ExcelDBviaEntityFramework.Models;
+using ExcelDBviaEntityFramework.Services;
 
 // TODO
 // unit tests
@@ -23,7 +23,7 @@ namespace ExcelDBviaEntityFramework
                 return;
             }
 
-            new Runner().Run();
+            new UIService().RunUI();
         }
     }
 }
