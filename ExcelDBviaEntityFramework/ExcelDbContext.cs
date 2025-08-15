@@ -10,27 +10,39 @@ namespace ExcelDBviaEntityFramework
 {
     public class ExcelDbContext : DbContext
     {
-        public DbSet<SignupEntry> SignUps { get; set; }
+        private const string ExcelFileName = "Signups.xlsx";
+
+        public ExcelDbContext()
+        {
+            var fullPathExcel = FileHelper.ResolveExcelPath(ExcelFileName);
+
+            if (FileHelper.IsExcelFileInUse(fullPathExcel))
+            {
+                throw new DBConcurrencyException($"Excel file is currently in use. Please close it and try again.\r\nPath: {fullPathExcel}");                
+            }
+        }
+
+        public DbSet<Signup> Signups { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseJet($"""
             Provider=Microsoft.ACE.OLEDB.12.0;
-            Data Source={FileHelper.ResolveExcelPath("Signups.xlsx")};
+            Data Source={FileHelper.ResolveExcelPath(ExcelFileName)};
             Extended Properties='Excel 12.0 Xml;HDR=YES';
         """);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<SignupEntry>().ToTable("Sheet1$");
-            modelBuilder.Entity<SignupEntry>().HasKey(s => s.Id_ý);
-            modelBuilder.Entity<SignupEntry>().HasQueryFilter(e => !e.Deleted_ý);
+            modelBuilder.Entity<Signup>().ToTable(Constants.SheetName);
+            modelBuilder.Entity<Signup>().HasKey(s => s.Id_ý);
+            modelBuilder.Entity<Signup>().HasQueryFilter(e => !e.Deleted_ý);
         }
 
         public override int SaveChanges()
         {
             int affectedRows = 0;
 
-            foreach (var entry in ChangeTracker.Entries<SignupEntry>().ToList())
+            foreach (var entry in ChangeTracker.Entries<Signup>().ToList())
             {
                 switch (entry.State)
                 {
@@ -53,12 +65,12 @@ namespace ExcelDBviaEntityFramework
 
         // ---------- Core Actions ----------
 
-        private int SaveAdditions(EntityEntry<SignupEntry> entry)
+        private int SaveAdditions(EntityEntry<Signup> entry)
         {
-            if (string.IsNullOrEmpty((string?)entry.CurrentValues[nameof(SignupEntry.Id_ý)]))
-                entry.CurrentValues[nameof(SignupEntry.Id_ý)] = Guid.NewGuid().ToString("N")[..8];
+            if (string.IsNullOrEmpty((string?)entry.CurrentValues[nameof(Signup.Id_ý)]))
+                entry.CurrentValues[nameof(Signup.Id_ý)] = Guid.NewGuid().ToString("N")[..8];
 
-            entry.CurrentValues[nameof(SignupEntry.Deleted_ý)] = false;
+            entry.CurrentValues[nameof(Signup.Deleted_ý)] = false;
 
             var (columns, parameters) = BuildParametersFromProperties(entry, includeAll: true);
             string sql = $"INSERT INTO [Sheet1$] ({string.Join(", ", columns)}) VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
@@ -68,27 +80,27 @@ namespace ExcelDBviaEntityFramework
             return 1;
         }
 
-        private int SaveModifications(EntityEntry<SignupEntry> entry)
+        private int SaveModifications(EntityEntry<Signup> entry)
         {
             var (setClauses, parameters) = BuildParametersFromProperties(entry, includeAll: false);
             if (!setClauses.Any())
                 return 0;
 
-            parameters.Add(("@id", entry.OriginalValues[nameof(SignupEntry.Id_ý)]));
-            string sql = $"UPDATE [Sheet1$] SET {string.Join(", ", setClauses)} WHERE [{nameof(SignupEntry.Id_ý)}] = @id";
+            parameters.Add(("@id", entry.OriginalValues[nameof(Signup.Id_ý)]));
+            string sql = $"UPDATE [Sheet1$] SET {string.Join(", ", setClauses)} WHERE [{nameof(Signup.Id_ý)}] = @id";
 
             ExecuteCommand(sql, parameters);
             entry.State = EntityState.Unchanged;
             return 1;
         }
 
-        private int SaveSoftDeletion(EntityEntry<SignupEntry> entry)
+        private int SaveSoftDeletion(EntityEntry<Signup> entry)
         {
-            string sql = $"UPDATE [Sheet1$] SET [{nameof(SignupEntry.Deleted_ý)}] = @deleted WHERE [{nameof(SignupEntry.Id_ý)}] = @id";
+            string sql = $"UPDATE [Sheet1$] SET [{nameof(Signup.Deleted_ý)}] = @deleted WHERE [{nameof(Signup.Id_ý)}] = @id";
             var parameters = new List<(string, object)>
         {
             ("@deleted", true),
-            ("@id", entry.OriginalValues[nameof(SignupEntry.Id_ý)])
+            ("@id", entry.OriginalValues[nameof(Signup.Id_ý)])
         };
 
             ExecuteCommand(sql, parameters);
@@ -99,15 +111,15 @@ namespace ExcelDBviaEntityFramework
         // ---------- Helpers ----------
 
         private (List<string> ColumnsOrSetClauses, List<(string Name, object Value)> Parameters)
-            BuildParametersFromProperties(EntityEntry<SignupEntry> entry, bool includeAll)
+            BuildParametersFromProperties(EntityEntry<Signup> entry, bool includeAll)
         {
             var resultList = new List<string>();
             var parameters = new List<(string Name, object Value)>();
             int index = 0;
 
-            foreach (var prop in typeof(SignupEntry).GetProperties())
+            foreach (var prop in typeof(Signup).GetProperties())
             {
-                if (!includeAll && prop.Name == nameof(SignupEntry.Id_ý))
+                if (!includeAll && prop.Name == nameof(Signup.Id_ý))
                     continue;
 
                 if (!includeAll && !entry.Property(prop.Name).IsModified)

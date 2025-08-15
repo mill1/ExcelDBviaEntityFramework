@@ -1,5 +1,5 @@
-﻿using ExcelDBviaEntityFramework.Helpers;
-using ExcelDBviaEntityFramework.Services;
+﻿using ExcelDBviaEntityFramework.Services;
+using ExcelDBviaEntityFramework.UI;
 
 // TODO
 // unit tests
@@ -15,15 +15,7 @@ namespace ExcelDBviaEntityFramework
     {
         static void Main(string[] args)
         {
-            var fullPathExcel = FileHelper.ResolveExcelPath("Signups.xlsx");
-
-            if (FileHelper.IsExcelFileInUse(fullPathExcel))
-            {
-                Console.WriteLine("Excel file is currently in use. Please close it and try again.");
-                return;
-            }
-
-            new UIService().RunUI();
+            new ConsoleUI(new SignupService()).Run();
         }
     }
 }

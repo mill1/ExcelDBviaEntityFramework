@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExcelDBviaEntityFramework.Models
 {
-    [Table("Sheet1$")]
-    public class SignupEntry
+    [Table(Constants.SheetName)]
+    public class Signup
     {
         [Key]
         public required string Id_ý { get; set; }
@@ -18,21 +18,6 @@ namespace ExcelDBviaEntityFramework.Models
 
         [Column("Party size")]
         public int PartySize { get; set; }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
-
-            if(ReferenceEquals(this, obj)) return true;
-
-            var other = (SignupEntry)obj;
-
-            return other.Id_ý == this.Id_ý &&
-                other.Name == this.Name &&
-                other.Deleted_ý == this.Deleted_ý &&
-                other.PhoneNumber == this.PhoneNumber &&
-                other.PartySize == this.PartySize;
-        }
 
         public override string? ToString()
         {
