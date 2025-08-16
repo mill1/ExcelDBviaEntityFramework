@@ -18,8 +18,7 @@ It provides a simple **console user interface** for managing signups (add, updat
 
 *   **.NET 8 SDK** (or later)
 *   **Microsoft ACE OLEDB 12.0 provider** installed (required for Excel/Jet access)
-*   Excel file placed in the folder:
-*   ./Excel files/YourExcelFile.xlsx
+*   Excel file placed in the folder: ./Excel files/YourExcelFile.xlsx
 
 **Excel file requirements**
 
