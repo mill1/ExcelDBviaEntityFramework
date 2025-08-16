@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Data;
 
-namespace ExcelDBviaEntityFramework
+namespace ExcelDBviaEntityFramework.Data
 {
     public class ExcelDbContext : DbContext
     {       

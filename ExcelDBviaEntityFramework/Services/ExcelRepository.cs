@@ -2,10 +2,11 @@
 using System.Data.Common;
 using System.Data;
 using System.Reflection;
+using ExcelDBviaEntityFramework.Interfaces;
 
 namespace ExcelDBviaEntityFramework.Services
 {
-    public class ExcelRepository
+    public class ExcelRepository : ISignupRepository
     {
         private readonly DbConnection _connection;
 

@@ -1,6 +1,7 @@
 ﻿using ExcelDBviaEntityFramework.Interfaces;
+using ExcelDBviaEntityFramework.UI;
 
-namespace ExcelDBviaEntityFramework.UI
+namespace ExcelDBviaEntityFramework.Services
 {
     public class UIActions
     {        
