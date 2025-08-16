@@ -1,13 +1,11 @@
-﻿namespace ExcelDBviaEntityFramework.Helpers
+﻿namespace ExcelDBviaEntityFramework
 {
     public static class FileHelper
     {
         public static string ResolveExcelPath(string fileName)
         {
-            // Base directory of the current application domain
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-            // Combine base directory with the file name
             var fullPath = Path.Combine(baseDir, "Excel files", fileName);
 
             if (!File.Exists(fullPath))
@@ -26,11 +24,11 @@
                     FileMode.Open,
                     FileAccess.ReadWrite,
                     FileShare.None); // No sharing allowed
-                return false; // Successfully opened → not in use
+                return false; 
             }
             catch (IOException)
             {
-                return true; // IOException → file is locked
+                return true;
             }
         }
     }

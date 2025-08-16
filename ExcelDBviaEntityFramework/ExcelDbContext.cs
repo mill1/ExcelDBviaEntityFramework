@@ -1,5 +1,4 @@
-﻿using ExcelDBviaEntityFramework.Helpers;
-using ExcelDBviaEntityFramework.Models;
+﻿using ExcelDBviaEntityFramework.Models;
 using ExcelDBviaEntityFramework.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -8,24 +7,16 @@ using System.Data;
 namespace ExcelDBviaEntityFramework
 {
     public class ExcelDbContext : DbContext
-    {
-        private const string ExcelFileName = "Signups.xlsx";
-
-        public ExcelDbContext()
+    {       
+        public ExcelDbContext(DbContextOptions<ExcelDbContext> options)
+        : base(options)
         {
-            var fullPathExcel = FileHelper.ResolveExcelPath(ExcelFileName);
+            var fullPathExcel = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
             if (FileHelper.IsExcelFileInUse(fullPathExcel))
                 throw new DBConcurrencyException($"Excel file is currently in use. Please close it.\r\nPath: {fullPathExcel}");
         }
 
         public DbSet<Signup> Signups { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseJet($"""
-            Provider=Microsoft.ACE.OLEDB.12.0;
-            Data Source={FileHelper.ResolveExcelPath(ExcelFileName)};
-            Extended Properties='Excel 12.0 Xml;HDR=YES';
-        """);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

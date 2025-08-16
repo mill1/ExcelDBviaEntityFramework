@@ -1,4 +1,4 @@
-﻿using ExcelDBviaEntityFramework.Services;
+﻿using ExcelDBviaEntityFramework.Interfaces;
 
 namespace ExcelDBviaEntityFramework.UI
 {
@@ -7,7 +7,7 @@ namespace ExcelDBviaEntityFramework.UI
         private const int LineWidth = 40;
         private readonly Dictionary<string, Action> _menuOptions;
         private readonly List<MenuItem> _menuItems;
-        private readonly SignupService _signupService;
+        private readonly ISignupService _signupService;
         private readonly UIActions _actions;
         private bool _quit;
 
@@ -21,7 +21,7 @@ namespace ExcelDBviaEntityFramework.UI
             public const string Quit = "q";
         }
 
-        public ConsoleUI(SignupService signupService)
+        public ConsoleUI(ISignupService signupService)
         {
             _signupService = signupService;
             _actions = new UIActions(signupService);

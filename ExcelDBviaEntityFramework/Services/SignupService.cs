@@ -1,21 +1,25 @@
 ﻿
+using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 
 namespace ExcelDBviaEntityFramework.Services
 {
-    public class SignupService
+    public class SignupService : ISignupService
     {
-        public Signup GetSignupById(string id)
-        {           
-            using var db = new ExcelDbContext();
+        private readonly ExcelDbContext _db;
 
-            return db.Signups.FirstOrDefault(s => s.Id_ý == id);
+        public SignupService(ExcelDbContext db)
+        {
+            _db = db;
+        }
+
+        public Signup GetSignupById(string id)
+        {
+            return _db.Signups.FirstOrDefault(s => s.Id_ý == id);
         }
 
         public Signup AddSignup(string name, string phone, int partySize)
         {
-            using var db = new ExcelDbContext();
-
             var newSignup = new Signup
             {
                 Id_ý = Guid.NewGuid().ToString("N")[..8],
@@ -25,17 +29,15 @@ namespace ExcelDBviaEntityFramework.Services
                 PartySize = partySize
             };
 
-            db.Signups.Add(newSignup);
-            db.SaveChanges();
+            _db.Signups.Add(newSignup);
+            _db.SaveChanges();
 
             return newSignup;
         }
 
         public Signup UpdateSignup(string id, string name, string phone, int partySize)
         {
-            using var db = new ExcelDbContext();
-
-            var signup = db.Signups.FirstOrDefault(s => s.Id_ý == id);
+            var signup = _db.Signups.FirstOrDefault(s => s.Id_ý == id);
 
             if (signup == null)
                 return null;
@@ -44,31 +46,27 @@ namespace ExcelDBviaEntityFramework.Services
             signup.PhoneNumber = phone;
             signup.PartySize = partySize;
 
-            db.SaveChanges();
+            _db.SaveChanges();
 
             return signup;
         }
 
         public bool DeleteSignup(string id)
         {
-            using var db = new ExcelDbContext();
-
-            var signup = db.Signups.Where(s => s.Id_ý == id).FirstOrDefault();    
+            var signup = _db.Signups.Where(s => s.Id_ý == id).FirstOrDefault();
 
             if (signup == null)
                 return false;
 
-            db.Signups.Remove(signup);
-            db.SaveChanges();
+            _db.Signups.Remove(signup);
+            _db.SaveChanges();
 
             return true;
         }
 
         public List<Signup> GetSignups()
         {
-            using var db = new ExcelDbContext();
-
-            return db.Signups.ToList();
-        }        
+            return [.. _db.Signups];
+        }
     }
 }

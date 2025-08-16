@@ -1,12 +1,12 @@
-﻿using ExcelDBviaEntityFramework.Services;
+﻿using ExcelDBviaEntityFramework.Interfaces;
 
 namespace ExcelDBviaEntityFramework.UI
 {
     public class UIActions
     {        
-        private readonly SignupService _signupService;
+        private readonly ISignupService _signupService;
 
-        public UIActions(SignupService signupService)
+        public UIActions(ISignupService signupService)
         {
             _signupService = signupService;
         }
