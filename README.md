@@ -64,4 +64,9 @@ An initial Excel file will be copied in the correct folder (/Excel files/).
 
 MIT License – feel free to use and adapt.
 
-<img width="600" alt="image" src="https://github.com/user-attachments/assets/21296658-58bb-4b62-a68b-7a9eab8afdb8" />
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/21296658-58bb-4b62-a68b-7a9eab8afdb8" />
+
+or
+
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/945380a5-0891-4785-8c6e-6717ea633fd3" />
+
