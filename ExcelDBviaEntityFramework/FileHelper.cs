@@ -1,4 +1,6 @@
-﻿namespace ExcelDBviaEntityFramework
+﻿using System.Data;
+
+namespace ExcelDBviaEntityFramework
 {
     public static class FileHelper
     {
@@ -14,7 +16,7 @@
             return fullPath;
         }
 
-        public static bool IsExcelFileInUse(string filePath)
+        public static void EnsureFileNotLocked(string filePath)
         {
             try
             {
@@ -24,12 +26,12 @@
                     FileMode.Open,
                     FileAccess.ReadWrite,
                     FileShare.None); // No sharing allowed
-                return false; 
             }
             catch (IOException)
             {
-                return true;
+                throw new DBConcurrencyException($"The Excel file is currently in use by another process. Check if the file is opened in Excel.\r\nPath: {filePath}");
             }
         }
+
     }
 }

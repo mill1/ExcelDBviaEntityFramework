@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 // unit tests
 // log sheet???
 // on close: delete all xl rows physically
+// IRepository interface
+// central lock chk
 
 namespace ExcelDBviaEntityFramework
 {
@@ -28,18 +30,18 @@ namespace ExcelDBviaEntityFramework
         private static IServiceCollection BuildServiceCollection()
         {
             IServiceCollection services = new ServiceCollection();
-
+           
             services
-                .AddSingleton<ConsoleUI>()
-                .AddScoped<ISignupService, SignupService>()
-                .AddDbContext<ExcelDbContext>(options =>
-                {
-                    options.UseJet($"""
-                        Provider=Microsoft.ACE.OLEDB.12.0;
-                        Data Source={FileHelper.ResolveExcelPath(Constants.ExcelFileName)};
-                        Extended Properties='Excel 12.0 Xml;HDR=YES';
-                    """);
-                });
+            .AddSingleton<ConsoleUI>()
+            .AddScoped<ISignupService, SignupService>()
+            .AddDbContext<ExcelDbContext>(options =>
+            {
+                options.UseJet($"""
+                    Provider=Microsoft.ACE.OLEDB.12.0;
+                    Data Source={FileHelper.ResolveExcelPath(Constants.ExcelFileName)};
+                    Extended Properties='Excel 12.0 Xml;HDR=YES';
+                """);
+            });
 
             return services;
         }

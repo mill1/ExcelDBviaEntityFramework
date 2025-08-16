@@ -7,25 +7,31 @@ namespace ExcelDBviaEntityFramework.Services
     public class UIActions
     {        
         private readonly ISignupService _signupService;
+        private readonly string _filePath;
 
         public UIActions(ISignupService signupService)
         {
+            _filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
             _signupService = signupService;
         }
 
         public void AddSignup()
         {
+            FileHelper.EnsureFileNotLocked(_filePath);
+
             var name = ConsoleHelper.GetUserInput("Name:");
             var phone = ConsoleHelper.GetUserInput("Phone:");
             int partySize = (int)GetValidInteger("Party size:");
 
-            var signup = _signupService.AddSignup(CreateDto(name, phone, partySize));
+            var signup = _signupService.AddSignup(CreateUpsertDto(name, phone, partySize));
 
             ConsoleHelper.WriteLineColored($"Added sign up: {signup}", ConsoleColor.Cyan);
         }
 
         public void UpdateSignup()
         {
+            FileHelper.EnsureFileNotLocked(_filePath);
+
             var id = ConsoleHelper.GetUserInput("Id of sign up to update:");
             var existing = _signupService.GetSignupById(id);
 
@@ -46,10 +52,10 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void DeleteSignup()
         {
+            FileHelper.EnsureFileNotLocked(_filePath);
+
             var id = ConsoleHelper.GetUserInput("Id of sign up to delete:");
-
             bool result = _signupService.DeleteSignup(id);
-
             var message = result ? "The Sign up is deleted" : $"Sign up with id '{id}' could not be found.";
 
             ConsoleHelper.WriteLineColored($"{message}", ConsoleColor.Cyan);
@@ -57,6 +63,8 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void ListSignups()
         {
+            FileHelper.EnsureFileNotLocked(_filePath);
+
             var signups = _signupService.GetSignups();
 
             var maxLength = signups.Max(s => $"{s.Name}{s.PhoneNumber}{s.PartySize}".Length) + 16;
@@ -83,10 +91,10 @@ namespace ExcelDBviaEntityFramework.Services
             var newPhone = ConsoleHelper.GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
             var partySize = GetValidInteger($"New party size (leave empty to keep {existing.PartySize}):", allowNull:true);
 
-            return CreateDto(newName, newPhone, partySize);
+            return CreateUpsertDto(newName, newPhone, partySize);
         }
 
-        private static SignupUpsert CreateDto(string newName, string newPhone, int? partySize)
+        private static SignupUpsert CreateUpsertDto(string newName, string newPhone, int? partySize)
         {
             return new SignupUpsert
             {

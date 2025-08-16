@@ -10,10 +10,7 @@ namespace ExcelDBviaEntityFramework.Data
     {       
         public ExcelDbContext(DbContextOptions<ExcelDbContext> options)
         : base(options)
-        {
-            var fullPathExcel = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
-            if (FileHelper.IsExcelFileInUse(fullPathExcel))
-                throw new DBConcurrencyException($"Excel file is currently in use. Please close it.\r\nPath: {fullPathExcel}");
+        {            
         }
 
         public DbSet<Signup> Signups { get; set; }
@@ -44,6 +41,7 @@ namespace ExcelDBviaEntityFramework.Data
                         affectedRows += SaveSoftDeletion(entry, repo);
                         break;
                 }
+
                 entry.Reload();
             }
 

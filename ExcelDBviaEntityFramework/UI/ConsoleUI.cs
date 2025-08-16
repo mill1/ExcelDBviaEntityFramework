@@ -1,5 +1,6 @@
 ﻿using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Services;
+using System.Data;
 
 namespace ExcelDBviaEntityFramework.UI
 {
@@ -73,9 +74,13 @@ namespace ExcelDBviaEntityFramework.UI
                     {
                         action();
                     }
+                    catch (DBConcurrencyException ex)
+                    {
+                        ConsoleHelper.WriteLineColored(ex.Message, ConsoleColor.Magenta);
+                    }
                     catch (Exception ex)
                     {                        
-                        ConsoleHelper.WriteLineColored($"An error occurred: {ex.Message}", ConsoleColor.Red);
+                        ConsoleHelper.WriteLineColored($"Unexpected error: {ex.Message}", ConsoleColor.Red);
                     }
                 }
                 else
