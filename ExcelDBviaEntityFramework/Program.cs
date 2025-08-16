@@ -7,16 +7,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 // TODO
-// unit tests
-// log sheet???
-// on close: delete all xl rows physically
-// IRepository interface
-// central lock chk
+// -unit tests
+// -log sheet
+// -fix file lock issue 
 
 namespace ExcelDBviaEntityFramework
 {
-    // https://www.bricelam.net/2024/03/12/ef-xlsx.html
-
     public class Program
     {
         static void Main()
