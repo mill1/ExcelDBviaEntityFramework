@@ -1,4 +1,4 @@
-**Excel** **via Entity Framework**
+# Excel via Entity Framework
 
 This project demonstrates how to use **Entity** **Framework Core** with **Microsoft Excel files** as a backing datastore.  
 It provides a simple **console user interface** for managing signups (add, update, delete, list) directly in an .xlsx file.
