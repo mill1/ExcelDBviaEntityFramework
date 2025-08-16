@@ -80,8 +80,8 @@ namespace ExcelDBviaEntityFramework.Console
                             - The file name should be {Constants.ExcelFileName}
                             - The file should contain a sheet named {Constants.SheetName.Replace("$", string.Empty)}
                             - The first row should contain headers
-                            - The first column should be named {nameof(Signup.Id_ý)}
-                            - The second column should be named {nameof(Signup.Deleted_ý)}
+                            - Column {Constants.ColumnIndexId} should be named {nameof(Signup.Id_ý)}
+                            - Column {Constants.ColumnIndexDeleted} should be named {nameof(Signup.Deleted_ý)}
                             """;
 
                         ConsoleHelper.WriteLineColored(message, ConsoleColor.Red);

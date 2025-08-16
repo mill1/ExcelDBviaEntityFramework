@@ -4,7 +4,7 @@ using ExcelDBviaEntityFramework.Helpers;
 
 public static class ExcelHelper
 {
-    public static void RemoveDeletedRows(string id)
+    public static void RemoveDeletedRow(string id)
     {
         var filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
 

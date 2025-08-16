@@ -76,7 +76,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (deleted)
             {
-                ExcelHelper.RemoveDeletedRows(id);
+                ExcelHelper.RemoveDeletedRow(id);
             }
 
             return deleted;
