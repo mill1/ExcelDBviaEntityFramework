@@ -75,7 +75,6 @@ namespace ExcelDBviaEntityFramework.Console
                     }
                     catch (System.Data.OleDb.OleDbException)
                     {
-                        //var message = $"Expected sheet '{Constants.SheetName.Replace("$", string.Empty)}' not found in Excel file.";
                         var message = $"""
                             Error connecting to the Excel data. Requirements w.r. to the Excel file database:
                             - The file name should be {Constants.ExcelFileName}
