@@ -17,9 +17,9 @@ namespace ExcelDBviaEntityFramework.Services
         {
             var name = ConsoleHelper.GetUserInput("Name:");
             var phone = ConsoleHelper.GetUserInput("Phone:");
-            int partySize = GetValidInteger("Party size:");
+            int partySize = (int)GetValidInteger("Party size:");
 
-            var signup = _signupService.AddSignup(name, phone, partySize);
+            var signup = _signupService.AddSignup(CreateDto(name, phone, partySize));
 
             ConsoleHelper.WriteLineColored($"Added sign up: {signup}", ConsoleColor.Cyan);
         }
@@ -36,7 +36,7 @@ namespace ExcelDBviaEntityFramework.Services
             }
 
             ConsoleHelper.WriteLineColored($"Current: {existing}", ConsoleColor.Cyan);
-            SignupUpdate update = GetUpdateDto(existing);
+            SignupUpsert update = GetUpdateDto(existing);
 
             var updated = _signupService.UpdateSignup(id, update);
 
@@ -77,27 +77,18 @@ namespace ExcelDBviaEntityFramework.Services
             ConsoleHelper.WriteLineColored("Select an option by typing the associated letter and press Enter.", ConsoleColor.Cyan);
         }
 
-        private static SignupUpdate GetUpdateDto(Signup existing)
+        private static SignupUpsert GetUpdateDto(Signup existing)
         {
             var newName = ConsoleHelper.GetUserInput($"New name (leave empty to keep '{existing.Name}'):");
             var newPhone = ConsoleHelper.GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
-            string partySizeInput = ConsoleHelper.GetUserInput($"New party size (leave empty to keep {existing.PartySize}):");
+            var partySize = GetValidInteger($"New party size (leave empty to keep {existing.PartySize}):", allowNull:true);
 
-            int? partySize = null;
-            if (!string.IsNullOrWhiteSpace(partySizeInput))
-            {
-                if (int.TryParse(partySizeInput, out int parsed))
-                    partySize = parsed;
-                else
-                    ConsoleHelper.WriteLineColored("Invalid number entered for party size. Keeping old value.", ConsoleColor.Magenta);
-            }
-            
             return CreateDto(newName, newPhone, partySize);
         }
 
-        private static SignupUpdate CreateDto(string newName, string newPhone, int? partySize)
+        private static SignupUpsert CreateDto(string newName, string newPhone, int? partySize)
         {
-            return new SignupUpdate
+            return new SignupUpsert
             {
                 Name = string.IsNullOrWhiteSpace(newName) ? null : newName,
                 PhoneNumber = string.IsNullOrWhiteSpace(newPhone) ? null : newPhone,
@@ -105,11 +96,21 @@ namespace ExcelDBviaEntityFramework.Services
             };
         }
 
-        private static int GetValidInteger(string prompt)
+        private static int? GetValidInteger(string prompt, bool allowNull = false)
         {
             while (true)
             {
                 string input = ConsoleHelper.GetUserInput(prompt);
+                
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    if (allowNull)
+                        return null;
+
+                    ConsoleHelper.WriteLineColored("Input cannot be empty. Please try again.", ConsoleColor.Magenta);
+                    continue;
+                }
+
                 if (int.TryParse(input, out int result))
                     return result;
 

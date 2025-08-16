@@ -19,15 +19,15 @@ namespace ExcelDBviaEntityFramework.Services
             return _db.Signups.FirstOrDefault(s => s.Id_ý == id);
         }
 
-        public Signup AddSignup(string name, string phone, int partySize)
+        public Signup AddSignup(SignupUpsert upsert)
         {
             var newSignup = new Signup
             {
                 Id_ý = Guid.NewGuid().ToString("N")[..8],
                 Deleted_ý = false,
-                Name = name,
-                PhoneNumber = phone,
-                PartySize = partySize
+                Name = upsert.Name,
+                PhoneNumber = upsert.PhoneNumber,
+                PartySize = (int)upsert.PartySize
             };
 
             _db.Signups.Add(newSignup);
@@ -36,21 +36,21 @@ namespace ExcelDBviaEntityFramework.Services
             return newSignup;
         }
 
-        public Signup UpdateSignup(string id, SignupUpdate update)
+        public Signup UpdateSignup(string id, SignupUpsert upsert)
         {
             var signup = _db.Signups.FirstOrDefault(s => s.Id_ý == id);
 
             if (signup == null)
                 return null;
 
-            if (!string.IsNullOrWhiteSpace(update.Name))
-                signup.Name = update.Name;
+            if (!string.IsNullOrWhiteSpace(upsert.Name))
+                signup.Name = upsert.Name;
 
-            if (!string.IsNullOrWhiteSpace(update.PhoneNumber))
-                signup.PhoneNumber = update.PhoneNumber;
+            if (!string.IsNullOrWhiteSpace(upsert.PhoneNumber))
+                signup.PhoneNumber = upsert.PhoneNumber;
 
-            if (update.PartySize.HasValue)
-                signup.PartySize = update.PartySize.Value;
+            if (upsert.PartySize.HasValue)
+                signup.PartySize = upsert.PartySize.Value;
 
             _db.SaveChanges();
             return signup;
