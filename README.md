@@ -9,10 +9,8 @@ It provides a simple **console user interface** for managing signups (add, updat
 
 *   Treat an Excel worksheet as a database table.
 *   CRUD operations on signups (Name, Phone number, Party size).
-*   Soft-delete support (Deleted\_ý flag) with optional physical row removal.
 *   EF Core integration with custom DbContext.
 *   Console UI with colorized feedback and menu-driven commands.
-*   File safety checks (prevent editing if the Excel file is locked).
 
 - - -
 
