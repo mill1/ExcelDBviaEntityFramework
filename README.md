@@ -25,7 +25,9 @@ It provides a simple **console user interface** for managing signups (add, updat
 
 1.  Clone the repository.
 2.  Build and run:  dotnet run --project ExcelDBviaEntityFramework
+
 An initial Excel file will be copied in the correct folder (/Excel files/).
+
 3.  Use the console menu to access the CRUD functionality
 
 - - -
