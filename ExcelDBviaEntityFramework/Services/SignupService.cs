@@ -2,16 +2,19 @@
 using ExcelDBviaEntityFramework.Data;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExcelDBviaEntityFramework.Services
 {
     public class SignupService : ISignupService
     {
         private readonly ExcelDbContext _db;
+        private readonly IDbContextFactory<ExcelDbContext> _dbContextFactory;
 
-        public SignupService(ExcelDbContext db)
+        public SignupService(ExcelDbContext db, IDbContextFactory<ExcelDbContext> dbContextFactory)
         {
             _db = db;
+            _dbContextFactory = dbContextFactory;
         }
 
         public Signup GetSignupById(string id)
@@ -58,15 +61,25 @@ namespace ExcelDBviaEntityFramework.Services
 
         public bool DeleteSignup(string id)
         {
-            var signup = _db.Signups.Where(s => s.Id_ý == id).FirstOrDefault();
+            bool deleted = false;
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                var signup = ctx.Signups.FirstOrDefault(s => s.Id_ý == id);
 
-            if (signup == null)
-                return false;
+                if (signup == null)
+                    return false;
 
-            _db.Signups.Remove(signup);
-            _db.SaveChanges();
+                ctx.Signups.Remove(signup);
+                ctx.SaveChanges();
+                deleted = true;
+            }
 
-            return true;
+            if (deleted)
+            {
+                ExcelHelper.RemoveDeletedRows(id);
+            }
+
+            return deleted;
         }
 
         public List<Signup> GetSignups()
