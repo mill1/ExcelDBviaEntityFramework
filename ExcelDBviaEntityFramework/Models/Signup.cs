@@ -11,6 +11,8 @@ namespace ExcelDBviaEntityFramework.Models
 
         public required bool Deleted_ý {  get; set; }
 
+        public string Id { get; set; }
+
         public string? Name { get; set; }
 
         [Column("Phone number")]
@@ -21,7 +23,7 @@ namespace ExcelDBviaEntityFramework.Models
 
         public override string? ToString()
         {
-            return $"{Id_ý}: {Name} {PhoneNumber} ({PartySize})";
+            return $"EF Id: {Id_ý}, Id: {Id}, {Name} {PhoneNumber} ({PartySize})";
         }
     }
 }

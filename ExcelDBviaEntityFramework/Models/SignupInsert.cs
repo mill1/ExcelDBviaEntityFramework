@@ -1,6 +1,6 @@
 ﻿namespace ExcelDBviaEntityFramework.Models
 {
-    public class SignupUpsert
+    public class SignupInsert
     {
         public string? Name { get; set; }
         public string? PhoneNumber { get; set; }

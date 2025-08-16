@@ -17,20 +17,21 @@ namespace ExcelDBviaEntityFramework.Services
             _dbContextFactory = dbContextFactory;
         }
 
-        public Signup GetSignupById(string id)
+        public Signup GetSignupByEFId(string id)
         {
             return _db.Signups.FirstOrDefault(s => s.Id_ý == id);
         }
 
-        public Signup AddSignup(SignupUpsert upsert)
+        public Signup AddSignup(SignupInsert insert)
         {
             var newSignup = new Signup
             {
                 Id_ý = Guid.NewGuid().ToString("N")[..8],
                 Deleted_ý = false,
-                Name = upsert.Name,
-                PhoneNumber = upsert.PhoneNumber,
-                PartySize = (int)upsert.PartySize
+                Id = GenerateId(),
+                Name = insert.Name,
+                PhoneNumber = insert.PhoneNumber,
+                PartySize = (int)insert.PartySize
             };
 
             _db.Signups.Add(newSignup);
@@ -39,21 +40,24 @@ namespace ExcelDBviaEntityFramework.Services
             return newSignup;
         }
 
-        public Signup UpdateSignup(string id, SignupUpsert upsert)
+        public Signup UpdateSignup(string id, SignupUpdate update)
         {
             var signup = _db.Signups.FirstOrDefault(s => s.Id_ý == id);
 
             if (signup == null)
                 return null;
 
-            if (!string.IsNullOrWhiteSpace(upsert.Name))
-                signup.Name = upsert.Name;
+            if (!string.IsNullOrWhiteSpace(update.Id))
+                signup.Id = update.Id;
 
-            if (!string.IsNullOrWhiteSpace(upsert.PhoneNumber))
-                signup.PhoneNumber = upsert.PhoneNumber;
+            if (!string.IsNullOrWhiteSpace(update.Name))
+                signup.Name = update.Name;
 
-            if (upsert.PartySize.HasValue)
-                signup.PartySize = upsert.PartySize.Value;
+            if (!string.IsNullOrWhiteSpace(update.PhoneNumber))
+                signup.PhoneNumber = update.PhoneNumber;
+
+            if (update.PartySize.HasValue)
+                signup.PartySize = update.PartySize.Value;
 
             _db.SaveChanges();
             return signup;
@@ -76,6 +80,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (deleted)
             {
+                Thread.Sleep(100); // Ensure the file is not locked
                 ExcelHelper.RemoveDeletedRow(id);
             }
 
@@ -85,6 +90,24 @@ namespace ExcelDBviaEntityFramework.Services
         public List<Signup> GetSignups()
         {
             return [.. _db.Signups];
+        }
+
+        private string GenerateId()
+        {
+            var lastSignup = _db.Signups.OrderByDescending(s => s.Id).FirstOrDefault();
+
+            // If there are no signups, return "1" as the first ID
+            if (lastSignup == null)
+                return "1";
+
+            bool allIntegers = _db.Signups
+                .AsEnumerable()
+                .All(s => int.TryParse(s.Id, out _));
+
+            if (allIntegers)
+                return (int.Parse(lastSignup.Id) + 1).ToString();
+
+            return $"{lastSignup.Id}b";
         }
     }
 }

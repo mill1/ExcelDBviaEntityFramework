@@ -14,6 +14,7 @@ public static class ExcelHelper
 
         // Iterate bottom-up (so row indices remain valid after deletes)
         var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? 1;
+
         for (int row = lastRow; row > 1; row--) // skip header
         {
             var cell = worksheet.Cell(row, Constants.ColumnIndexId);
