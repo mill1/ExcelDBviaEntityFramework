@@ -8,6 +8,6 @@ namespace ExcelDBviaEntityFramework.Interfaces
         bool DeleteSignup(string id);
         Signup GetSignupById(string id);
         List<Signup> GetSignups();
-        Signup UpdateSignup(string id, string name, string phone, int partySize);
+        Signup UpdateSignup(string id, SignupUpdate update);
     }
 }

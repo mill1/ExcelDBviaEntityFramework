@@ -36,19 +36,23 @@ namespace ExcelDBviaEntityFramework.Services
             return newSignup;
         }
 
-        public Signup UpdateSignup(string id, string name, string phone, int partySize)
+        public Signup UpdateSignup(string id, SignupUpdate update)
         {
             var signup = _db.Signups.FirstOrDefault(s => s.Id_ý == id);
 
             if (signup == null)
                 return null;
 
-            signup.Name = name;
-            signup.PhoneNumber = phone;
-            signup.PartySize = partySize;
+            if (!string.IsNullOrWhiteSpace(update.Name))
+                signup.Name = update.Name;
+
+            if (!string.IsNullOrWhiteSpace(update.PhoneNumber))
+                signup.PhoneNumber = update.PhoneNumber;
+
+            if (update.PartySize.HasValue)
+                signup.PartySize = update.PartySize.Value;
 
             _db.SaveChanges();
-
             return signup;
         }
 

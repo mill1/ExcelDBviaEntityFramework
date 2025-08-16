@@ -9,9 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 // unit tests
 // log sheet???
 // on close: delete all xl rows physically
-// other todo's
-// update call
-
 
 namespace ExcelDBviaEntityFramework
 {
