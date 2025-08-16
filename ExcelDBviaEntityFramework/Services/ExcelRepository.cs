@@ -66,5 +66,4 @@ namespace ExcelDBviaEntityFramework.Services
             return (columns, parameters);
         }
     }
-
 }
