@@ -8,10 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 // TODO
 // unit tests
-// log sheet???
-// on close: delete all xl rows physically
-// IRepository interface
-// central lock chk
+// log sheet
+// fix file lock issue 
 
 namespace ExcelDBviaEntityFramework
 {
