@@ -18,32 +18,19 @@ It provides a simple **console user interface** for managing signups (add, updat
 
 *   **.NET 8 SDK** (or later)
 *   **Microsoft ACE OLEDB 12.0 provider** installed (required for Excel/Jet access)
-*   Excel file placed in the folder: ./Excel files/YourExcelFile.xlsx
-
-**Excel file requirements**
-
-*   File name = Constants.ExcelFileName
-*   Must contain a sheet named Constants.SheetName
-*   First row contains headers:
-
-*   Id\_ý
-*   Deleted\_ý
-*   Name
-*   Phone number
-*   Party size
 
 - - -
 
 **▶️ Running the Project**
 
 1.  Clone the repository.
-2.  Ensure the Excel file exists in the correct folder (/Excel files/).
 3.  Build and run:
 4.  dotnet run --project ExcelDBviaEntityFramework
-5.  Use the console menu:
-6.  ########################################
-7.  # ExcelDBviaEntityFramework #
-8.  ########################################
+5.  An initial Excel file will be copied in the correct folder (/Excel files/).
+6.  Use the console menu:
+7.  ########################################
+8.  # ExcelDBviaEntityFramework #
+9.  ########################################
 
 10.  Make a choice:
 11.  \- Add sign up (a)
