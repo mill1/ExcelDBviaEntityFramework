@@ -63,3 +63,6 @@ An initial Excel file will be copied in the correct folder (/Excel files/).
 **📜 License**
 
 MIT License – feel free to use and adapt.
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/21296658-58bb-4b62-a68b-7a9eab8afdb8" />
+
