@@ -1,8 +1,9 @@
 ﻿using ExcelDBviaEntityFramework.Interfaces;
+using ExcelDBviaEntityFramework.Models;
 using ExcelDBviaEntityFramework.Services;
 using System.Data;
 
-namespace ExcelDBviaEntityFramework.UI
+namespace ExcelDBviaEntityFramework.Console
 {
     public class ConsoleUI
     {        
@@ -52,9 +53,7 @@ namespace ExcelDBviaEntityFramework.UI
             }
             finally
             {
-                Console.ResetColor();
-
-                // TODO fysieke delete van xl rows
+                System.Console.ResetColor();
             }
         }
 
@@ -73,6 +72,20 @@ namespace ExcelDBviaEntityFramework.UI
                     try
                     {
                         action();
+                    }
+                    catch (System.Data.OleDb.OleDbException)
+                    {
+                        //var message = $"Expected sheet '{Constants.SheetName.Replace("$", string.Empty)}' not found in Excel file.";
+                        var message = $"""
+                            Error connecting to the Excel data. Requirements w.r. to the Excel file database:
+                            - The file name should be {Constants.ExcelFileName}
+                            - The file should contain a sheet named {Constants.SheetName.Replace("$", string.Empty)}
+                            - The first row should contain headers
+                            - The first column should be named {nameof(Signup.Id_ý)}
+                            - The second column should be named {nameof(Signup.Deleted_ý)}
+                            """;
+
+                        ConsoleHelper.WriteLineColored(message, ConsoleColor.Red);
                     }
                     catch (DBConcurrencyException ex)
                     {

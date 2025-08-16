@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using ExcelDBviaEntityFramework;
+using ExcelDBviaEntityFramework.Helpers;
 
 public static class ExcelHelper
 {
@@ -8,11 +9,8 @@ public static class ExcelHelper
         var filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
 
         using var workbook = new XLWorkbook(filePath);
-        var worksheet = workbook.Worksheet(Constants.SheetName.Replace("$", string.Empty));
 
-        var headerRow = worksheet.FirstRowUsed();
-        if (headerRow == null)
-            throw new InvalidOperationException("No header row found in worksheet.");
+        var worksheet = workbook.Worksheet(Constants.SheetName.Replace("$", string.Empty));
 
         // Iterate bottom-up (so row indices remain valid after deletes)
         var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? 1;

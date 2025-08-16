@@ -1,11 +1,11 @@
-﻿namespace ExcelDBviaEntityFramework.UI
+﻿namespace ExcelDBviaEntityFramework.Console
 {
     public static class ConsoleHelper
     {
         public static void WriteLineColored(string message, ConsoleColor color)
         {
-            Console.ForegroundColor = color;
-            Console.WriteLine(message);
+            System.Console.ForegroundColor = color;
+            System.Console.WriteLine(message);
         }
 
         public static string GetUserInput(string prompt = null)
@@ -15,9 +15,9 @@
                 WriteLineColored(prompt, ConsoleColor.Cyan);
             }
 
-            Console.ForegroundColor = ConsoleColor.White;
+            System.Console.ForegroundColor = ConsoleColor.White;
 
-            return Console.ReadLine()?.Trim() ?? string.Empty;
+            return System.Console.ReadLine()?.Trim() ?? string.Empty;
         }
     }
 }
