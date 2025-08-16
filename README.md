@@ -12,7 +12,7 @@ Inspired by [this blog](https://www.bricelam.net/2024/03/12/ef-xlsx.html) by Bri
 *   Treat an Excel worksheet as a database table.
 *   CRUD operations on signups (Name, Phone number, Party size).
 *   EF Core integration with custom DbContext.
-*   Console UI with colorized feedback and menu-driven commands.
+*   Console UI with feedback and menu-driven commands.
 
 - - -
 
