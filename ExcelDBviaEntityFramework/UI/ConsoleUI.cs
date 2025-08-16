@@ -3,8 +3,7 @@
 namespace ExcelDBviaEntityFramework.UI
 {
     public class ConsoleUI
-    {
-        private const int LineWidth = 40;
+    {        
         private readonly Dictionary<string, Action> _menuOptions;
         private readonly List<MenuItem> _menuItems;
         private readonly ISignupService _signupService;
@@ -46,9 +45,8 @@ namespace ExcelDBviaEntityFramework.UI
                 ExecuteUserInterface();
             }
             catch (Exception e)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e.ToString());
+            {               
+                ConsoleHelper.WriteLineColored(e.ToString(), ConsoleColor.Red);
             }
             finally
             {
@@ -66,9 +64,8 @@ namespace ExcelDBviaEntityFramework.UI
             {
                 PrintMenuOptions();
 
-                // TODO: Console. calls verplaatsen naar centrale UIHelper class, ook aanpassen in UIActions. Ext.methods?
                 Console.ForegroundColor = ConsoleColor.White;
-                string option = Console.ReadLine()?.Trim() ?? string.Empty;
+                string option = ConsoleHelper.GetUserInput();
 
                 if (_menuOptions.TryGetValue(option, out var action))
                 {
@@ -77,41 +74,37 @@ namespace ExcelDBviaEntityFramework.UI
                         action();
                     }
                     catch (Exception ex)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"An error occurred: {ex.Message}");
+                    {                        
+                        ConsoleHelper.WriteLineColored($"An error occurred: {ex.Message}", ConsoleColor.Red);
                     }
                 }
                 else
-                {
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    Console.WriteLine($"Invalid option: {option}");
+                {                    
+                    ConsoleHelper.WriteLineColored($"Invalid option: {option}", ConsoleColor.Magenta);
                 }
             }
         }
 
         private void PrintMenuOptions()
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Make a choice:");
+        {            
+            ConsoleHelper.WriteLineColored("Make a choice:", ConsoleColor.Yellow);
 
             foreach (var item in _menuItems)
             {
-                Console.WriteLine($"- {item.Label} ({item.Key})");
+                ConsoleHelper.WriteLineColored($"- {item.Label} ({item.Key})", ConsoleColor.Yellow);
             }
         }
 
         private static void DrawBanner()
         {
+            const int LineWidth = 40;
             var assName = GetAssemblyName();
             var borderChar = '#';
-            string centered = assName.PadLeft((LineWidth - 2 + assName.Length) / 2).PadRight(LineWidth - 2);
+            string centered = assName.PadLeft((LineWidth - 2 + assName.Length) / 2).PadRight(LineWidth - 2);            
 
-            Console.ForegroundColor = ConsoleColor.Green;
-
-            Console.WriteLine(new string(borderChar, LineWidth));
-            Console.WriteLine($"{borderChar}{centered}{borderChar}");
-            Console.WriteLine(new string(borderChar, LineWidth));
+            ConsoleHelper.WriteLineColored(new string(borderChar, LineWidth), ConsoleColor.Green);
+            ConsoleHelper.WriteLineColored($"{borderChar}{centered}{borderChar}", ConsoleColor.Green);
+            ConsoleHelper.WriteLineColored(new string(borderChar, LineWidth), ConsoleColor.Green);
         }
 
         private static string GetAssemblyName()
