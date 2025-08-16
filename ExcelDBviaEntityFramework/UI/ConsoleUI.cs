@@ -65,7 +65,6 @@ namespace ExcelDBviaEntityFramework.UI
             {
                 PrintMenuOptions();
 
-                Console.ForegroundColor = ConsoleColor.White;
                 string option = ConsoleHelper.GetUserInput();
 
                 if (_menuOptions.TryGetValue(option, out var action))
