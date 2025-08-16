@@ -12,7 +12,7 @@ Inspired by [this blog](https://www.bricelam.net/2024/03/12/ef-xlsx.html) by Bri
 *   Treat an Excel worksheet as a database table.
 *   CRUD operations on signups (Name, Phone number, Party size).
 *   EF Core integration with custom DbContext.
-*   Console UI with colorized feedback and menu-driven commands.
+*   Console UI with feedback and menu-driven commands.
 
 - - -
 
@@ -63,3 +63,9 @@ An initial Excel file will be copied in the correct folder (/Excel files/).
 **📜 License**
 
 MIT License – feel free to use and adapt.
+
+- - -
+
+<!-- <img width="500" alt="image" src="https://github.com/user-attachments/assets/21296658-58bb-4b62-a68b-7a9eab8afdb8" /> -->
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/945380a5-0891-4785-8c6e-6717ea633fd3" />
+
