@@ -3,6 +3,8 @@
 This project demonstrates how to use **Entity** **Framework Core** with **Microsoft Excel files** as a backing datastore.  
 It provides a simple **console user interface** for managing signups (add, update, delete, list) directly in an .xlsx file.
 
+Inspired by [this blog](https://www.bricelam.net/2024/03/12/ef-xlsx.html) by Brice Lambson.
+
 - - -
 
 **✨ Features**
@@ -59,7 +61,5 @@ An initial Excel file will be copied in the correct folder (/Excel files/).
 - - -
 
 **📜 License**
-
-Inspired by [this blog](https://www.bricelam.net/2024/03/12/ef-xlsx.html) by Brice Lambson.
 
 MIT License – feel free to use and adapt.
