@@ -8,8 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 // TODO
 // -unit tests
-// -log sheet
-// -fix file lock issue 
+// -log sheet ILogger
 
 namespace ExcelDBviaEntityFramework
 {

@@ -8,18 +8,22 @@ namespace ExcelDBviaEntityFramework.Services
 {
     public class SignupService : ISignupService
     {
-        private readonly ExcelDbContext _db;
         private readonly IDbContextFactory<ExcelDbContext> _dbContextFactory;
 
-        public SignupService(ExcelDbContext db, IDbContextFactory<ExcelDbContext> dbContextFactory)
+        public SignupService(IDbContextFactory<ExcelDbContext> dbContextFactory)
         {
-            _db = db;
+            // Use a db context factory to make sure that the DbContext is disposed after the request.
+            // Using a scoped service somehow keeps the Excel file locked, which prevents write actions by ClosedXML.
             _dbContextFactory = dbContextFactory;
         }
 
         public Signup GetSignupByEFId(string id)
         {
-            return _db.Signups.FirstOrDefault(s => s.Id_ý == id);
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                // Use AsNoTracking for read-only queries to improve performance
+                return ctx.Signups.AsNoTracking().FirstOrDefault(s => s.Id_ý == id);
+            }
         }
 
         public Signup AddSignup(SignupInsert insert)
@@ -34,38 +38,46 @@ namespace ExcelDBviaEntityFramework.Services
                 PartySize = (int)insert.PartySize
             };
 
-            _db.Signups.Add(newSignup);
-            _db.SaveChanges();
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                ctx.Signups.Add(newSignup);
+                ctx.SaveChanges();
+            }
 
             return newSignup;
         }
 
         public Signup UpdateSignup(string id, SignupUpdate update)
         {
-            var signup = _db.Signups.FirstOrDefault(s => s.Id_ý == id);
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                var signup = ctx.Signups.FirstOrDefault(s => s.Id_ý == id);
 
-            if (signup == null)
-                return null;
+                if (signup == null)
+                    return null;
 
-            if (!string.IsNullOrWhiteSpace(update.Id))
-                signup.Id = update.Id;
+                if (!string.IsNullOrWhiteSpace(update.Id))
+                    signup.Id = update.Id;
 
-            if (!string.IsNullOrWhiteSpace(update.Name))
-                signup.Name = update.Name;
+                if (!string.IsNullOrWhiteSpace(update.Name))
+                    signup.Name = update.Name;
 
-            if (!string.IsNullOrWhiteSpace(update.PhoneNumber))
-                signup.PhoneNumber = update.PhoneNumber;
+                if (!string.IsNullOrWhiteSpace(update.PhoneNumber))
+                    signup.PhoneNumber = update.PhoneNumber;
 
-            if (update.PartySize.HasValue)
-                signup.PartySize = update.PartySize.Value;
+                if (update.PartySize.HasValue)
+                    signup.PartySize = update.PartySize.Value;
 
-            _db.SaveChanges();
-            return signup;
+                ctx.SaveChanges();
+            
+                return signup;
+            }
         }
 
         public bool DeleteSignup(string id)
         {
             bool deleted = false;
+
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
                 var signup = ctx.Signups.FirstOrDefault(s => s.Id_ý == id);
@@ -80,7 +92,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (deleted)
             {
-                Thread.Sleep(100); // Ensure the file is not locked
+                Thread.Sleep(350); // Ensure the file is not locked
                 ExcelHelper.RemoveDeletedRow(id);
             }
 
@@ -89,25 +101,31 @@ namespace ExcelDBviaEntityFramework.Services
 
         public List<Signup> GetSignups()
         {
-            return [.. _db.Signups];
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                return [.. ctx.Signups];
+            }          
         }
 
         private string GenerateId()
         {
-            var lastSignup = _db.Signups.OrderByDescending(s => s.Id).FirstOrDefault();
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                var lastSignup = ctx.Signups.AsNoTracking().OrderByDescending(s => s.Id).FirstOrDefault();
 
-            // If there are no signups, return "1" as the first ID
-            if (lastSignup == null)
-                return "1";
+                // If there are no signups, return "1" as the first ID
+                if (lastSignup == null)
+                    return "1";
 
-            bool allIntegers = _db.Signups
-                .AsEnumerable()
-                .All(s => int.TryParse(s.Id, out _));
+                bool allIntegers = ctx.Signups
+                    .AsEnumerable()
+                    .All(s => int.TryParse(s.Id, out _));
 
-            if (allIntegers)
-                return (int.Parse(lastSignup.Id) + 1).ToString();
+                if (allIntegers)
+                    return (int.Parse(lastSignup.Id) + 1).ToString();
 
-            return $"{lastSignup.Id}b";
+                return $"{lastSignup.Id}b";
+            }
         }
     }
 }

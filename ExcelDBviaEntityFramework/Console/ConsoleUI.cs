@@ -30,10 +30,10 @@ namespace ExcelDBviaEntityFramework.Console
 
             _menuItems =
             [
-                new("Add sign up", MenuOptions.AddSignup, _actions.AddSignup),
-                new("Update sign up", MenuOptions.UpdateSignup, _actions.UpdateSignup),
-                new("Delete sign up", MenuOptions.DeleteSignup, _actions.DeleteSignup),
-                new("Print sign ups", MenuOptions.PrintSignups, _actions.ListSignups),
+                new("Add signup", MenuOptions.AddSignup, _actions.AddSignup),
+                new("Update signup", MenuOptions.UpdateSignup, _actions.UpdateSignup),
+                new("Delete signup", MenuOptions.DeleteSignup, _actions.DeleteSignup),
+                new("Print signups", MenuOptions.PrintSignups, _actions.ListSignups),
                 new("Help", MenuOptions.Help, _actions.ShowHelp),
                 new("Quit", MenuOptions.Quit, () => _quit = true)
             ];

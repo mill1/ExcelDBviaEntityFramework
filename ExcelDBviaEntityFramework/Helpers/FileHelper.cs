@@ -29,8 +29,7 @@ namespace ExcelDBviaEntityFramework.Helpers
             }
             catch (IOException ex)
             {
-                // TODO: After first EF SaveChanges() some io process locks the file although Excel is not opened. Investigate.
-                //throw new DBConcurrencyException($"The Excel file is currently in use by another process. Check if the file is opened in Excel.\r\nPath: {filePath}");
+                throw new DBConcurrencyException($"The Excel file is currently in use by another process. Check if the file is opened in Excel.\r\nPath: {filePath}");
             }
         }
 

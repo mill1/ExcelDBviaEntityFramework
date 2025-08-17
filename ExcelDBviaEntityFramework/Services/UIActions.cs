@@ -26,19 +26,19 @@ namespace ExcelDBviaEntityFramework.Services
 
             var signup = _signupService.AddSignup(CreateInsertDto(name, phone, partySize));
 
-            ConsoleHelper.WriteLineColored($"Added sign up: {signup}", ConsoleColor.Cyan);
+            ConsoleHelper.WriteLineColored($"Added signup: {signup}", ConsoleColor.Cyan);
         }
 
         public void UpdateSignup()
         {
             FileHelper.EnsureFileNotLocked(_filePath);
 
-            var id = ConsoleHelper.GetUserInput($"EF id ({nameof(Signup.Id_ý)}) of sign up to update:");
+            var id = ConsoleHelper.GetUserInput($"EF id ({nameof(Signup.Id_ý)}) of signup to update:");
             var existing = _signupService.GetSignupByEFId(id);
 
             if (existing == null)
             {
-                ConsoleHelper.WriteLineColored($"Sign up with {nameof(Signup.Id_ý)} '{id}' not found.", ConsoleColor.Magenta);
+                ConsoleHelper.WriteLineColored($"Signup with {nameof(Signup.Id_ý)} '{id}' not found.", ConsoleColor.Cyan);
                 return;
             }
 
@@ -55,9 +55,9 @@ namespace ExcelDBviaEntityFramework.Services
         {
             FileHelper.EnsureFileNotLocked(_filePath);
 
-            var id = ConsoleHelper.GetUserInput("Id of sign up to delete:");
+            var id = ConsoleHelper.GetUserInput("Id of signup to delete:");
             bool result = _signupService.DeleteSignup(id);
-            var message = result ? "The sign up is deleted" : $"Sign up with id '{id}' could not be found.";
+            var message = result ? "The signup is deleted" : $"Signup with id '{id}' not found.";
 
             ConsoleHelper.WriteLineColored($"{message}", ConsoleColor.Cyan);
         }
@@ -70,7 +70,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             var maxLength = signups.Max(s => $"{s.Id}{s.Name}{s.PhoneNumber}{s.PartySize}".Length) + 27;
 
-            ConsoleHelper.WriteLineColored($"Current sign ups:", ConsoleColor.Cyan);
+            ConsoleHelper.WriteLineColored($"Current signups:", ConsoleColor.Cyan);
             ConsoleHelper.WriteLineColored(new string('-', maxLength), ConsoleColor.Cyan);
 
             foreach (var signup in signups)
@@ -78,7 +78,7 @@ namespace ExcelDBviaEntityFramework.Services
                 ConsoleHelper.WriteLineColored($"{signup}", ConsoleColor.Cyan);
             }
             ConsoleHelper.WriteLineColored(new string('-', maxLength), ConsoleColor.Cyan);
-            ConsoleHelper.WriteLineColored($"Number of sign ups: {signups.Count}", ConsoleColor.Cyan);
+            ConsoleHelper.WriteLineColored($"Number of signups: {signups.Count}", ConsoleColor.Cyan);
         }
 
         public void ShowHelp()
