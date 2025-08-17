@@ -73,6 +73,10 @@ namespace ExcelDBviaEntityFramework.Console
                     {
                         action();
                     }
+                    catch (SignupException ex)
+                    {
+                        ConsoleHelper.WriteLineColored(ex.Message, ConsoleColor.Magenta);
+                    }
                     catch (System.Data.OleDb.OleDbException)
                     {
                         var sheetName = Constants.SheetNameSignups.Replace("$", string.Empty);
@@ -90,10 +94,6 @@ namespace ExcelDBviaEntityFramework.Console
                             """;
 
                         ConsoleHelper.WriteLineColored(message, ConsoleColor.Red);
-                    }
-                    catch (DBConcurrencyException ex)
-                    {
-                        ConsoleHelper.WriteLineColored(ex.Message, ConsoleColor.Magenta);
                     }
                     catch (Exception ex)
                     {                        

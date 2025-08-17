@@ -18,7 +18,7 @@ namespace ExcelDBviaEntityFramework.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Signup>().ToTable(Constants.SheetNameSignups);
-            modelBuilder.Entity<Signup>().HasKey(s => s.Id);
+            modelBuilder.Entity<Signup>().HasKey(s => s.Id);            
             modelBuilder.Entity<Signup>().HasQueryFilter(e => !e.Deleted_ý);
         }
 

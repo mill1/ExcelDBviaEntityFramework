@@ -29,7 +29,7 @@ namespace ExcelDBviaEntityFramework.Helpers
             }
             catch (IOException ex)
             {
-                throw new DBConcurrencyException($"The Excel file is currently in use by another process. Check if the file is opened in Excel.\r\nPath: {filePath}");
+                throw new SignupException($"The Excel file is currently in use by another process. Check if the file is opened in Excel.\r\nPath: {filePath}");
             }
         }
 

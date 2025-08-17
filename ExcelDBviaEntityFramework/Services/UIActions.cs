@@ -7,18 +7,16 @@ namespace ExcelDBviaEntityFramework.Services
 {
     public class UIActions
     {        
-        private readonly ISignupService _signupService;
-        private readonly string _filePath;
+        private readonly ISignupService _signupService;        
 
         public UIActions(ISignupService signupService)
-        {
-            _filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
+        {            
             _signupService = signupService;
         }
 
         public void AddSignup()
-        {
-            FileHelper.EnsureFileNotLocked(_filePath);
+        {            
+            _signupService.CheckData();
 
             var name = ConsoleHelper.GetUserInput("Name:");
             var phone = ConsoleHelper.GetUserInput("Phone:");
@@ -31,7 +29,7 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void UpdateSignup()
         {
-            FileHelper.EnsureFileNotLocked(_filePath);
+            _signupService.CheckData();
 
             var id = ConsoleHelper.GetUserInput($"Id of signup to update:");
             var existing = _signupService.GetSignupByEFId(id);
@@ -53,7 +51,7 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void DeleteSignup()
         {
-            FileHelper.EnsureFileNotLocked(_filePath);
+            _signupService.CheckData();
 
             var id = ConsoleHelper.GetUserInput("Id of signup to delete:");
             bool result = _signupService.DeleteSignup(id);
@@ -64,7 +62,7 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void ListSignups()
         {
-            FileHelper.EnsureFileNotLocked(_filePath);
+            _signupService.CheckData(checkIdUniqueness:false);
 
             var signups = _signupService.GetSignups();
 
