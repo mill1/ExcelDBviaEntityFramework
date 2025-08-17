@@ -77,7 +77,7 @@ namespace ExcelDBviaEntityFramework.Console
                     {
                         ConsoleHelper.WriteLineColored(ex.Message, ConsoleColor.Magenta);
                     }
-                    catch (System.Data.OleDb.OleDbException)
+                    catch (System.Data.OleDb.OleDbException ex)
                     {
                         var sheetName = Constants.SheetNameSignups.Replace("$", string.Empty);
 

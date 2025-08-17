@@ -1,8 +1,11 @@
-﻿using ExcelDBviaEntityFramework.Models;
+﻿using ExcelDBviaEntityFramework.Helpers;
+using ExcelDBviaEntityFramework.Models;
 using ExcelDBviaEntityFramework.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Options;
 using System.Data;
+using System.Data.OleDb;
 
 namespace ExcelDBviaEntityFramework.Data
 {
@@ -10,16 +13,23 @@ namespace ExcelDBviaEntityFramework.Data
     {       
         public ExcelDbContext(DbContextOptions<ExcelDbContext> options)
         : base(options)
-        {            
+        {
+
         }
 
         public DbSet<Signup> Signups { get; set; }
+        public DbSet<Log> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            
+
             modelBuilder.Entity<Signup>().ToTable(Constants.SheetNameSignups);
             modelBuilder.Entity<Signup>().HasKey(s => s.Id);            
             modelBuilder.Entity<Signup>().HasQueryFilter(e => !e.Deleted_ý);
+
+            modelBuilder.Entity<Log>().ToTable(Constants.SheetNameLog);
+            modelBuilder.Entity<Log>().HasKey(s => s.Id);
         }
 
         public override int SaveChanges()
@@ -44,6 +54,24 @@ namespace ExcelDBviaEntityFramework.Data
 
                 entry.Reload();
             }
+
+            foreach (var entry in ChangeTracker.Entries<Log>().ToList())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    if (string.IsNullOrEmpty(entry.CurrentValues[nameof(Log.Id)]?.ToString()))
+                        entry.CurrentValues[nameof(Log.Id)] = Guid.NewGuid().ToString("N")[..8];
+
+                    var (columns, parameters) = repo.BuildParameters(entry.Entity, includeAll: true);
+                    string sql = $"INSERT INTO [{Constants.SheetNameLog}] ({string.Join(", ", columns)}) VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
+                    repo.Execute(sql, parameters);
+                    entry.State = EntityState.Unchanged;
+                    affectedRows++;
+                }
+            }
+
+                // Clear the change tracker to avoid memory leaks
+                ChangeTracker.Clear();
 
             return affectedRows;
         }

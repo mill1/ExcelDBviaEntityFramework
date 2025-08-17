@@ -28,6 +28,7 @@ public static class ExcelHelper
             if (value.Equals("true", StringComparison.OrdinalIgnoreCase) || value.Equals("1"))
             {
                 worksheet.Row(row).Delete();
+                break;
             }
         }
 

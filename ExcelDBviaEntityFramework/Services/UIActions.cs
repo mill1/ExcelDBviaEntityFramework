@@ -22,7 +22,7 @@ namespace ExcelDBviaEntityFramework.Services
             var phone = ConsoleHelper.GetUserInput("Phone:");
             int partySize = (int)GetValidInteger("Party size:");
 
-            var signup = _signupService.AddSignup(CreateInsertDto(name, phone, partySize));
+            var signup = _signupService.AddSignup(CreateUpsertDto(name, phone, partySize));
 
             ConsoleHelper.WriteLineColored($"Added signup: {signup}", ConsoleColor.Cyan);
         }
@@ -90,20 +90,10 @@ namespace ExcelDBviaEntityFramework.Services
             var newPhone = ConsoleHelper.GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
             var partySize = GetValidInteger($"New party size (leave empty to keep {existing.PartySize}):", allowNull:true);
 
-            return CreateUpdateDto(newName, newPhone, partySize);
+            return CreateUpsertDto(newName, newPhone, partySize);
         }
 
-        private static SignupUpsert CreateInsertDto(string newName, string newPhone, int? partySize)
-        {
-            return new SignupUpsert
-            {
-                Name = string.IsNullOrWhiteSpace(newName) ? null : newName,
-                PhoneNumber = string.IsNullOrWhiteSpace(newPhone) ? null : newPhone,
-                PartySize = partySize
-            };
-        }
-
-        private static SignupUpsert CreateUpdateDto(string newName, string newPhone, int? partySize)
+        private static SignupUpsert CreateUpsertDto(string newName, string newPhone, int? partySize)
         {
             return new SignupUpsert
             {

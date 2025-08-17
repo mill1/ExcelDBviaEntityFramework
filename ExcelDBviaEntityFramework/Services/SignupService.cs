@@ -30,7 +30,7 @@ namespace ExcelDBviaEntityFramework.Services
         public Signup AddSignup(SignupUpsert insert)
         {
             var newSignup = new Signup
-            {                
+            {
                 Deleted_ý = false,
                 Id = GenerateId(),
                 Name = insert.Name,
@@ -41,6 +41,16 @@ namespace ExcelDBviaEntityFramework.Services
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
                 ctx.Signups.Add(newSignup);
+
+                // Log
+                Log log = new Log
+                {
+                    Timestamp = DateTime.UtcNow,
+                    Id = Guid.NewGuid().ToString("N")[..8],
+                    Entry = $"Added signup: {newSignup}",
+                };
+                ctx.Logs.Add(log);
+
                 ctx.SaveChanges();
             }
 
@@ -66,7 +76,7 @@ namespace ExcelDBviaEntityFramework.Services
                     signup.PartySize = update.PartySize.Value;
 
                 ctx.SaveChanges();
-            
+
                 return signup;
             }
         }
@@ -101,7 +111,7 @@ namespace ExcelDBviaEntityFramework.Services
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
                 return [.. ctx.Signups];
-            }          
+            }
         }
 
         private string GenerateId()
@@ -125,14 +135,20 @@ namespace ExcelDBviaEntityFramework.Services
             }
         }
 
-        public void CheckData(bool checkIdUniqueness=true)
+        public void CheckData(bool checkIdUniqueness = true)
         {
             var _filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
             FileHelper.EnsureFileNotLocked(_filePath);
 
-            if (checkIdUniqueness)
+            using (var ctx = _dbContextFactory.CreateDbContext())
             {
-                using (var ctx = _dbContextFactory.CreateDbContext())
+                if (!ctx.Signups.Any())
+                    return;
+
+                if (ctx.Signups.Any(x => string.IsNullOrEmpty(x.Id)))
+                    throw new SignupException($"Empty Signup ID(s) found. Fix this in Excel.");
+
+                if (checkIdUniqueness)
                 {
                     var ids = ctx.Signups.Select(s => s.Id).ToList();
                     var duplicates = ids.GroupBy(id => id)
