@@ -33,17 +33,17 @@ namespace ExcelDBviaEntityFramework.Services
         {
             FileHelper.EnsureFileNotLocked(_filePath);
 
-            var id = ConsoleHelper.GetUserInput($"EF id ({nameof(Signup.Id_ý)}) of signup to update:");
+            var id = ConsoleHelper.GetUserInput($"Id of signup to update:");
             var existing = _signupService.GetSignupByEFId(id);
 
             if (existing == null)
             {
-                ConsoleHelper.WriteLineColored($"Signup with {nameof(Signup.Id_ý)} '{id}' not found.", ConsoleColor.Cyan);
+                ConsoleHelper.WriteLineColored($"Signup with {nameof(Signup.Id)} '{id}' not found.", ConsoleColor.Cyan);
                 return;
             }
 
             ConsoleHelper.WriteLineColored($"Current: {existing}", ConsoleColor.Cyan);
-            SignupUpdate update = GetUpdateDto(existing);
+            SignupUpsert update = GetUpdateDto(existing);
 
             var updated = _signupService.UpdateSignup(id, update);
 
@@ -86,19 +86,18 @@ namespace ExcelDBviaEntityFramework.Services
             ConsoleHelper.WriteLineColored("Select an option by typing the associated letter and press Enter.", ConsoleColor.Cyan);
         }
 
-        private static SignupUpdate GetUpdateDto(Signup existing)
+        private static SignupUpsert GetUpdateDto(Signup existing)
         {
-            var newId = ConsoleHelper.GetUserInput($"New id (leave empty to keep '{existing.Id}'):");
             var newName = ConsoleHelper.GetUserInput($"New name (leave empty to keep '{existing.Name}'):");
             var newPhone = ConsoleHelper.GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
             var partySize = GetValidInteger($"New party size (leave empty to keep {existing.PartySize}):", allowNull:true);
 
-            return CreateUpdateDto(newId, newName, newPhone, partySize);
+            return CreateUpdateDto(newName, newPhone, partySize);
         }
 
-        private static SignupInsert CreateInsertDto(string newName, string newPhone, int? partySize)
+        private static SignupUpsert CreateInsertDto(string newName, string newPhone, int? partySize)
         {
-            return new SignupInsert
+            return new SignupUpsert
             {
                 Name = string.IsNullOrWhiteSpace(newName) ? null : newName,
                 PhoneNumber = string.IsNullOrWhiteSpace(newPhone) ? null : newPhone,
@@ -106,11 +105,10 @@ namespace ExcelDBviaEntityFramework.Services
             };
         }
 
-        private static SignupUpdate CreateUpdateDto(string newId, string newName, string newPhone, int? partySize)
+        private static SignupUpsert CreateUpdateDto(string newName, string newPhone, int? partySize)
         {
-            return new SignupUpdate
+            return new SignupUpsert
             {
-                Id = string.IsNullOrWhiteSpace(newId) ? null : newId,
                 Name = string.IsNullOrWhiteSpace(newName) ? null : newName,
                 PhoneNumber = string.IsNullOrWhiteSpace(newPhone) ? null : newPhone,
                 PartySize = partySize

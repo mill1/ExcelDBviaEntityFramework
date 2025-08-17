@@ -42,8 +42,8 @@ namespace ExcelDBviaEntityFramework.Services
 
             foreach (var prop in typeof(T).GetProperties())
             {
-                // skip Id_ý when updating
-                if (!includeAll && prop.Name == "Id_ý")
+                // skip Id when updating
+                if (!includeAll && prop.Name == "Id")
                     continue;
 
                 if (!includeAll && modifiedProps != null && !modifiedProps.Contains(prop.Name))

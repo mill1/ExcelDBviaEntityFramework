@@ -22,15 +22,14 @@ namespace ExcelDBviaEntityFramework.Services
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
                 // Use AsNoTracking for read-only queries to improve performance
-                return ctx.Signups.AsNoTracking().FirstOrDefault(s => s.Id_ý == id);
+                return ctx.Signups.AsNoTracking().FirstOrDefault(s => s.Id == id);
             }
         }
 
-        public Signup AddSignup(SignupInsert insert)
+        public Signup AddSignup(SignupUpsert insert)
         {
             var newSignup = new Signup
-            {
-                Id_ý = Guid.NewGuid().ToString("N")[..8],
+            {                
                 Deleted_ý = false,
                 Id = GenerateId(),
                 Name = insert.Name,
@@ -47,17 +46,14 @@ namespace ExcelDBviaEntityFramework.Services
             return newSignup;
         }
 
-        public Signup UpdateSignup(string id, SignupUpdate update)
+        public Signup UpdateSignup(string id, SignupUpsert update)
         {
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
-                var signup = ctx.Signups.FirstOrDefault(s => s.Id_ý == id);
+                var signup = ctx.Signups.FirstOrDefault(s => s.Id == id);
 
                 if (signup == null)
                     return null;
-
-                if (!string.IsNullOrWhiteSpace(update.Id))
-                    signup.Id = update.Id;
 
                 if (!string.IsNullOrWhiteSpace(update.Name))
                     signup.Name = update.Name;
@@ -80,7 +76,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
-                var signup = ctx.Signups.FirstOrDefault(s => s.Id_ý == id);
+                var signup = ctx.Signups.FirstOrDefault(s => s.Id == id);
 
                 if (signup == null)
                     return false;

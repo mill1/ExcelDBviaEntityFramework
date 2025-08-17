@@ -10,7 +10,7 @@ public static class ExcelHelper
 
         using var workbook = new XLWorkbook(filePath);
 
-        var worksheet = workbook.Worksheet(Constants.SheetName.Replace("$", string.Empty));
+        var worksheet = workbook.Worksheet(Constants.SheetNameSignups.Replace("$", string.Empty));
 
         // Iterate bottom-up (so row indices remain valid after deletes)
         var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? 1;

@@ -3,14 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExcelDBviaEntityFramework.Models
 {
-    [Table(Constants.SheetName)]
+    [Table(Constants.SheetNameSignups)]
     public class Signup
     {
-        [Key]
-        public required string Id_ý { get; set; }
-
         public required bool Deleted_ý {  get; set; }
 
+        [Key]
         public string Id { get; set; }
 
         public string? Name { get; set; }
@@ -23,7 +21,7 @@ namespace ExcelDBviaEntityFramework.Models
 
         public override string? ToString()
         {
-            return $"EF Id: {Id_ý}, Id: {Id}, {Name} {PhoneNumber} ({PartySize})";
+            return $"Id {Id}: {Name} {PhoneNumber} ({PartySize})";
         }
     }
 }

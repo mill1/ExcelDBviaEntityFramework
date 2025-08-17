@@ -75,13 +75,18 @@ namespace ExcelDBviaEntityFramework.Console
                     }
                     catch (System.Data.OleDb.OleDbException)
                     {
+                        var sheetName = Constants.SheetNameSignups.Replace("$", string.Empty);
+
                         var message = $"""
                             Error connecting to the Excel data. Requirements w.r. to the Excel file database:
                             - The file name should be {Constants.ExcelFileName}
-                            - The file should contain a sheet named {Constants.SheetName.Replace("$", string.Empty)}
-                            - The first row should contain headers
-                            - Column {Constants.ColumnIndexId} should be named {nameof(Signup.Id_ý)}
+                            - The file should contain a sheet named {sheetName}
+                            - The first row of {sheetName} should contain headers
                             - Column {Constants.ColumnIndexDeleted} should be named {nameof(Signup.Deleted_ý)}
+                            - Column {Constants.ColumnIndexId} should be named {nameof(Signup.Id)}
+                            - The file should contain a sheet named {Constants.SheetNameLog.Replace("$", string.Empty)}
+                            - The first row of the log should also contain headers
+
                             """;
 
                         ConsoleHelper.WriteLineColored(message, ConsoleColor.Red);

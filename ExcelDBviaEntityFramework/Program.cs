@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 // TODO
+// chk id not unique in xlsx
 // -unit tests
 // -log sheet ILogger
 

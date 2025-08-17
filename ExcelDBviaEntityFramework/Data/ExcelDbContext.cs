@@ -17,10 +17,8 @@ namespace ExcelDBviaEntityFramework.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-
-            modelBuilder.Entity<Signup>().ToTable(Constants.SheetName);
-            modelBuilder.Entity<Signup>().HasKey(s => s.Id_ý);
+            modelBuilder.Entity<Signup>().ToTable(Constants.SheetNameSignups);
+            modelBuilder.Entity<Signup>().HasKey(s => s.Id);
             modelBuilder.Entity<Signup>().HasQueryFilter(e => !e.Deleted_ý);
         }
 
@@ -52,13 +50,13 @@ namespace ExcelDBviaEntityFramework.Data
 
         private int SaveAddition(EntityEntry<Signup> entry, ExcelRepository repo)
         {
-            if (string.IsNullOrEmpty(entry.CurrentValues[nameof(Signup.Id_ý)]?.ToString()))
-                entry.CurrentValues[nameof(Signup.Id_ý)] = Guid.NewGuid().ToString("N")[..8];
+            if (string.IsNullOrEmpty(entry.CurrentValues[nameof(Signup.Id)]?.ToString()))
+                entry.CurrentValues[nameof(Signup.Id)] = Guid.NewGuid().ToString("N")[..8];
 
             entry.CurrentValues[nameof(Signup.Deleted_ý)] = false;
 
             var (columns, parameters) = repo.BuildParameters(entry.Entity, includeAll: true);
-            string sql = $"INSERT INTO [{Constants.SheetName}] ({string.Join(", ", columns)}) VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
+            string sql = $"INSERT INTO [{Constants.SheetNameSignups}] ({string.Join(", ", columns)}) VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
             repo.Execute(sql, parameters);
 
             entry.State = EntityState.Unchanged;
@@ -72,8 +70,8 @@ namespace ExcelDBviaEntityFramework.Data
 
             if (!setClauses.Any()) return 0;
 
-            parameters.Add(("@id", entry.OriginalValues[nameof(Signup.Id_ý)]));
-            string sql = $"UPDATE [{Constants.SheetName}] SET {string.Join(", ", setClauses)} WHERE [{nameof(Signup.Id_ý)}] = @id";
+            parameters.Add(("@id", entry.OriginalValues[nameof(Signup.Id)]));
+            string sql = $"UPDATE [{Constants.SheetNameSignups}] SET {string.Join(", ", setClauses)} WHERE [{nameof(Signup.Id)}] = @id";
 
             repo.Execute(sql, parameters);
             entry.State = EntityState.Unchanged;
@@ -82,11 +80,11 @@ namespace ExcelDBviaEntityFramework.Data
 
         private int SaveSoftDeletion(EntityEntry<Signup> entry, ExcelRepository repo)
         {
-            string sql = $"UPDATE [{Constants.SheetName}] SET [Deleted_ý] = @deleted WHERE [{nameof(Signup.Id_ý)}] = @id";
+            string sql = $"UPDATE [{Constants.SheetNameSignups}] SET [Deleted_ý] = @deleted WHERE [{nameof(Signup.Id)}] = @id";
             var parameters = new List<(string, object)>
         {
             ("@deleted", true),
-            ("@id", entry.OriginalValues[nameof(Signup.Id_ý)])
+            ("@id", entry.OriginalValues[nameof(Signup.Id)])
         };
 
             repo.Execute(sql, parameters);
