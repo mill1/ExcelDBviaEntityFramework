@@ -78,6 +78,17 @@ namespace ExcelDBviaEntityFramework.Console
                     }
                     catch (System.Data.OleDb.OleDbException ex)
                     {
+                        var errorMessageExcerpt = "The Microsoft Access database engine could not find the object '.Dual'"
+                            ;
+                        if (ex.Message.Contains(errorMessageExcerpt))
+                        {
+                            ConsoleHelper.WriteLineColored(GenerateErrorDetails(errorMessageExcerpt), ConsoleColor.Red);
+                        }
+                        else
+                        {
+                            ConsoleHelper.WriteLineColored($"Database error: {ex.Message}", ConsoleColor.Red);
+                        }
+
                         var sheetName = Constants.SheetNameSignups.Replace("$", string.Empty);
 
                         var message = $"""
@@ -103,6 +114,28 @@ namespace ExcelDBviaEntityFramework.Console
                     ConsoleHelper.WriteLineColored($"Invalid option: {option}", ConsoleColor.Magenta);
                 }
             }
+        }
+
+        private static string GenerateErrorDetails(string errorMessageExcerpt)
+        {
+            return $"""                                
+                The Jet provider has issued a .Dual probe when EF asked it for metadata w.r. to the query.
+                Since Excel is not a relational database this causes next error:
+                {errorMessageExcerpt}
+                There are two workarounds for this:
+                1. Force EF to skip relational translation paths by using no-tracking raw SQL instead of LINQ:
+                    return ctx.Signups
+                        .FromSqlRaw($"SELECT * FROM [{Constants.SheetNameSignups}]")
+                        .AsNoTracking()
+                        .ToList();
+                2. Switch to client-side evaluation
+                   If you must keep LINQ, call .AsEnumerable() before filtering so EF doesn’t try to translate.
+                   For instance us the `AsEnumerable()` method on the DbSet, e.g.:
+                    return ctx.Signups
+                        .AsNoTracking()
+                        .AsEnumerable()   // 🚀 forces client-side LINQ
+                        .Where(s => !string.IsNullOrEmpty(s.Id));
+                """;
         }
 
         private void PrintMenuOptions()
