@@ -132,11 +132,19 @@ namespace ExcelDBviaEntityFramework.Services
 
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
-                if (!ctx.Signups.Any())
+                // Always use client-side evaluation so EF doesn’t try to translate the LINQ query
+                // to SQL, which causes the "could not find the object '.Dual'"-error
+                if (!ctx.Signups.AsEnumerable().Any())
                     return;
 
-                if (ctx.Signups.Any(x => string.IsNullOrEmpty(x.Id)))
-                    throw new SignupException($"Empty Signup ID(s) found. Fix this in Excel.");
+                try
+                {
+                    ctx.Signups.AsEnumerable().Any(x => string.IsNullOrEmpty(x.Id));
+                }
+                catch (InvalidCastException)
+                {
+                    throw new SignupException($"Empty Signup ID(s) and/or party size(s) found! Fix this in Excel.");
+                }
 
                 if (checkIdUniqueness)
                 {
