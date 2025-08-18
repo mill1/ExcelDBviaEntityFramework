@@ -40,12 +40,17 @@ namespace ExcelDBviaEntityFramework.Services
             var parameters = new List<(string Name, object Value)>();
             int index = 0;
 
-            foreach (var prop in typeof(T).GetProperties())
+            foreach (var prop in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
+                // Skip [NotMapped] properties
+                if (prop.GetCustomAttribute<NotMappedAttribute>() != null)
+                    continue;
+
                 // skip Id when updating
                 if (!includeAll && prop.Name == "Id")
                     continue;
 
+                // skip non-modified properties when updating
                 if (!includeAll && modifiedProps != null && !modifiedProps.Contains(prop.Name))
                     continue;
 

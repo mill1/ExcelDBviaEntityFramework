@@ -1,36 +1,37 @@
 ﻿using ClosedXML.Excel;
-using ExcelDBviaEntityFramework;
-using ExcelDBviaEntityFramework.Helpers;
 
-public static class ExcelHelper
+namespace ExcelDBviaEntityFramework.Helpers
 {
-    public static void RemoveDeletedRow(string id)
+    public static class ExcelHelper
     {
-        var filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
-
-        using var workbook = new XLWorkbook(filePath);
-
-        var worksheet = workbook.Worksheet(Constants.SheetNameSignups.Replace("$", string.Empty));
-
-        // Iterate bottom-up (so row indices remain valid after deletes)
-        var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? 1;
-
-        for (int row = lastRow; row > 1; row--) // skip header
+        public static void RemoveDeletedRow(string id)
         {
-            var cell = worksheet.Cell(row, Constants.ColumnIndexId);
+            var filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
 
-            if (!cell.GetString().Equals(id))
-                continue;
+            using var workbook = new XLWorkbook(filePath);
 
-            cell = worksheet.Cell(row, Constants.ColumnIndexDeleted);
-            var value = cell.GetString();
+            var worksheet = workbook.Worksheet(Constants.SheetNameSignups.Replace("$", string.Empty));
 
-            if (value.Equals("true", StringComparison.OrdinalIgnoreCase) || value.Equals("1"))
+            // Iterate bottom-up (so row indices remain valid after deletes)
+            var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? 1;
+
+            for (int row = lastRow; row > 1; row--) // skip header
             {
-                worksheet.Row(row).Delete();
-            }
-        }
+                var cell = worksheet.Cell(row, Constants.ColumnIndexId);
 
-        workbook.Save();
+                if (!cell.GetString().Equals(id))
+                    continue;
+
+                cell = worksheet.Cell(row, Constants.ColumnIndexDeleted);
+                var value = cell.GetString();
+
+                if (value.Equals("true", StringComparison.OrdinalIgnoreCase) || value.Equals("1"))
+                {
+                    worksheet.Row(row).Delete();
+                }
+            }
+
+            workbook.Save();
+        }
     }
 }

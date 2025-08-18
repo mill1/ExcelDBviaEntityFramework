@@ -1,4 +1,5 @@
 ﻿using ExcelDBviaEntityFramework.Data;
+using ExcelDBviaEntityFramework.Extensions;
 using ExcelDBviaEntityFramework.Helpers;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
@@ -111,6 +112,17 @@ namespace ExcelDBviaEntityFramework.Services
             {
                 return [.. ctx.Signups];
             }
+        }
+
+        public List<Signup> GetSignupsIncludingLogs()
+        {
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                var signups = ctx.Signups.AsNoTracking().ToList();
+                var logs = ctx.Logs.AsNoTracking().ToList();
+
+                return signups.IncludeLogs(logs);
+            }            
         }
 
         private string GenerateId()

@@ -19,6 +19,9 @@ namespace ExcelDBviaEntityFramework.Models
         [Column("Party size")]
         public int PartySize { get; set; }
 
+        [NotMapped]
+        public ICollection<Log> Logs { get; set; } = new List<Log>();
+
         public override string? ToString()
         {
             return $"Id {Id}: {Name} {PhoneNumber} ({PartySize})";
