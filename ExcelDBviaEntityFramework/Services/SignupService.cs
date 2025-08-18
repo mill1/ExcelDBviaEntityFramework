@@ -125,14 +125,20 @@ namespace ExcelDBviaEntityFramework.Services
             }
         }
 
-        public void CheckData(bool checkIdUniqueness=true)
+        public void CheckData(bool checkIdUniqueness = true)
         {
             var _filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
             FileHelper.EnsureFileNotLocked(_filePath);
 
-            if (checkIdUniqueness)
+            using (var ctx = _dbContextFactory.CreateDbContext())
             {
-                using (var ctx = _dbContextFactory.CreateDbContext())
+                if (!ctx.Signups.Any())
+                    return;
+
+                if (ctx.Signups.Any(x => string.IsNullOrEmpty(x.Id)))
+                    throw new SignupException($"Empty Signup ID(s) found. Fix this in Excel.");
+
+                if (checkIdUniqueness)
                 {
                     var ids = ctx.Signups.Select(s => s.Id).ToList();
                     var duplicates = ids.GroupBy(id => id)

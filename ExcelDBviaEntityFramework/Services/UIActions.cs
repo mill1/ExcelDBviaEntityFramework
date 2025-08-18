@@ -76,7 +76,7 @@ namespace ExcelDBviaEntityFramework.Services
             }
             ConsoleHelper.WriteLineColored(new string('-', maxLength), ConsoleColor.Cyan);
             ConsoleHelper.WriteLineColored($"Number of signups: {signups.Count}", ConsoleColor.Cyan);
-            ConsoleHelper.WriteLineColored($"Average party size: {signups.Average(s => s.PartySize)}", ConsoleColor.Cyan);
+            ConsoleHelper.WriteLineColored($"Average party size: {signups.Average(s => s.PartySize):#.##}", ConsoleColor.Cyan);
             var largestParty = signups.OrderByDescending(s => s.PartySize).First();
             ConsoleHelper.WriteLineColored($"Largest: {largestParty.Name}, party of {largestParty.PartySize}", ConsoleColor.Cyan);
         }
