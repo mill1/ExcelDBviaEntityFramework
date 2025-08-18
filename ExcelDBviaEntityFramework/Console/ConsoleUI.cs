@@ -78,31 +78,14 @@ namespace ExcelDBviaEntityFramework.Console
                     }
                     catch (System.Data.OleDb.OleDbException ex)
                     {
-                        var errorMessageExcerpt = "The Microsoft Access database engine could not find the object '.Dual'"
-                            ;
+                        var errorMessageExcerpt = "The Microsoft Access database engine could not find the object '.Dual'";
+
                         if (ex.Message.Contains(errorMessageExcerpt))
                         {
-                            ConsoleHelper.WriteLineColored(GenerateErrorDetails(errorMessageExcerpt), ConsoleColor.Red);
+                            ConsoleHelper.WriteLineColored(GetDualObjectNotFoundErrorMessage(errorMessageExcerpt), ConsoleColor.Red);
+                            return;
                         }
-                        else
-                        {
-                            ConsoleHelper.WriteLineColored($"Database error: {ex.Message}", ConsoleColor.Red);
-                        }
-
-                        var sheetName = Constants.SheetNameSignups.Replace("$", string.Empty);
-
-                        var message = $"""
-                            Error connecting to the Excel data. 
-                            Exception: {ex.Message}
-                            Requirements w.r. to the Excel file database:
-                            - The file name should be {Constants.ExcelFileName}
-                            - The file should contain a sheet named {sheetName}
-                            - The first row of {sheetName} should contain headers
-                            - Column {Constants.ColumnIndexDeleted} should be named {nameof(Signup.Deleted_ý)}
-                            - Column {Constants.ColumnIndexId} should be named {nameof(Signup.Id)}
-                            """;
-
-                        ConsoleHelper.WriteLineColored(message, ConsoleColor.Red);
+                        ConsoleHelper.WriteLineColored(GetDatabaseErrorMessage(ex), ConsoleColor.Red);
                     }
                     catch (Exception ex)
                     {                        
@@ -116,7 +99,23 @@ namespace ExcelDBviaEntityFramework.Console
             }
         }
 
-        private static string GenerateErrorDetails(string errorMessageExcerpt)
+        private static string GetDatabaseErrorMessage(System.Data.OleDb.OleDbException ex)
+        {
+            var sheetName = Constants.SheetNameSignups.Replace("$", string.Empty);
+
+           return $"""
+                Error connecting to the Excel data. 
+                Exception: {ex.Message}
+                Requirements w.r. to the Excel file database:
+                - The file name should be {Constants.ExcelFileName}
+                - The file should contain a sheet named {sheetName}
+                - The first row of {sheetName} should contain headers
+                - Column {Constants.ColumnIndexDeleted} should be named {nameof(Signup.Deleted_ý)}
+                - Column {Constants.ColumnIndexId} should be named {nameof(Signup.Id)}
+                """;
+        }
+
+        private static string GetDualObjectNotFoundErrorMessage(string errorMessageExcerpt)
         {
             return $"""                                
                 The Jet provider has issued a .Dual probe when EF asked it for metadata w.r. to the query.
