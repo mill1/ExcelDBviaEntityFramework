@@ -89,8 +89,6 @@ namespace ExcelDBviaEntityFramework.Console
                             - The first row of {sheetName} should contain headers
                             - Column {Constants.ColumnIndexDeleted} should be named {nameof(Signup.Deleted_ý)}
                             - Column {Constants.ColumnIndexId} should be named {nameof(Signup.Id)}
-                            - The file should contain a sheet named {Constants.SheetNameLog.Replace("$", string.Empty)}
-                            - The first row of the log should also contain headers
                             """;
 
                         ConsoleHelper.WriteLineColored(message, ConsoleColor.Red);
