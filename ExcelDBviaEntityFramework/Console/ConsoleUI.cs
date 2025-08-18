@@ -127,7 +127,7 @@ namespace ExcelDBviaEntityFramework.Console
                         .ToList();
                 2. Switch to client-side evaluation
                    If you must keep LINQ, call .AsEnumerable() before filtering so EF doesn’t try to translate.
-                   For instance us the `AsEnumerable()` method on the DbSet, e.g.:
+                   For instance use the `AsEnumerable()` method on the DbSet, e.g.:
                     return ctx.Signups
                         .AsNoTracking()
                         .AsEnumerable()   // 🚀 forces client-side LINQ
