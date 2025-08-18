@@ -1,6 +1,4 @@
-﻿using System.Data;
-
-namespace ExcelDBviaEntityFramework.Helpers
+﻿namespace ExcelDBviaEntityFramework.Helpers
 {
     public static class FileHelper
     {

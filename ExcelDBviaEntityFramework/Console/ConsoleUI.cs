@@ -1,7 +1,6 @@
 ﻿using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 using ExcelDBviaEntityFramework.Services;
-using System.Data;
 
 namespace ExcelDBviaEntityFramework.Console
 {
@@ -77,12 +76,14 @@ namespace ExcelDBviaEntityFramework.Console
                     {
                         ConsoleHelper.WriteLineColored(ex.Message, ConsoleColor.Magenta);
                     }
-                    catch (System.Data.OleDb.OleDbException)
+                    catch (System.Data.OleDb.OleDbException ex)
                     {
                         var sheetName = Constants.SheetNameSignups.Replace("$", string.Empty);
 
                         var message = $"""
-                            Error connecting to the Excel data. Requirements w.r. to the Excel file database:
+                            Error connecting to the Excel data. 
+                            Exception: {ex.Message}
+                            Requirements w.r. to the Excel file database:
                             - The file name should be {Constants.ExcelFileName}
                             - The file should contain a sheet named {sheetName}
                             - The first row of {sheetName} should contain headers
@@ -90,7 +91,6 @@ namespace ExcelDBviaEntityFramework.Console
                             - Column {Constants.ColumnIndexId} should be named {nameof(Signup.Id)}
                             - The file should contain a sheet named {Constants.SheetNameLog.Replace("$", string.Empty)}
                             - The first row of the log should also contain headers
-
                             """;
 
                         ConsoleHelper.WriteLineColored(message, ConsoleColor.Red);

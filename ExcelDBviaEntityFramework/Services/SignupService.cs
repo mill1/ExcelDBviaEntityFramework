@@ -89,7 +89,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (deleted)
             {
-                Thread.Sleep(350); // Ensure the file is not locked
+                Thread.Sleep(100); // Just 2b sure
                 ExcelHelper.RemoveDeletedRow(id);
             }
 

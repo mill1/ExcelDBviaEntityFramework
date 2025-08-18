@@ -1,5 +1,4 @@
-﻿using ExcelDBviaEntityFramework.Helpers;
-using ExcelDBviaEntityFramework.Interfaces;
+﻿using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 using ExcelDBviaEntityFramework.Console;
 
@@ -66,7 +65,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             var signups = _signupService.GetSignups();
 
-            var maxLength = signups.Max(s => $"{s.Id}{s.Name}{s.PhoneNumber}{s.PartySize}".Length) + 27;
+            var maxLength = signups.Max(s => $"{s.Id}{s.Name}{s.PhoneNumber}{s.PartySize}".Length) + 9;
 
             ConsoleHelper.WriteLineColored($"Current signups:", ConsoleColor.Cyan);
             ConsoleHelper.WriteLineColored(new string('-', maxLength), ConsoleColor.Cyan);
@@ -77,6 +76,9 @@ namespace ExcelDBviaEntityFramework.Services
             }
             ConsoleHelper.WriteLineColored(new string('-', maxLength), ConsoleColor.Cyan);
             ConsoleHelper.WriteLineColored($"Number of signups: {signups.Count}", ConsoleColor.Cyan);
+            ConsoleHelper.WriteLineColored($"Average party size: {signups.Average(s => s.PartySize)}", ConsoleColor.Cyan);
+            var largestParty = signups.OrderByDescending(s => s.PartySize).First();
+            ConsoleHelper.WriteLineColored($"Largest: {largestParty.Name}, party of {largestParty.PartySize}", ConsoleColor.Cyan);
         }
 
         public void ShowHelp()
