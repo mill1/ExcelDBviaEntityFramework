@@ -14,12 +14,16 @@ namespace ExcelDBviaEntityFramework.Data
         }
 
         public DbSet<Signup> Signups { get; set; }
+        public DbSet<Log> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Signup>().ToTable(Constants.SheetNameSignups);
             modelBuilder.Entity<Signup>().HasKey(s => s.Id);
             modelBuilder.Entity<Signup>().HasQueryFilter(e => !e.Deleted_ý);
+
+            modelBuilder.Entity<Log>().ToTable(Constants.SheetNameLogs);
+            modelBuilder.Entity<Log>().HasKey(s => s.Id);
         }
 
         public override int SaveChanges()
@@ -41,6 +45,14 @@ namespace ExcelDBviaEntityFramework.Data
                         affectedRows += SaveSoftDeletion(entry, repo);
                         break;
                 }
+
+                entry.Reload();
+            }
+
+            foreach (var entry in ChangeTracker.Entries<Log>().ToList())
+            {
+                if (entry.State ==  EntityState.Added)
+                    SaveLogAddition(entry, repo);
 
                 entry.Reload();
             }
@@ -82,14 +94,26 @@ namespace ExcelDBviaEntityFramework.Data
         {
             string sql = $"UPDATE [{Constants.SheetNameSignups}] SET [Deleted_ý] = @deleted WHERE [{nameof(Signup.Id)}] = @id";
             var parameters = new List<(string, object)>
-        {
-            ("@deleted", true),
-            ("@id", entry.OriginalValues[nameof(Signup.Id)])
-        };
+            {
+                ("@deleted", true),
+                ("@id", entry.OriginalValues[nameof(Signup.Id)])
+            };
 
             repo.Execute(sql, parameters);
             entry.State = EntityState.Detached;
             return 1;
+        }
+
+        private void SaveLogAddition(EntityEntry<Log> entry, ExcelRepository repo)
+        {
+            if (string.IsNullOrEmpty(entry.CurrentValues[nameof(Log.Id)]?.ToString()))
+                entry.CurrentValues[nameof(Log.Id)] = Guid.NewGuid().ToString("N")[..8];            
+
+            var (columns, parameters) = repo.BuildParameters(entry.Entity, includeAll: true);
+            string sql = $"INSERT INTO [{Constants.SheetNameLogs}] ({string.Join(", ", columns)}) VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
+            repo.Execute(sql, parameters);
+
+            entry.State = EntityState.Unchanged;
         }
     }
 }

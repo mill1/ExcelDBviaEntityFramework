@@ -38,9 +38,14 @@ namespace ExcelDBviaEntityFramework.Services
                 ConsoleHelper.WriteLineColored($"Signup with {nameof(Signup.Id)} '{id}' not found.", ConsoleColor.Cyan);
                 return;
             }
-
-            ConsoleHelper.WriteLineColored($"Current: {existing}", ConsoleColor.Cyan);
+            
             SignupUpsert update = GetUpdateDto(existing);
+
+            if (update.Name == null && update.PhoneNumber == null && update.PartySize == null)
+            {
+                ConsoleHelper.WriteLineColored($"No changes were made.", ConsoleColor.Cyan);
+                return;
+            }
 
             var updated = _signupService.UpdateSignup(id, update);
 
@@ -56,7 +61,7 @@ namespace ExcelDBviaEntityFramework.Services
             bool result = _signupService.DeleteSignup(id);
             var message = result ? "The signup is deleted" : $"Signup with id '{id}' not found.";
 
-            ConsoleHelper.WriteLineColored($"{message}", ConsoleColor.Cyan);
+            ConsoleHelper.WriteLineColored($"{message}", ConsoleColor.Green);
         }
 
         public void ListSignups()

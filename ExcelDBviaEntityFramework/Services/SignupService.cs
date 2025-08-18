@@ -20,8 +20,7 @@ namespace ExcelDBviaEntityFramework.Services
         public Signup GetSignupByEFId(string id)
         {
             using (var ctx = _dbContextFactory.CreateDbContext())
-            {
-                // Use AsNoTracking for read-only queries to improve performance
+            {                
                 return ctx.Signups.AsNoTracking().FirstOrDefault(s => s.Id == id);
             }
         }
@@ -40,6 +39,10 @@ namespace ExcelDBviaEntityFramework.Services
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
                 ctx.Signups.Add(newSignup);
+
+                Log log = CreateLogEntry(newSignup.Id, $"Added signup: {insert}");
+                ctx.Logs.Add(log);
+
                 ctx.SaveChanges();
             }
 
@@ -53,7 +56,7 @@ namespace ExcelDBviaEntityFramework.Services
                 var signup = ctx.Signups.FirstOrDefault(s => s.Id == id);
 
                 if (signup == null)
-                    return null;
+                    throw new SignupException("Check calling method. Signup should exist.");                
 
                 if (!string.IsNullOrWhiteSpace(update.Name))
                     signup.Name = update.Name;
@@ -63,6 +66,9 @@ namespace ExcelDBviaEntityFramework.Services
 
                 if (update.PartySize.HasValue)
                     signup.PartySize = update.PartySize.Value;
+
+                Log log = CreateLogEntry(id, $"Updated signup: {update}");
+                ctx.Logs.Add(log);
 
                 ctx.SaveChanges();
 
@@ -159,6 +165,18 @@ namespace ExcelDBviaEntityFramework.Services
                     }
                 }
             }
+        }
+
+        private static Log CreateLogEntry(string signupId, string entry)
+        {
+            // Log
+            return new Log
+            {
+                Id = Guid.NewGuid().ToString("N")[..8],
+                Timestamp = DateTime.UtcNow,
+                SignupId = signupId,
+                Entry = entry
+            };
         }
     }
 }
