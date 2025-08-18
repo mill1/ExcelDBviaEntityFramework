@@ -7,10 +7,10 @@ using System.Data;
 namespace ExcelDBviaEntityFramework.Data
 {
     public class ExcelDbContext : DbContext
-    {       
+    {
         public ExcelDbContext(DbContextOptions<ExcelDbContext> options)
         : base(options)
-        {            
+        {
         }
 
         public DbSet<Signup> Signups { get; set; }
@@ -18,7 +18,7 @@ namespace ExcelDBviaEntityFramework.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Signup>().ToTable(Constants.SheetNameSignups);
-            modelBuilder.Entity<Signup>().HasKey(s => s.Id);            
+            modelBuilder.Entity<Signup>().HasKey(s => s.Id);
             modelBuilder.Entity<Signup>().HasQueryFilter(e => !e.Deleted_ý);
         }
 

@@ -1,5 +1,4 @@
-﻿
-using ExcelDBviaEntityFramework.Data;
+﻿using ExcelDBviaEntityFramework.Data;
 using ExcelDBviaEntityFramework.Helpers;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
@@ -30,7 +29,7 @@ namespace ExcelDBviaEntityFramework.Services
         public Signup AddSignup(SignupUpsert insert)
         {
             var newSignup = new Signup
-            {                
+            {
                 Deleted_ý = false,
                 Id = GenerateId(),
                 Name = insert.Name,
@@ -66,7 +65,7 @@ namespace ExcelDBviaEntityFramework.Services
                     signup.PartySize = update.PartySize.Value;
 
                 ctx.SaveChanges();
-            
+
                 return signup;
             }
         }
@@ -101,7 +100,7 @@ namespace ExcelDBviaEntityFramework.Services
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
                 return [.. ctx.Signups];
-            }          
+            }
         }
 
         private string GenerateId()

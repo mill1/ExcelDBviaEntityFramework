@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Common;
+﻿using ExcelDBviaEntityFramework.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Data.Common;
 using System.Reflection;
-using ExcelDBviaEntityFramework.Interfaces;
 
 namespace ExcelDBviaEntityFramework.Services
 {

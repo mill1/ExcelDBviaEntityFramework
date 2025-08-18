@@ -1,20 +1,20 @@
-﻿using ExcelDBviaEntityFramework.Interfaces;
+﻿using ExcelDBviaEntityFramework.Console;
+using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
-using ExcelDBviaEntityFramework.Console;
 
 namespace ExcelDBviaEntityFramework.Services
 {
     public class UIActions
-    {        
-        private readonly ISignupService _signupService;        
+    {
+        private readonly ISignupService _signupService;
 
         public UIActions(ISignupService signupService)
-        {            
+        {
             _signupService = signupService;
         }
 
         public void AddSignup()
-        {            
+        {
             _signupService.CheckData();
 
             var name = ConsoleHelper.GetUserInput("Name:");
@@ -61,7 +61,7 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void ListSignups()
         {
-            _signupService.CheckData(checkIdUniqueness:false);
+            _signupService.CheckData(checkIdUniqueness: false);
 
             var signups = _signupService.GetSignups();
 
@@ -90,7 +90,7 @@ namespace ExcelDBviaEntityFramework.Services
         {
             var newName = ConsoleHelper.GetUserInput($"New name (leave empty to keep '{existing.Name}'):");
             var newPhone = ConsoleHelper.GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
-            var partySize = GetValidInteger($"New party size (leave empty to keep {existing.PartySize}):", allowNull:true);
+            var partySize = GetValidInteger($"New party size (leave empty to keep {existing.PartySize}):", allowNull: true);
 
             return CreateUpdateDto(newName, newPhone, partySize);
         }
@@ -120,7 +120,7 @@ namespace ExcelDBviaEntityFramework.Services
             while (true)
             {
                 string input = ConsoleHelper.GetUserInput(prompt);
-                
+
                 if (string.IsNullOrWhiteSpace(input))
                 {
                     if (allowNull)

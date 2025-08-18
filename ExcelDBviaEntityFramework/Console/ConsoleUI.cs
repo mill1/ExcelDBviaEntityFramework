@@ -5,10 +5,9 @@ using ExcelDBviaEntityFramework.Services;
 namespace ExcelDBviaEntityFramework.Console
 {
     public class ConsoleUI
-    {        
+    {
         private readonly Dictionary<string, Action> _menuOptions;
         private readonly List<MenuItem> _menuItems;
-        private readonly ISignupService _signupService;
         private readonly UIActions _actions;
         private bool _quit;
 
@@ -24,7 +23,6 @@ namespace ExcelDBviaEntityFramework.Console
 
         public ConsoleUI(ISignupService signupService)
         {
-            _signupService = signupService;
             _actions = new UIActions(signupService);
 
             _menuItems =
@@ -47,7 +45,7 @@ namespace ExcelDBviaEntityFramework.Console
                 ExecuteUserInterface();
             }
             catch (Exception e)
-            {               
+            {
                 ConsoleHelper.WriteLineColored(e.ToString(), ConsoleColor.Red);
             }
             finally
@@ -88,12 +86,12 @@ namespace ExcelDBviaEntityFramework.Console
                         ConsoleHelper.WriteLineColored(GetDatabaseErrorMessage(ex), ConsoleColor.Red);
                     }
                     catch (Exception ex)
-                    {                        
+                    {
                         ConsoleHelper.WriteLineColored($"Unexpected error: {ex.Message}", ConsoleColor.Red);
                     }
                 }
                 else
-                {                    
+                {
                     ConsoleHelper.WriteLineColored($"Invalid option: {option}", ConsoleColor.Magenta);
                 }
             }
@@ -103,7 +101,7 @@ namespace ExcelDBviaEntityFramework.Console
         {
             var sheetName = Constants.SheetNameSignups.Replace("$", string.Empty);
 
-           return $"""
+            return $"""
                 Error connecting to the Excel data. 
                 Exception: {ex.Message}
                 Requirements w.r. to the Excel file database:
@@ -138,7 +136,7 @@ namespace ExcelDBviaEntityFramework.Console
         }
 
         private void PrintMenuOptions()
-        {            
+        {
             ConsoleHelper.WriteLineColored("Make a choice:", ConsoleColor.Yellow);
 
             foreach (var item in _menuItems)
@@ -152,7 +150,7 @@ namespace ExcelDBviaEntityFramework.Console
             const int LineWidth = 40;
             var assName = GetAssemblyName();
             var borderChar = '#';
-            string centered = assName.PadLeft((LineWidth - 2 + assName.Length) / 2).PadRight(LineWidth - 2);            
+            string centered = assName.PadLeft((LineWidth - 2 + assName.Length) / 2).PadRight(LineWidth - 2);
 
             ConsoleHelper.WriteLineColored(new string(borderChar, LineWidth), ConsoleColor.Green);
             ConsoleHelper.WriteLineColored($"{borderChar}{centered}{borderChar}", ConsoleColor.Green);
