@@ -88,6 +88,10 @@ namespace ExcelDBviaEntityFramework.Services
                     return false;
 
                 ctx.Signups.Remove(signup);
+
+                Log log = CreateLogEntry(id, $"Deleted signup with id {id} ({signup.Name})");
+                ctx.Logs.Add(log);
+
                 ctx.SaveChanges();
                 deleted = true;
             }
@@ -173,6 +177,7 @@ namespace ExcelDBviaEntityFramework.Services
             return new Log
             {
                 Id = Guid.NewGuid().ToString("N")[..8],
+                User = Environment.UserName,
                 Timestamp = DateTime.UtcNow,
                 SignupId = signupId,
                 Entry = entry

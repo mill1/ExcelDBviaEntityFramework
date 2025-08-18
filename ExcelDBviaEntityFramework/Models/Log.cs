@@ -8,6 +8,7 @@ namespace ExcelDBviaEntityFramework.Models
     {
         [Key]
         public string Id { get; set; }
+        public string User { get; set; }
         public DateTime Timestamp { get; set; }
         [Column("Signup id")]
         public string SignupId { get; set; }

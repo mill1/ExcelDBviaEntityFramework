@@ -23,7 +23,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             var signup = _signupService.AddSignup(CreateInsertDto(name, phone, partySize));
 
-            ConsoleHelper.WriteLineColored($"Added signup: {signup}", ConsoleColor.Cyan);
+            ConsoleHelper.WriteLineColored($"Added signup: {signup}", ConsoleColor.Green);
         }
 
         public void UpdateSignup()
@@ -61,7 +61,7 @@ namespace ExcelDBviaEntityFramework.Services
             bool result = _signupService.DeleteSignup(id);
             var message = result ? "The signup is deleted" : $"Signup with id '{id}' not found.";
 
-            ConsoleHelper.WriteLineColored($"{message}", ConsoleColor.Green);
+            ConsoleHelper.WriteLineColored($"{message}", result ? ConsoleColor.Green : ConsoleColor.Cyan);
         }
 
         public void ListSignups()
@@ -77,7 +77,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             foreach (var signup in signups)
             {
-                ConsoleHelper.WriteLineColored($"{signup}", ConsoleColor.Cyan);
+                ConsoleHelper.WriteLineColored($"{signup}", ConsoleColor.Green);
             }
             ConsoleHelper.WriteLineColored(new string('-', maxLength), ConsoleColor.Cyan);
             ConsoleHelper.WriteLineColored($"Number of signups: {signups.Count}", ConsoleColor.Cyan);
