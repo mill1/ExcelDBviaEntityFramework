@@ -22,9 +22,13 @@
     <None Update="Excel files\Signups v02.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Excel files\Signups.xlsx">
+    <None Update="Excel files\Signups_v2.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Excel files\" />
   </ItemGroup>
 
 </Project>
