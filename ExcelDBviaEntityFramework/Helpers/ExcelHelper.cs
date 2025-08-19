@@ -20,7 +20,9 @@ namespace ExcelDBviaEntityFramework.Helpers
                 if (signupsSheet.Cell(row, Constants.SignupsColumnIndexId).GetString() != id)
                     continue;                
 
-                if (signupsSheet.Cell(row, Constants.SignupsColumnIndexDeleted).GetString().Equals("true", StringComparison.OrdinalIgnoreCase))
+                var deletedValue = signupsSheet.Cell(row, Constants.SignupsColumnIndexDeleted).GetString().ToLower();
+
+                if (deletedValue == "true" || deletedValue == "-1" || deletedValue == "1")
                 {
                     signupsSheet.Row(row).Delete();
 

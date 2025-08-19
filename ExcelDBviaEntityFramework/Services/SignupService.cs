@@ -173,18 +173,22 @@ namespace ExcelDBviaEntityFramework.Services
         {
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
-                var lastSignup = ctx.Signups.AsNoTracking().OrderByDescending(s => s.Id).FirstOrDefault();
+                var signups = ctx.Signups.AsNoTracking().ToList();
 
-                // If there are no signups, return "1" as the first ID
+                var lastSignup = signups.OrderByDescending(s => s.Id).FirstOrDefault();
+
                 if (lastSignup == null)
                     return "1";
 
-                bool allIntegers = ctx.Signups
-                    .AsEnumerable()
-                    .All(s => int.TryParse(s.Id, out _));
+                bool allIntegers = signups.All(s => int.TryParse(s.Id, out _));
 
                 if (allIntegers)
-                    return (int.Parse(lastSignup.Id) + 1).ToString();
+                {
+                    var idsAsIntegers = signups.Select(s => int.Parse(s.Id)).ToList();
+                    var max = idsAsIntegers.OrderByDescending(x => x).Last(); 
+
+                    return (max + 1).ToString();
+                }
 
                 return $"{lastSignup.Id}b";
             }
