@@ -8,9 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 // TODO
 // -unit tests
-// Bulk insert for testing: AddRange
-// Report: Logs per signup
-// cascade delete
+// - Excel: Add logs for signup data toevoegen
 
 namespace ExcelDBviaEntityFramework
 {

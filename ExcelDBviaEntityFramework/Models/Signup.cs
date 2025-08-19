@@ -20,7 +20,7 @@ namespace ExcelDBviaEntityFramework.Models
         public int PartySize { get; set; }
 
         [NotMapped]
-        public ICollection<Log> Logs { get; set; } = new List<Log>();
+        public ICollection<Log> Logs { get; set; } = [];
 
         public override string? ToString()
         {

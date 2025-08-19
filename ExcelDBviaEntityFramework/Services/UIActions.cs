@@ -2,6 +2,8 @@
 using ExcelDBviaEntityFramework.Console;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using System;
 
 namespace ExcelDBviaEntityFramework.Services
 {
@@ -32,7 +34,7 @@ namespace ExcelDBviaEntityFramework.Services
             _signupService.CheckData();
 
             var id = ConsoleHelper.GetUserInput($"Id of signup to update:");
-            var existing = _signupService.GetSignupByEFId(id);
+            var existing = _signupService.GetSignup(id);
 
             if (existing == null)
             {
@@ -59,7 +61,9 @@ namespace ExcelDBviaEntityFramework.Services
             _signupService.CheckData();
 
             var id = ConsoleHelper.GetUserInput("Id of signup to delete:");
-            bool result = _signupService.DeleteSignup(id);
+            var cascadeDelete = ConsoleHelper.GetUserInput("Perform cascade delete? (y/n)");
+
+            bool result = _signupService.DeleteSignup(id, cascadeDelete.Trim().ToLower() == "y");
             var message = result ? "The signup is deleted" : $"Signup with id '{id}' not found.";
 
             ConsoleHelper.WriteLineColored($"{message}", result ? ConsoleColor.Green : ConsoleColor.Cyan);
@@ -84,6 +88,34 @@ namespace ExcelDBviaEntityFramework.Services
             ConsoleHelper.WriteLineColored($"Average party size: {signups.Average(s => s.PartySize):#.##}", ConsoleColor.Cyan);
             var largestParty = signups.OrderByDescending(s => s.PartySize).First();
             ConsoleHelper.WriteLineColored($"Largest: {largestParty.Name}, party of {largestParty.PartySize}", ConsoleColor.Cyan);
+        }
+
+        public void ListLogsPerSignup()
+        {
+            _signupService.CheckData();
+
+            var id = ConsoleHelper.GetUserInput("Id of the signup:");
+
+            var signup = _signupService.GetSignupIncludingLogs(id);
+
+            if (signup == null)
+            {
+                ConsoleHelper.WriteLineColored($"Signup with {nameof(Signup.Id)} '{id}' not found.", ConsoleColor.Cyan);
+                return;
+            }
+
+            ConsoleHelper.WriteLineColored($"Logs related to signup {id}:", ConsoleColor.Cyan);
+
+            if (!signup.Logs.Any())
+            {
+                ConsoleHelper.WriteLineColored($"[No logs]", ConsoleColor.Cyan);
+            }
+            else
+            {
+                foreach (var log in signup.Logs)
+                    ConsoleHelper.WriteLineColored(log.ToString(), ConsoleColor.Cyan);
+            }
+
         }
 
         public void TestStuff()

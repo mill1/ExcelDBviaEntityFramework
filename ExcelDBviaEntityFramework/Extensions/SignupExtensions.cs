@@ -4,6 +4,13 @@ namespace ExcelDBviaEntityFramework.Extensions
 {
     public static class SignupExtensions
     {
+        public static Signup IncludeLogs(this Signup signup, List<Log> logs)
+        {
+            signup.Logs = logs.Where(l => l.SignupId == signup.Id).ToList();
+
+            return signup;
+        }
+
         public static List<Signup> IncludeLogs(this List<Signup> signups, List<Log> logs)
         {
             var logsBySignup = logs.GroupBy(l => l.SignupId)

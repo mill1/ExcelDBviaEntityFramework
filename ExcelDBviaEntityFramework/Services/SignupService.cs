@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExcelDBviaEntityFramework.Services
 {
+    // TODO: fix ugly 'Check calling method' exception 
+
     public class SignupService : ISignupService
     {
         private readonly IDbContextFactory<ExcelDbContext> _dbContextFactory;
@@ -18,7 +20,7 @@ namespace ExcelDBviaEntityFramework.Services
             _dbContextFactory = dbContextFactory;
         }
 
-        public Signup GetSignupByEFId(string id)
+        public Signup GetSignup(string id)
         {
             using (var ctx = _dbContextFactory.CreateDbContext())
             {                
@@ -77,7 +79,7 @@ namespace ExcelDBviaEntityFramework.Services
             }
         }
 
-        public bool DeleteSignup(string id)
+        public bool DeleteSignup(string id, bool cascadeDelete)
         {
             bool deleted = false;
 
@@ -100,7 +102,7 @@ namespace ExcelDBviaEntityFramework.Services
             if (deleted)
             {
                 Thread.Sleep(100); // Just 2b sure
-                ExcelHelper.RemoveDeletedRow(id, true);
+                ExcelHelper.RemoveDeletedRow(id, cascadeDelete);
             }
 
             return deleted;
@@ -111,6 +113,19 @@ namespace ExcelDBviaEntityFramework.Services
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
                 return [.. ctx.Signups];
+            }
+        }
+
+        public Signup GetSignupIncludingLogs(string id)
+        {
+            var signup = GetSignup(id);
+
+            if (signup == null)
+                return null;
+
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {                
+                return signup.IncludeLogs(ctx.Logs.AsNoTracking().ToList());
             }
         }
 

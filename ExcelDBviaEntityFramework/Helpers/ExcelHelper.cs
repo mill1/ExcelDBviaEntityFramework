@@ -16,18 +16,16 @@ namespace ExcelDBviaEntityFramework.Helpers
             var lastRow = GetLastRow(signupsSheet);
 
             for (int row = lastRow; row > 1; row--) // skip header
-            {
-                var idCell = signupsSheet.Cell(row, Constants.SignupsColumnIndexId);
+            {                
+                if (signupsSheet.Cell(row, Constants.SignupsColumnIndexId).GetString() != id)
+                    continue;                
 
-                if (!idCell.GetString().Equals(id, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                var deletedFlag = signupsSheet.Cell(row, Constants.SignupsColumnIndexDeleted).GetString();
-
-                if (deletedFlag.Equals("true", StringComparison.OrdinalIgnoreCase) || deletedFlag.Equals("1"))
+                if (signupsSheet.Cell(row, Constants.SignupsColumnIndexDeleted).GetString().Equals("true", StringComparison.OrdinalIgnoreCase))
                 {
                     signupsSheet.Row(row).Delete();
-                    RemoveLogsForSignup(id, logsSheet);
+
+                    if(cascadeDelete)
+                        RemoveLogsForSignup(id, logsSheet);
                 }
             }
 

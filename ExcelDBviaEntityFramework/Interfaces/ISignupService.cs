@@ -4,12 +4,13 @@ namespace ExcelDBviaEntityFramework.Interfaces
 {
     public interface ISignupService
     {
+        Signup GetSignup(string id);
         List<Signup> GetSignups();
+        Signup GetSignupIncludingLogs(string id);
         List<Signup> GetSignupsIncludingLogs();
-        Signup GetSignupByEFId(string id);
         Signup AddSignup(SignupUpsert insert);
         Signup UpdateSignup(string id, SignupUpsert update);
-        bool DeleteSignup(string id);
+        bool DeleteSignup(string id, bool cascadeDelete);
         void TestStuff();
         void CheckData(bool checkIdUniqueness = true);
     }
