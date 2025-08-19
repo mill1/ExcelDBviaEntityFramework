@@ -4,7 +4,7 @@ using ExcelDBviaEntityFramework.Models;
 
 namespace ExcelDBviaEntityFramework.Services
 {
-    public class UIActions
+    public class UIActions : IUIActions
     {
         private readonly ISignupService _signupService;
 
@@ -38,7 +38,7 @@ namespace ExcelDBviaEntityFramework.Services
                 ConsoleHelper.WriteLineColored($"Signup with {nameof(Signup.Id)} '{id}' not found.", ConsoleColor.Cyan);
                 return;
             }
-            
+
             SignupUpsert update = GetUpdateDto(existing);
 
             if (update.Name == null && update.PhoneNumber == null && update.PartySize == null)

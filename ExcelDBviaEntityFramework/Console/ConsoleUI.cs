@@ -1,6 +1,5 @@
 ﻿using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
-using ExcelDBviaEntityFramework.Services;
 
 namespace ExcelDBviaEntityFramework.Console
 {
@@ -8,7 +7,7 @@ namespace ExcelDBviaEntityFramework.Console
     {
         private readonly Dictionary<string, Action> _menuOptions;
         private readonly List<MenuItem> _menuItems;
-        private readonly UIActions _actions;
+        private readonly IUIActions _uiActions;
         private bool _quit;
 
         private static class MenuOptions
@@ -22,18 +21,18 @@ namespace ExcelDBviaEntityFramework.Console
             public const string Quit = "q";
         }
 
-        public ConsoleUI(ISignupService signupService)
+        public ConsoleUI(IUIActions uiActions)
         {
-            _actions = new UIActions(signupService);
+            _uiActions = uiActions;
 
             _menuItems =
             [
-                new("Add signup", MenuOptions.AddSignup, _actions.AddSignup),
-                new("Update signup", MenuOptions.UpdateSignup, _actions.UpdateSignup),
-                new("Delete signup", MenuOptions.DeleteSignup, _actions.DeleteSignup),
-                new("Print signups", MenuOptions.PrintSignups, _actions.ListSignups),
-                new("Print Logs per signup", MenuOptions.LogsPerSignup, _actions.ListLogsPerSignup),
-                new("Test stuff", MenuOptions.TestStuff, _actions.TestStuff),
+                new("Add signup", MenuOptions.AddSignup, _uiActions.AddSignup),
+                new("Update signup", MenuOptions.UpdateSignup, _uiActions.UpdateSignup),
+                new("Delete signup", MenuOptions.DeleteSignup, _uiActions.DeleteSignup),
+                new("Print signups", MenuOptions.PrintSignups, _uiActions.ListSignups),
+                new("Print Logs per signup", MenuOptions.LogsPerSignup, _uiActions.ListLogsPerSignup),
+                new("Test stuff", MenuOptions.TestStuff, _uiActions.TestStuff),
                 new("Quit", MenuOptions.Quit, () => _quit = true)
             ];
 
@@ -78,14 +77,7 @@ namespace ExcelDBviaEntityFramework.Console
                     }
                     catch (System.Data.OleDb.OleDbException ex)
                     {
-                        var errorMessageExcerpt = "The Microsoft Access database engine could not find the object '.Dual'";
-
-                        if (ex.Message.Contains(errorMessageExcerpt))
-                        {
-                            ConsoleHelper.WriteLineColored(GetDualObjectNotFoundErrorMessage(errorMessageExcerpt), ConsoleColor.Red);
-                            return;
-                        }
-                        ConsoleHelper.WriteLineColored(GetDatabaseErrorMessage(ex), ConsoleColor.Red);
+                        HandleOleDbException(ex);
                     }
                     catch (Exception ex)
                     {
@@ -97,6 +89,18 @@ namespace ExcelDBviaEntityFramework.Console
                     ConsoleHelper.WriteLineColored($"Invalid option: {option}", ConsoleColor.Magenta);
                 }
             }
+        }
+
+        private static void HandleOleDbException(System.Data.OleDb.OleDbException ex)
+        {
+            var errorMessageExcerpt = "The Microsoft Access database engine could not find the object '.Dual'";
+
+            if (ex.Message.Contains(errorMessageExcerpt))
+            {
+                ConsoleHelper.WriteLineColored(GetDualObjectNotFoundErrorMessage(errorMessageExcerpt), ConsoleColor.Red);
+                return;
+            }
+            ConsoleHelper.WriteLineColored(GetDatabaseErrorMessage(ex), ConsoleColor.Red);
         }
 
         private static string GetDatabaseErrorMessage(System.Data.OleDb.OleDbException ex)
@@ -132,7 +136,7 @@ namespace ExcelDBviaEntityFramework.Console
                    For instance use the `AsEnumerable()` method on the DbSet, e.g.:
                     return ctx.Signups
                         .AsNoTracking()
-                        .AsEnumerable()   // 🚀 forces client-side LINQ
+                        .AsEnumerable()   // forces client-side LINQ
                         .Where(s => !string.IsNullOrEmpty(s.Id));
                 """;
         }

@@ -7,9 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 // TODO
-// -unit tests
+// - unit tests
 // - Excel: Add logs for signup data toevoegen
-// - IUIActions?
 
 namespace ExcelDBviaEntityFramework
 {
@@ -30,6 +29,7 @@ namespace ExcelDBviaEntityFramework
 
             services
             .AddSingleton<ConsoleUI>()
+            .AddSingleton<IUIActions, UIActions>()
             .AddScoped<ISignupService, SignupService>()
             .AddDbContextFactory<ExcelDbContext>(
                 options => options.UseJet($"""
