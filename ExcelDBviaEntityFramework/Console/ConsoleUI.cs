@@ -7,7 +7,7 @@ namespace ExcelDBviaEntityFramework.Console
 {
     public class ConsoleUI
     {
-        private const int TotalWidth = 50;
+        private const int TotalWidth = 40;
         private readonly Dictionary<string, Action> _menuOptions;
         private readonly List<MenuItem> _menuItems;
         private readonly IUIActions _uiActions;
