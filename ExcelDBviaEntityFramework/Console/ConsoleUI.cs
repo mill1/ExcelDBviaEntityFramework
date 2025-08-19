@@ -17,6 +17,7 @@ namespace ExcelDBviaEntityFramework.Console
             public const string UpdateSignup = "u";
             public const string DeleteSignup = "d";
             public const string PrintSignups = "p";
+            public const string TestStuff = "t";
             public const string Help = "h";
             public const string Quit = "q";
         }
@@ -31,6 +32,8 @@ namespace ExcelDBviaEntityFramework.Console
                 new("Update signup", MenuOptions.UpdateSignup, _actions.UpdateSignup),
                 new("Delete signup", MenuOptions.DeleteSignup, _actions.DeleteSignup),
                 new("Print signups", MenuOptions.PrintSignups, _actions.ListSignups),
+                new("Test stuff", MenuOptions.TestStuff, _actions.TestStuff),
+
                 new("Help", MenuOptions.Help, _actions.ShowHelp),
                 new("Quit", MenuOptions.Quit, () => _quit = true)
             ];
@@ -108,8 +111,8 @@ namespace ExcelDBviaEntityFramework.Console
                 - The file name should be {Constants.ExcelFileName}
                 - The file should contain a sheet named {sheetName}
                 - The first row of {sheetName} should contain headers
-                - Column {Constants.ColumnIndexDeleted} should be named {nameof(Signup.Deleted_ý)}
-                - Column {Constants.ColumnIndexId} should be named {nameof(Signup.Id)}
+                - Column {Constants.SignupsColumnIndexDeleted} should be named {nameof(Signup.Deleted_ý)}
+                - Column {Constants.SignupsColumnIndexId} should be named {nameof(Signup.Id)}
                 """;
         }
 

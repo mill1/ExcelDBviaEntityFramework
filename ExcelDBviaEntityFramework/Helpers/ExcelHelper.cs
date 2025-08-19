@@ -4,34 +4,58 @@ namespace ExcelDBviaEntityFramework.Helpers
 {
     public static class ExcelHelper
     {
-        public static void RemoveDeletedRow(string id)
+        public static void RemoveDeletedRow(string id, bool cascadeDelete)
         {
             var filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
 
             using var workbook = new XLWorkbook(filePath);
 
-            var worksheet = workbook.Worksheet(Constants.SheetNameSignups.Replace("$", string.Empty));
+            var signupsSheet = GetSignupsSheet(workbook, Constants.SheetNameSignups);
+            var logsSheet = GetSignupsSheet(workbook, Constants.SheetNameLogs);
 
-            // Iterate bottom-up (so row indices remain valid after deletes)
-            var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? 1;
+            var lastRow = GetLastRow(signupsSheet);
 
             for (int row = lastRow; row > 1; row--) // skip header
             {
-                var cell = worksheet.Cell(row, Constants.ColumnIndexId);
+                var idCell = signupsSheet.Cell(row, Constants.SignupsColumnIndexId);
 
-                if (!cell.GetString().Equals(id))
+                if (!idCell.GetString().Equals(id, StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                cell = worksheet.Cell(row, Constants.ColumnIndexDeleted);
-                var value = cell.GetString();
+                var deletedFlag = signupsSheet.Cell(row, Constants.SignupsColumnIndexDeleted).GetString();
 
-                if (value.Equals("true", StringComparison.OrdinalIgnoreCase) || value.Equals("1"))
+                if (deletedFlag.Equals("true", StringComparison.OrdinalIgnoreCase) || deletedFlag.Equals("1"))
                 {
-                    worksheet.Row(row).Delete();
+                    signupsSheet.Row(row).Delete();
+                    RemoveLogsForSignup(id, logsSheet);
                 }
             }
 
             workbook.Save();
         }
+
+        private static void RemoveLogsForSignup(string signupId, IXLWorksheet logsSheet)
+        {
+            var lastRow = GetLastRow(logsSheet);
+
+            for (int row = lastRow; row > 1; row--) // skip header
+            {
+                if (logsSheet.Cell(row, Constants.LogsColumnIndexSignupId).GetString() == signupId)
+                {
+                    logsSheet.Row(row).Delete();
+                }
+            }
+        }
+
+        private static int GetLastRow(IXLWorksheet sheet)
+        {
+            return sheet.LastRowUsed()?.RowNumber() ?? 1;
+        }
+
+        private static IXLWorksheet GetSignupsSheet(XLWorkbook workbook, string sheetName)
+        {
+            return workbook.Worksheet(sheetName.Replace("$", string.Empty));
+        }
     }
+
 }

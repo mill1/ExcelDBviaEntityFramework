@@ -100,7 +100,7 @@ namespace ExcelDBviaEntityFramework.Services
             if (deleted)
             {
                 Thread.Sleep(100); // Just 2b sure
-                ExcelHelper.RemoveDeletedRow(id);
+                ExcelHelper.RemoveDeletedRow(id, true);
             }
 
             return deleted;
@@ -123,6 +123,36 @@ namespace ExcelDBviaEntityFramework.Services
 
                 return signups.IncludeLogs(logs);
             }            
+        }
+
+        public void TestStuff()
+        {
+            // Playground to test stuff.
+            // Currently: bulk inserts to test cascading delete
+
+            var newSignup = new Signup
+            {
+                Deleted_ý = false,
+                Id = GenerateId(),
+                Name = "Garth",
+                PhoneNumber = "555-0000",
+                PartySize = 1
+            };
+
+            var logs = new List<Log>
+            {
+                CreateLogEntry(newSignup.Id, $"Added signup: {newSignup}"),
+                CreateLogEntry(newSignup.Id, $"Updated signup: some update"),
+                CreateLogEntry(newSignup.Id, $"Updated signup: another update"),
+            };
+
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                ctx.Signups.Add(newSignup);
+                ctx.Logs.AddRange(logs);
+
+                ctx.SaveChanges();
+            }
         }
 
         private string GenerateId()
