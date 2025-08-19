@@ -6,9 +6,7 @@ using ExcelDBviaEntityFramework.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-// TODO
-// - unit tests
-// - Excel: Add logs for signup data toevoegen
+// TODO Add unit tests (compare generated tests between ChatGPT and CoPilot)
 
 namespace ExcelDBviaEntityFramework
 {

@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExcelDBviaEntityFramework.Services
 {
-    // TODO: fix ugly 'Check calling method' exception 
-
     public class SignupService : ISignupService
     {
         private readonly IDbContextFactory<ExcelDbContext> _dbContextFactory;
@@ -59,7 +57,7 @@ namespace ExcelDBviaEntityFramework.Services
                 var signup = ctx.Signups.FirstOrDefault(s => s.Id == id);
 
                 if (signup == null)
-                    throw new SignupException("Check calling method. Signup should exist.");                
+                    return null;
 
                 if (!string.IsNullOrWhiteSpace(update.Name))
                     signup.Name = update.Name;

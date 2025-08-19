@@ -49,7 +49,9 @@ namespace ExcelDBviaEntityFramework.Services
 
             var updated = _signupService.UpdateSignup(id, update);
 
-            if (updated != null)
+            if (updated == null)
+                ConsoleHelper.WriteLineColored($"Signup set to null by other process", ConsoleColor.Magenta);
+            else
                 ConsoleHelper.WriteLineColored($"Updated: {updated}", ConsoleColor.Green);
         }
 
