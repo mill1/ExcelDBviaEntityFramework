@@ -21,7 +21,7 @@ namespace ExcelDBviaEntityFramework.Services
             var phone = ConsoleHelper.GetUserInput("Phone:");
             int partySize = (int)GetValidInteger("Party size:");
 
-            var signup = _signupService.AddSignup(CreateInsertDto(name, phone, partySize));
+            var signup = _signupService.AddSignup(MapToDto(name, phone, partySize));
 
             ConsoleHelper.WriteLineColored($"Added signup: {signup}", ConsoleColor.Green);
         }
@@ -74,15 +74,17 @@ namespace ExcelDBviaEntityFramework.Services
 
             var signups = _signupService.GetSignups();
             var maxLength = signups.Max(s => $"{s.Id}{s.Name}{s.PhoneNumber}{s.PartySize}".Length) + 9;
+            var line = new string('*', maxLength);
 
             ConsoleHelper.WriteLineColored($"Current signups:", ConsoleColor.Cyan);
-            ConsoleHelper.WriteLineColored(new string('-', maxLength), ConsoleColor.Cyan);
+            ConsoleHelper.WriteLineColored(line, ConsoleColor.Cyan);
 
             foreach (var signup in signups)
             {
                 ConsoleHelper.WriteLineColored($"{signup}", ConsoleColor.Green);
             }
-            ConsoleHelper.WriteLineColored(new string('-', maxLength), ConsoleColor.Cyan);
+
+            ConsoleHelper.WriteLineColored(line, ConsoleColor.Cyan);
             ConsoleHelper.WriteLineColored($"Number of signups: {signups.Count}", ConsoleColor.Cyan);
             ConsoleHelper.WriteLineColored($"Average party size: {signups.Average(s => s.PartySize):#.##}", ConsoleColor.Cyan);
             var largestParty = signups.OrderByDescending(s => s.PartySize).First();
@@ -130,20 +132,10 @@ namespace ExcelDBviaEntityFramework.Services
             var newPhone = ConsoleHelper.GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
             var partySize = GetValidInteger($"New party size (leave empty to keep {existing.PartySize}):", allowNull: true);
 
-            return CreateUpdateDto(newName, newPhone, partySize);
+            return MapToDto(newName, newPhone, partySize);
         }
 
-        private static SignupUpsert CreateInsertDto(string newName, string newPhone, int? partySize)
-        {
-            return new SignupUpsert
-            {
-                Name = string.IsNullOrWhiteSpace(newName) ? null : newName,
-                PhoneNumber = string.IsNullOrWhiteSpace(newPhone) ? null : newPhone,
-                PartySize = partySize
-            };
-        }
-
-        private static SignupUpsert CreateUpdateDto(string newName, string newPhone, int? partySize)
+        private static SignupUpsert MapToDto(string newName, string newPhone, int? partySize)
         {
             return new SignupUpsert
             {

@@ -1,13 +1,17 @@
-﻿using ExcelDBviaEntityFramework.Interfaces;
-using ExcelDBviaEntityFramework.Models;
+﻿using ExcelDBviaEntityFramework.Exceptions;
+using ExcelDBviaEntityFramework.Extensions;
+using ExcelDBviaEntityFramework.Helpers;
+using ExcelDBviaEntityFramework.Interfaces;
 
 namespace ExcelDBviaEntityFramework.Console
 {
     public class ConsoleUI
     {
+        private const int TotalWidth = 50;
         private readonly Dictionary<string, Action> _menuOptions;
         private readonly List<MenuItem> _menuItems;
         private readonly IUIActions _uiActions;
+        private readonly IAssemblyService _assemblyService;
         private bool _quit;
 
         private static class MenuOptions
@@ -21,10 +25,10 @@ namespace ExcelDBviaEntityFramework.Console
             public const string Quit = "q";
         }
 
-        public ConsoleUI(IUIActions uiActions)
+        public ConsoleUI(IUIActions uiActions, IAssemblyService assemblyService)
         {
             _uiActions = uiActions;
-
+            _assemblyService = assemblyService;
             _menuItems =
             [
                 new("Add signup", MenuOptions.AddSignup, _uiActions.AddSignup),
@@ -81,91 +85,50 @@ namespace ExcelDBviaEntityFramework.Console
                     }
                     catch (Exception ex)
                     {
-                        ConsoleHelper.WriteLineColored($"Unexpected error: {ex.Message}", ConsoleColor.Red);
+                        ConsoleHelper.WriteLineColored(ErrorMessageFormatter.UnexpectedError(ex), ConsoleColor.Red);
                     }
                 }
                 else
                 {
-                    ConsoleHelper.WriteLineColored($"Invalid option: {option}", ConsoleColor.Magenta);
+                    ConsoleHelper.WriteLineColored(ErrorMessageFormatter.InvalidOption(option), ConsoleColor.Magenta);
                 }
             }
         }
 
         private static void HandleOleDbException(System.Data.OleDb.OleDbException ex)
         {
-            var errorMessageExcerpt = "The Microsoft Access database engine could not find the object '.Dual'";
+            const string errorMessageExcerpt = "The Microsoft Access database engine could not find the object '.Dual'";
 
             if (ex.Message.Contains(errorMessageExcerpt))
             {
-                ConsoleHelper.WriteLineColored(GetDualObjectNotFoundErrorMessage(errorMessageExcerpt), ConsoleColor.Red);
+                ConsoleHelper.WriteLineColored(ErrorMessageFormatter.DualObjectNotFound(errorMessageExcerpt), ConsoleColor.Red);
                 return;
             }
-            ConsoleHelper.WriteLineColored(GetDatabaseErrorMessage(ex), ConsoleColor.Red);
-        }
-
-        private static string GetDatabaseErrorMessage(System.Data.OleDb.OleDbException ex)
-        {
-            var sheetName = Constants.SheetNameSignups.Replace("$", string.Empty);
-
-            return $"""
-                Error connecting to the Excel data. 
-                Exception: {ex.Message}
-                Requirements w.r. to the Excel file database:
-                - The file name should be {Constants.ExcelFileName}
-                - The file should contain a sheet named {sheetName}
-                - The first row of {sheetName} should contain headers
-                - Column {Constants.SignupsColumnIndexDeleted} should be named {nameof(Signup.Deleted_ý)}
-                - Column {Constants.SignupsColumnIndexId} should be named {nameof(Signup.Id)}
-                """;
-        }
-
-        private static string GetDualObjectNotFoundErrorMessage(string errorMessageExcerpt)
-        {
-            return $"""                                
-                The Jet provider has issued a .Dual probe when EF asked it for metadata w.r. to the query.
-                Since Excel is not a relational database this causes next error:
-                {errorMessageExcerpt}
-                There are two workarounds for this:
-                1. Force EF to skip relational translation paths by using no-tracking raw SQL instead of LINQ:
-                    return ctx.Signups
-                        .FromSqlRaw($"SELECT * FROM [{Constants.SheetNameSignups}]")
-                        .AsNoTracking()
-                        .ToList();
-                2. Switch to client-side evaluation
-                   If you must keep LINQ, call .AsEnumerable() before filtering so EF doesn’t try to translate.
-                   For instance use the `AsEnumerable()` method on the DbSet, e.g.:
-                    return ctx.Signups
-                        .AsNoTracking()
-                        .AsEnumerable()   // forces client-side LINQ
-                        .Where(s => !string.IsNullOrEmpty(s.Id));
-                """;
+            ConsoleHelper.WriteLineColored(ErrorMessageFormatter.DatabaseError(ex), ConsoleColor.Red);
         }
 
         private void PrintMenuOptions()
         {
-            ConsoleHelper.WriteLineColored("Make a choice:", ConsoleColor.Yellow);
+            ConsoleHelper.WriteLineColored(new string('-', TotalWidth), ConsoleColor.Yellow);
 
             foreach (var item in _menuItems)
             {
                 ConsoleHelper.WriteLineColored($"- {item.Label} ({item.Key})", ConsoleColor.Yellow);
             }
+
+            ConsoleHelper.WriteLineColored(new string('-', TotalWidth), ConsoleColor.Yellow);
         }
 
-        private static void DrawBanner()
+        private void DrawBanner()
         {
-            const int LineWidth = 40;
-            var assName = GetAssemblyName();
-            var borderChar = '#';
-            string centered = assName.PadLeft((LineWidth - 2 + assName.Length) / 2).PadRight(LineWidth - 2);
+            var assemblyName = _assemblyService.GetAssemblyName();
+            string appVersion = _assemblyService.GetAssemblyValue("Version", assemblyName);
+            string blankLine = new string(' ', TotalWidth);
 
-            ConsoleHelper.WriteLineColored(new string(borderChar, LineWidth), ConsoleColor.Green);
-            ConsoleHelper.WriteLineColored($"{borderChar}{centered}{borderChar}", ConsoleColor.Green);
-            ConsoleHelper.WriteLineColored(new string(borderChar, LineWidth), ConsoleColor.Green);
-        }
-
-        private static string GetAssemblyName()
-        {
-            return typeof(Program).Assembly.GetName().Name;
+            ConsoleHelper.WriteLineColored(blankLine + "\r\n" + blankLine, ConsoleColor.White, ConsoleColor.DarkBlue);
+            ConsoleHelper.WriteLineColored($"{assemblyName.Name}".PadMiddle(TotalWidth, ' '), ConsoleColor.White, ConsoleColor.DarkBlue);
+            ConsoleHelper.WriteLineColored($"version: {appVersion}".PadMiddle(TotalWidth, ' '), ConsoleColor.White, ConsoleColor.DarkBlue);
+            ConsoleHelper.WriteLineColored(blankLine + "\r\n" + blankLine, ConsoleColor.White, ConsoleColor.DarkBlue);
         }
 
         private record MenuItem(string Label, string Key, Action Action);

@@ -1,4 +1,5 @@
 ﻿using ExcelDBviaEntityFramework.Data;
+using ExcelDBviaEntityFramework.Exceptions;
 using ExcelDBviaEntityFramework.Extensions;
 using ExcelDBviaEntityFramework.Helpers;
 using ExcelDBviaEntityFramework.Interfaces;

@@ -1,4 +1,6 @@
-﻿namespace ExcelDBviaEntityFramework.Helpers
+﻿using ExcelDBviaEntityFramework.Exceptions;
+
+namespace ExcelDBviaEntityFramework.Helpers
 {
     public static class FileHelper
     {
@@ -30,6 +32,5 @@
                 throw new SignupException($"The Excel file is currently in use by another process. Check if the file is opened in Excel.\r\nPath: {filePath}");
             }
         }
-
     }
 }

@@ -2,9 +2,11 @@
 {
     public static class ConsoleHelper
     {
-        public static void WriteLineColored(string message, ConsoleColor color)
+        public static void WriteLineColored(string message, ConsoleColor foregroundColor, ConsoleColor backgroundColor=ConsoleColor.Black)
         {
-            System.Console.ForegroundColor = color;
+            System.Console.ForegroundColor = foregroundColor;
+            System.Console.BackgroundColor = backgroundColor;
+
             System.Console.WriteLine(message);
         }
 

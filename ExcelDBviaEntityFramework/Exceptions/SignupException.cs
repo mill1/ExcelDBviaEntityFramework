@@ -1,4 +1,4 @@
-﻿namespace ExcelDBviaEntityFramework
+﻿namespace ExcelDBviaEntityFramework.Exceptions
 {
     public class SignupException : Exception
     {

@@ -28,6 +28,7 @@ namespace ExcelDBviaEntityFramework
             services
             .AddSingleton<ConsoleUI>()
             .AddSingleton<IUIActions, UIActions>()
+            .AddScoped<IAssemblyService, AssemblyService>()
             .AddScoped<ISignupService, SignupService>()
             .AddDbContextFactory<ExcelDbContext>(
                 options => options.UseJet($"""
