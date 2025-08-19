@@ -18,8 +18,7 @@ namespace ExcelDBviaEntityFramework.Console
             public const string DeleteSignup = "d";
             public const string PrintSignups = "p";
             public const string LogsPerSignup = "l";
-            public const string TestStuff = "t";
-            public const string Help = "h";
+            public const string TestStuff = "t";            
             public const string Quit = "q";
         }
 
@@ -35,7 +34,6 @@ namespace ExcelDBviaEntityFramework.Console
                 new("Print signups", MenuOptions.PrintSignups, _actions.ListSignups),
                 new("Print Logs per signup", MenuOptions.LogsPerSignup, _actions.ListLogsPerSignup),
                 new("Test stuff", MenuOptions.TestStuff, _actions.TestStuff),
-                new("Help", MenuOptions.Help, _actions.ShowHelp),
                 new("Quit", MenuOptions.Quit, () => _quit = true)
             ];
 

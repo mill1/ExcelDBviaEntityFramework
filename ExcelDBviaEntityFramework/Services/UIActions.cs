@@ -1,9 +1,6 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using ExcelDBviaEntityFramework.Console;
+﻿using ExcelDBviaEntityFramework.Console;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using System;
 
 namespace ExcelDBviaEntityFramework.Services
 {
@@ -123,11 +120,6 @@ namespace ExcelDBviaEntityFramework.Services
             _signupService.CheckData();
             _signupService.TestStuff();
             ConsoleHelper.WriteLineColored("Stuff has been tested", ConsoleColor.Cyan);
-        }
-
-        public void ShowHelp()
-        {
-            ConsoleHelper.WriteLineColored("Select an option by typing the associated letter and press Enter.", ConsoleColor.Cyan);
         }
 
         private static SignupUpsert GetUpdateDto(Signup existing)
