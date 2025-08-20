@@ -120,7 +120,7 @@ namespace ExcelDBviaEntityFramework.Data
         private int SaveSoftDeletion<TEntity>(EntityEntry<TEntity> entry, ExcelRepository repo, string sheetName, string keyPropertyName)
         where TEntity : class
         {
-            string sql = $"UPDATE [{sheetName}] SET [Deleted] = @deleted WHERE [{keyPropertyName}] = @id";
+            string sql = $"UPDATE [{sheetName}] SET [{Constants.ColumnNameDeleted}] = @deleted WHERE [{keyPropertyName}] = @id";
             var parameters = new List<(string, object)>
             {
                 ("@deleted", true),
