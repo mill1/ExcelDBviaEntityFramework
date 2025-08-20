@@ -37,8 +37,7 @@ An initial Excel file will be copied in the correct folder (/Excel files/).
 **🗄 Data Persistence**
 
 *   **Insert** **/ Update** → Executed via raw SQL into Excel file.
-*   **Delete** → Soft delete (marks row as Deleted\_ý = true).
-*   **Removal** → Rows physically removed in the Excel file by ExcelHelper.RemoveDeletedRows.
+*   **Delete** → Soft delete (marks row as Deleted = true).
 
 - - -
 
