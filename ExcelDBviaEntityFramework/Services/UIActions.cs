@@ -60,9 +60,7 @@ namespace ExcelDBviaEntityFramework.Services
             _signupService.CheckData();
 
             var id = ConsoleHelper.GetUserInput("Id of signup to delete:");
-            var cascadeDelete = ConsoleHelper.GetUserInput("Perform cascade delete? (y/n)");
-
-            bool result = _signupService.DeleteSignup(id, cascadeDelete.Trim().ToLower() == "y");
+            bool result = _signupService.DeleteSignup(id);
             var message = result ? "The signup is deleted" : $"Signup with id '{id}' not found.";
 
             ConsoleHelper.WriteLineColored($"{message}", result ? ConsoleColor.Green : ConsoleColor.Cyan);

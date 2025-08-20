@@ -10,7 +10,7 @@ namespace ExcelDBviaEntityFramework.Interfaces
         List<Signup> GetSignupsIncludingLogs();
         Signup AddSignup(SignupUpsert insert);
         Signup UpdateSignup(string id, SignupUpsert update);
-        bool DeleteSignup(string id, bool cascadeDelete);
+        bool DeleteSignup(string id);
         void TestStuff();
         void CheckData(bool checkIdUniqueness = true);
     }

@@ -15,7 +15,7 @@ namespace ExcelDBviaEntityFramework.Services
         public SignupService(IDbContextFactory<ExcelDbContext> dbContextFactory)
         {
             // Use a db context factory to make sure that the DbContext is disposed after the request.
-            // Using a scoped service somehow keeps the Excel file locked, which prevents write actions by ClosedXML.
+            // Using a scoped db service somehow keeps the Excel file locked, which prevents subsequent CRUD operations.
             _dbContextFactory = dbContextFactory;
         }
 
@@ -78,7 +78,7 @@ namespace ExcelDBviaEntityFramework.Services
             }
         }
 
-        public bool DeleteSignup(string id, bool cascadeDelete)
+        public bool DeleteSignup(string id)
         {
             bool deleted = false;
 
@@ -92,15 +92,10 @@ namespace ExcelDBviaEntityFramework.Services
 
                 ctx.Signups.Remove(signup);
 
-                //Log log = CreateLogEntry(id, $"Deleted signup with id {id} ({signup.Name})");
-                //ctx.Logs.Add(log);
 
-                if (cascadeDelete)
-                {
-                    // Remove all logs related to this signup
-                    var logs = ctx.Logs.Where(l => l.SignupId == id).ToList();
-                    ctx.Logs.RemoveRange(logs);
-                }
+                // Remove all logs related to this signup ('Cascade delete')
+                var logs = ctx.Logs.Where(l => l.SignupId == id).ToList();
+                ctx.Logs.RemoveRange(logs);
 
                 ctx.SaveChanges();
                 deleted = true;

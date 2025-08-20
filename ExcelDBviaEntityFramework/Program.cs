@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 // TODO
-// Remove CreateContext
 // -Reports?
 // -Add unit tests (compare generated tests between ChatGPT and CoPilot)
 
