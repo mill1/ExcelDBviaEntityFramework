@@ -82,7 +82,7 @@ namespace ExcelDBviaEntityFramework.Data
             }
         }
 
-        private int SaveAddition<TEntity>(EntityEntry<TEntity> entry,ExcelRepository repo,string sheetName,string keyPropertyName)
+        private int SaveAddition<TEntity>(EntityEntry<TEntity> entry, ExcelRepository repo, string sheetName, string keyPropertyName)
         where TEntity : class
         {
             // Ensure Id is present
@@ -114,7 +114,6 @@ namespace ExcelDBviaEntityFramework.Data
             repo.Execute(sql, parameters);
             entry.State = EntityState.Unchanged;
             return 1;
-
         }
 
         private int SaveSoftDeletion<TEntity>(EntityEntry<TEntity> entry, ExcelRepository repo, string sheetName, string keyPropertyName)

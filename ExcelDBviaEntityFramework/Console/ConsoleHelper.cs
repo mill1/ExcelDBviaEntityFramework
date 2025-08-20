@@ -2,7 +2,7 @@
 {
     public static class ConsoleHelper
     {
-        public static void WriteLineColored(string message, ConsoleColor foregroundColor, ConsoleColor backgroundColor=ConsoleColor.Black)
+        public static void WriteLineColored(string message, ConsoleColor foregroundColor, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
             System.Console.ForegroundColor = foregroundColor;
             System.Console.BackgroundColor = backgroundColor;

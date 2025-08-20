@@ -21,7 +21,7 @@ namespace ExcelDBviaEntityFramework.Console
             public const string DeleteSignup = "d";
             public const string PrintSignups = "p";
             public const string LogsPerSignup = "l";
-            public const string TestStuff = "t";            
+            public const string TestStuff = "t";
             public const string Quit = "q";
         }
 

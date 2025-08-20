@@ -22,7 +22,7 @@ namespace ExcelDBviaEntityFramework.Services
         public Signup GetSignup(string id)
         {
             using (var ctx = _dbContextFactory.CreateDbContext())
-            {                
+            {
                 return ctx.Signups.AsNoTracking().FirstOrDefault(s => s.Id == id);
             }
         }
@@ -92,7 +92,6 @@ namespace ExcelDBviaEntityFramework.Services
 
                 ctx.Signups.Remove(signup);
 
-
                 // Remove all logs related to this signup ('Cascade delete')
                 var logs = ctx.Logs.Where(l => l.SignupId == id).ToList();
                 ctx.Logs.RemoveRange(logs);
@@ -120,7 +119,7 @@ namespace ExcelDBviaEntityFramework.Services
                 return null;
 
             using (var ctx = _dbContextFactory.CreateDbContext())
-            {                
+            {
                 return signup.IncludeLogs(ctx.Logs.AsNoTracking().ToList());
             }
         }
@@ -133,7 +132,7 @@ namespace ExcelDBviaEntityFramework.Services
                 var logs = ctx.Logs.AsNoTracking().ToList();
 
                 return signups.IncludeLogs(logs);
-            }            
+            }
         }
 
         public void TestStuff()
@@ -182,7 +181,7 @@ namespace ExcelDBviaEntityFramework.Services
                 if (allIntegers)
                 {
                     var idsAsIntegers = signups.Select(s => int.Parse(s.Id)).ToList();
-                    var max = idsAsIntegers.OrderByDescending(x => x).First(); 
+                    var max = idsAsIntegers.OrderByDescending(x => x).First();
 
                     return (max + 1).ToString();
                 }
