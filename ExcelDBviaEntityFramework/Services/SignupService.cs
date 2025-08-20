@@ -185,7 +185,7 @@ namespace ExcelDBviaEntityFramework.Services
                 if (allIntegers)
                 {
                     var idsAsIntegers = signups.Select(s => int.Parse(s.Id)).ToList();
-                    var max = idsAsIntegers.OrderByDescending(x => x).Last(); 
+                    var max = idsAsIntegers.OrderByDescending(x => x).First(); 
 
                     return (max + 1).ToString();
                 }
@@ -233,7 +233,6 @@ namespace ExcelDBviaEntityFramework.Services
 
         private static Log CreateLogEntry(string signupId, string entry)
         {
-            // Log
             return new Log
             {
                 Id = Guid.NewGuid().ToString("N")[..8],
