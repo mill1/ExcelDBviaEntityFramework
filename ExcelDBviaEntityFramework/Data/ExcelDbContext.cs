@@ -20,39 +20,41 @@ namespace ExcelDBviaEntityFramework.Data
         {
             modelBuilder.Entity<Signup>().ToTable(Constants.SheetNameSignups);
             modelBuilder.Entity<Signup>().HasKey(s => s.Id);
-            modelBuilder.Entity<Signup>().HasQueryFilter(e => !e.Deleted_ý);
+            modelBuilder.Entity<Signup>().HasQueryFilter(e => !e.Deleted);
 
             modelBuilder.Entity<Log>().ToTable(Constants.SheetNameLogs);
             modelBuilder.Entity<Log>().HasKey(s => s.Id);
+            modelBuilder.Entity<Log>().HasQueryFilter(e => !e.Deleted);
         }
 
         public override int SaveChanges()
         {
-            int affectedRows = 0;
             var repo = new ExcelRepository(Database.GetDbConnection());
 
+            int affectedRows = 0;
+
+            affectedRows = SaveChangesSignups(repo, affectedRows);
+            SaveChangesLogs(repo);
+
+            return affectedRows;
+        }
+
+        private int SaveChangesSignups(ExcelRepository repo, int affectedRows)
+        {
             foreach (var entry in ChangeTracker.Entries<Signup>().ToList())
             {
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        affectedRows += SaveAddition(entry, repo);
+                        affectedRows += SaveAddition(entry, repo, Constants.SheetNameSignups, nameof(Signup.Id));
                         break;
                     case EntityState.Modified:
                         affectedRows += SaveModification(entry, repo);
                         break;
                     case EntityState.Deleted:
-                        affectedRows += SaveSoftDeletion(entry, repo);
+                        affectedRows += SaveSoftDeletion(entry, repo, Constants.SheetNameSignups, nameof(Signup.Id));
                         break;
                 }
-
-                entry.Reload();
-            }
-
-            foreach (var entry in ChangeTracker.Entries<Log>().ToList())
-            {
-                if (entry.State ==  EntityState.Added)
-                    SaveLogAddition(entry, repo);
 
                 entry.Reload();
             }
@@ -60,15 +62,39 @@ namespace ExcelDBviaEntityFramework.Data
             return affectedRows;
         }
 
-        private int SaveAddition(EntityEntry<Signup> entry, ExcelRepository repo)
+        private void SaveChangesLogs(ExcelRepository repo)
         {
-            if (string.IsNullOrEmpty(entry.CurrentValues[nameof(Signup.Id)]?.ToString()))
-                entry.CurrentValues[nameof(Signup.Id)] = Guid.NewGuid().ToString("N")[..8];
+            foreach (var entry in ChangeTracker.Entries<Log>().ToList())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        SaveAddition(entry, repo, Constants.SheetNameLogs, nameof(Log.Id));
+                        break;
+                    case EntityState.Modified:
+                        throw new InvalidOperationException("Not allowed.");
+                    case EntityState.Deleted:
+                        SaveSoftDeletion(entry, repo, Constants.SheetNameLogs, nameof(Log.Id));
+                        break;
+                }
 
-            entry.CurrentValues[nameof(Signup.Deleted_ý)] = false;
+                entry.Reload();
+            }
+        }
 
+        private int SaveAddition<TEntity>(EntityEntry<TEntity> entry,ExcelRepository repo,string sheetName,string keyPropertyName)
+        where TEntity : class
+        {
+            // Ensure Id is present
+            if (string.IsNullOrEmpty(entry.CurrentValues[keyPropertyName]?.ToString()))
+                entry.CurrentValues[keyPropertyName] = Guid.NewGuid().ToString("N")[..8];
+
+            // Build INSERT statement
             var (columns, parameters) = repo.BuildParameters(entry.Entity, includeAll: true);
-            string sql = $"INSERT INTO [{Constants.SheetNameSignups}] ({string.Join(", ", columns)}) VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
+            string sql = $"INSERT INTO [{sheetName}] " +
+                         $"({string.Join(", ", columns)}) " +
+                         $"VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
+
             repo.Execute(sql, parameters);
 
             entry.State = EntityState.Unchanged;
@@ -88,32 +114,23 @@ namespace ExcelDBviaEntityFramework.Data
             repo.Execute(sql, parameters);
             entry.State = EntityState.Unchanged;
             return 1;
+
         }
 
-        private int SaveSoftDeletion(EntityEntry<Signup> entry, ExcelRepository repo)
+        private int SaveSoftDeletion<TEntity>(EntityEntry<TEntity> entry, ExcelRepository repo, string sheetName, string keyPropertyName)
+        where TEntity : class
         {
-            string sql = $"UPDATE [{Constants.SheetNameSignups}] SET [Deleted_ý] = @deleted WHERE [{nameof(Signup.Id)}] = @id";
+            string sql = $"UPDATE [{sheetName}] SET [Deleted] = @deleted WHERE [{keyPropertyName}] = @id";
             var parameters = new List<(string, object)>
             {
                 ("@deleted", true),
-                ("@id", entry.OriginalValues[nameof(Signup.Id)])
+                ("@id", entry.OriginalValues[keyPropertyName])
             };
 
             repo.Execute(sql, parameters);
             entry.State = EntityState.Detached;
+
             return 1;
-        }
-
-        private void SaveLogAddition(EntityEntry<Log> entry, ExcelRepository repo)
-        {
-            if (string.IsNullOrEmpty(entry.CurrentValues[nameof(Log.Id)]?.ToString()))
-                entry.CurrentValues[nameof(Log.Id)] = Guid.NewGuid().ToString("N")[..8];            
-
-            var (columns, parameters) = repo.BuildParameters(entry.Entity, includeAll: true);
-            string sql = $"INSERT INTO [{Constants.SheetNameLogs}] ({string.Join(", ", columns)}) VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
-            repo.Execute(sql, parameters);
-
-            entry.State = EntityState.Unchanged;
         }
     }
 }

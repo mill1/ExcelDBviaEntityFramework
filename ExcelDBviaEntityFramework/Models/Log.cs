@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ExcelDBviaEntityFramework.Models
 {
     [Table(Constants.SheetNameLogs)]
     public class Log
     {
+        public required bool Deleted { get; set; }
         [Key]
         public string Id { get; set; }
         public DateTime Timestamp { get; set; }

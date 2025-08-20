@@ -8,6 +8,8 @@
         public const string SheetNameLogs = "Log$";
         public const int SignupsColumnIndexDeleted = 1;
         public const int SignupsColumnIndexId = 2;
-        public const int LogsColumnIndexSignupId = 4;
+        public const int LogsColumnIndexDeleted = 1;
+        public const int LogsColumnIndexSignupId = 5;
+        // TODO DELETED
     }
 }

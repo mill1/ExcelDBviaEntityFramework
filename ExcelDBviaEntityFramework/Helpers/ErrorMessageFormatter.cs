@@ -25,7 +25,7 @@ namespace ExcelDBviaEntityFramework.Helpers
                 - The file name should be {Constants.ExcelFileName}
                 - The file should contain a sheet named {sheetName}
                 - The first row of {sheetName} should contain headers
-                - Column {Constants.SignupsColumnIndexDeleted} should be named {nameof(Signup.Deleted_ý)}
+                - Column {Constants.SignupsColumnIndexDeleted} should be named {nameof(Signup.Deleted)}
                 - Column {Constants.SignupsColumnIndexId} should be named {nameof(Signup.Id)}
                 """;
         }

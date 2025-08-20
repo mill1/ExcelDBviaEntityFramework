@@ -6,7 +6,7 @@ namespace ExcelDBviaEntityFramework.Models
     [Table(Constants.SheetNameSignups)]
     public class Signup
     {
-        public required bool Deleted_ý { get; set; }
+        public required bool Deleted { get; set; }
 
         [Key]
         public string Id { get; set; }

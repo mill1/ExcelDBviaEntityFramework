@@ -31,7 +31,7 @@ namespace ExcelDBviaEntityFramework.Services
         {
             var newSignup = new Signup
             {
-                Deleted_ý = false,
+                Deleted = false,
                 Id = GenerateId(),
                 Name = insert.Name,
                 PhoneNumber = insert.PhoneNumber,
@@ -86,22 +86,24 @@ namespace ExcelDBviaEntityFramework.Services
             {
                 var signup = ctx.Signups.FirstOrDefault(s => s.Id == id);
 
+                // Not found, nothing to delete
                 if (signup == null)
                     return false;
 
                 ctx.Signups.Remove(signup);
 
-                Log log = CreateLogEntry(id, $"Deleted signup with id {id} ({signup.Name})");
-                ctx.Logs.Add(log);
+                //Log log = CreateLogEntry(id, $"Deleted signup with id {id} ({signup.Name})");
+                //ctx.Logs.Add(log);
+
+                if (cascadeDelete)
+                {
+                    // Remove all logs related to this signup
+                    var logs = ctx.Logs.Where(l => l.SignupId == id).ToList();
+                    ctx.Logs.RemoveRange(logs);
+                }
 
                 ctx.SaveChanges();
                 deleted = true;
-            }
-
-            if (deleted)
-            {
-                Thread.Sleep(100); // Just 2b sure
-                ExcelHelper.RemoveDeletedRow(id, cascadeDelete);
             }
 
             return deleted;
@@ -146,7 +148,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             var newSignup = new Signup
             {
-                Deleted_ý = false,
+                Deleted = false,
                 Id = GenerateId(),
                 Name = "Garth",
                 PhoneNumber = "555-0000",
@@ -235,6 +237,7 @@ namespace ExcelDBviaEntityFramework.Services
         {
             return new Log
             {
+                Deleted = false,
                 Id = Guid.NewGuid().ToString("N")[..8],
                 User = Environment.UserName,
                 Timestamp = DateTime.UtcNow,

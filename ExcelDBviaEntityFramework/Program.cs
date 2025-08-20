@@ -6,7 +6,10 @@ using ExcelDBviaEntityFramework.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-// TODO Add unit tests (compare generated tests between ChatGPT and CoPilot)
+// TODO
+// Remove CreateContext
+// -Reports?
+// -Add unit tests (compare generated tests between ChatGPT and CoPilot)
 
 namespace ExcelDBviaEntityFramework
 {
