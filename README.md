@@ -52,10 +52,8 @@ An initial Excel file will be copied in the correct folder (/Excel files/).
 
 **🚀 Possible Extensions**
 
-*   Support multiple entities / sheets.
 *   Add import/export to CSV.
 *   Web API layer exposing the same Excel-backed database.
-*   Improve concurrency handling on locked files.
 
 - - -
 
