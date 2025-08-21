@@ -1,5 +1,5 @@
-﻿using ExcelDBviaEntityFramework.Models;
-using ExcelDBviaEntityFramework.Services;
+﻿using ExcelDBviaEntityFramework.Interfaces;
+using ExcelDBviaEntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Data;
@@ -8,9 +8,12 @@ namespace ExcelDBviaEntityFramework.Data
 {
     public class ExcelDbContext : DbContext
     {
-        public ExcelDbContext(DbContextOptions<ExcelDbContext> options)
-        : base(options)
+        private readonly IExcelRepositoryFactory _repoFactory;
+
+        public ExcelDbContext(DbContextOptions<ExcelDbContext> options, IExcelRepositoryFactory repoFactory)
+            : base(options)
         {
+            _repoFactory = repoFactory;
         }
 
         public DbSet<Signup> Signups { get; set; }
@@ -29,10 +32,9 @@ namespace ExcelDBviaEntityFramework.Data
 
         public override int SaveChanges()
         {
-            var repo = new ExcelRepository(Database.GetDbConnection());
+            var repo = _repoFactory.Create(Database.GetDbConnection());
 
             int affectedRows = 0;
-
             affectedRows = SaveChangesSignups(repo, affectedRows);
             SaveChangesLogs(repo);
 
@@ -88,6 +90,9 @@ namespace ExcelDBviaEntityFramework.Data
             // Ensure Id is present
             if (string.IsNullOrEmpty(entry.CurrentValues[keyPropertyName]?.ToString()))
                 entry.CurrentValues[keyPropertyName] = Guid.NewGuid().ToString("N")[..8];
+
+            // Always insert with Deleted = false
+            entry.CurrentValues[Constants.ColumnNameDeleted] = false;
 
             // Build INSERT statement
             var (columns, parameters) = repo.BuildParameters(entry.Entity, includeAll: true);

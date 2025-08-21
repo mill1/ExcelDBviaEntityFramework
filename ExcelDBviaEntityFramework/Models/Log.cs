@@ -6,7 +6,7 @@ namespace ExcelDBviaEntityFramework.Models
     [Table(Constants.SheetNameLogs)]
     public class Log
     {
-        public required bool Deleted { get; set; }
+        public bool Deleted { get; set; }
         [Key]
         public string Id { get; set; }
         public DateTime Timestamp { get; set; }

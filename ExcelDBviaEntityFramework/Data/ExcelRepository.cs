@@ -4,9 +4,9 @@ using System.Data;
 using System.Data.Common;
 using System.Reflection;
 
-namespace ExcelDBviaEntityFramework.Services
+namespace ExcelDBviaEntityFramework.Data
 {
-    public class ExcelRepository : ISignupRepository
+    public class ExcelRepository : IExcelRepository
     {
         private readonly DbConnection _connection;
 
@@ -15,7 +15,7 @@ namespace ExcelDBviaEntityFramework.Services
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
-        public int Execute(string sql, List<(string Name, object Value)> parameters)
+        public virtual int Execute(string sql, List<(string Name, object Value)> parameters)
         {
             using var cmd = _connection.CreateCommand();
             cmd.CommandText = sql;
