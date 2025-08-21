@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace ExcelDBviaEntityFramework.Data
 {
-    public class ExcelRepository : IExcelRepository
+    public class ExcelRepository
     {
         private readonly DbConnection _connection;
 

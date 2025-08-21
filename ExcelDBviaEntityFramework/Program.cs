@@ -32,6 +32,7 @@ namespace ExcelDBviaEntityFramework
             .AddScoped<IAssemblyService, AssemblyService>()
             .AddScoped<ISignupService, SignupService>()
             .AddScoped<IExcelRepositoryFactory, ExcelRepositoryFactory>()
+            .AddScoped<ISignupRepository, SignupRepository>()
             .AddDbContextFactory<ExcelDbContext>(
                 options => options.UseJet($"""
                     Provider=Microsoft.ACE.OLEDB.12.0;

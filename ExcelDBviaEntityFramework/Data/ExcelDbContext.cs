@@ -16,13 +16,8 @@ namespace ExcelDBviaEntityFramework.Data
             _repoFactory = repoFactory ?? new ExcelRepositoryFactory();
         }
 
-        // TODO lw?
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-        }
-
-        public virtual DbSet<Signup> Signups { get; set; }
-        public virtual DbSet<Log> Logs { get; set; }
+        public DbSet<Signup> Signups { get; set; }
+        public DbSet<Log> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
