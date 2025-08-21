@@ -10,14 +10,19 @@ namespace ExcelDBviaEntityFramework.Data
     {
         private readonly IExcelRepositoryFactory _repoFactory;
 
-        public ExcelDbContext(DbContextOptions<ExcelDbContext> options, IExcelRepositoryFactory repoFactory)
+        public ExcelDbContext(DbContextOptions<ExcelDbContext> options, IExcelRepositoryFactory? repoFactory = null)
             : base(options)
         {
-            _repoFactory = repoFactory;
+            _repoFactory = repoFactory ?? new ExcelRepositoryFactory();
         }
 
-        public DbSet<Signup> Signups { get; set; }
-        public DbSet<Log> Logs { get; set; }
+        // TODO lw?
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+        }
+
+        public virtual DbSet<Signup> Signups { get; set; }
+        public virtual DbSet<Log> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

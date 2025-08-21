@@ -38,7 +38,6 @@ namespace ExcelDBviaEntityFramework.Tests.Fakes
                 object entity, bool includeAll, List<string> modifiedProps = null)
             {
                 // Just enough to keep SaveChanges from crashing
-                // TODO: kan list niet aan toch?
                 return (new List<string> { "Id" }, new List<(string, object)> { ("@id", "fake") });
             }
 
