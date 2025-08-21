@@ -89,6 +89,9 @@ namespace ExcelDBviaEntityFramework.Data
             if (string.IsNullOrEmpty(entry.CurrentValues[keyPropertyName]?.ToString()))
                 entry.CurrentValues[keyPropertyName] = Guid.NewGuid().ToString("N")[..8];
 
+            // Always insert with Deleted = false
+            entry.CurrentValues[Constants.ColumnNameDeleted] = false;
+
             // Build INSERT statement
             var (columns, parameters) = repo.BuildParameters(entry.Entity, includeAll: true);
             string sql = $"INSERT INTO [{sheetName}] " +

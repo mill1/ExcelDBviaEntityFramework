@@ -25,8 +25,8 @@ namespace ExcelDBviaEntityFramework.Helpers
                 Requirements w.r. to the Excel file database:
                 - The file name should be {Constants.ExcelFileName}
                 - The file should contain sheets named {sheetSignups} en {sheetLogs}
-                - The first row of {sheetSignups} should contain headers its fields match the properties of the {nameof(Signup)} class.                
-                - The first row of {sheetLogs} should contain headers its fields match the properties of the {nameof(Log)} class.                
+                - The first row of {sheetSignups} should contain headers and its fields should match the properties of the {nameof(Signup)} class.                
+                - The first row of {sheetLogs} should contain headers and its fields should match the properties of the {nameof(Log)} class.                
                 """;
         }
 
