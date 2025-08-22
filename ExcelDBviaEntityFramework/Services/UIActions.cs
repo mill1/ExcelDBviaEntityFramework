@@ -71,6 +71,13 @@ namespace ExcelDBviaEntityFramework.Services
             _signupService.CheckData(checkIdUniqueness: false);
 
             var signups = _signupService.GetSignups();
+
+            if (!signups.Any())
+            {
+                ConsoleHelper.WriteLineColored("No signups found.", ConsoleColor.Cyan);
+                return;
+            } 
+
             var maxLength = signups.Max(s => $"{s.Id}{s.Name}{s.PhoneNumber}{s.PartySize}".Length) + 9;
             var line = new string('*', maxLength);
 
@@ -93,10 +100,19 @@ namespace ExcelDBviaEntityFramework.Services
         {
             _signupService.CheckData();
 
-            // TODO: all if id is empty, then list all signups with logs
+            var id = ConsoleHelper.GetUserInput("Id of the signup  (leave empty to show all):");
 
-            var id = ConsoleHelper.GetUserInput("Id of the signup:");
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                ListLogsOfAllSignups();
+                return;
+            }
 
+            ListLogsOfSignup(id);
+        }
+
+        private void ListLogsOfSignup(string id)
+        {
             var signup = _signupService.GetSignupIncludingLogs(id);
 
             if (signup == null)
@@ -105,18 +121,40 @@ namespace ExcelDBviaEntityFramework.Services
                 return;
             }
 
-            ConsoleHelper.WriteLineColored($"Logs related to signup {id}:", ConsoleColor.Cyan);
+            ListLogsPerSignup(signup);
+        }
 
-            if (!signup.Logs.Any())
+        private void ListLogsOfAllSignups()
+        {
+            var signups = _signupService.GetSignupsIncludingLogs();
+
+            if (!signups.Any())
             {
-                ConsoleHelper.WriteLineColored($"[No logs]", ConsoleColor.Cyan);
+                ConsoleHelper.WriteLineColored("No signups found.", ConsoleColor.Cyan);
+                return;
+            }
+
+            ConsoleHelper.WriteLineColored("Signups with logs:", ConsoleColor.Cyan);
+
+            foreach (var signup in signups)
+            {
+                ListLogsPerSignup(signup);
+            }
+        }
+
+        private static void ListLogsPerSignup(Signup signup)
+        {
+            ConsoleHelper.WriteLineColored($"Id {signup.Id} ({signup.Name})", ConsoleColor.Green);
+
+            if (signup.Logs.Any())
+            {
+                foreach (var log in signup.Logs)
+                    ConsoleHelper.WriteLineColored($"  {log}", ConsoleColor.Cyan);
             }
             else
             {
-                foreach (var log in signup.Logs)
-                    ConsoleHelper.WriteLineColored(log.ToString(), ConsoleColor.Cyan);
+                ConsoleHelper.WriteLineColored("  [No logs]", ConsoleColor.Cyan);
             }
-
         }
 
         public void TestStuff()

@@ -1,14 +1,10 @@
 ﻿using ExcelDBviaEntityFramework.Console;
 using ExcelDBviaEntityFramework.Data;
-using ExcelDBviaEntityFramework.Data.Stubs;
 using ExcelDBviaEntityFramework.Helpers;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-
-// TODO
-// -Add unit tests (compare generated tests between ChatGPT and CoPilot)
 
 namespace ExcelDBviaEntityFramework
 {
@@ -33,7 +29,7 @@ namespace ExcelDBviaEntityFramework
             .AddScoped<IAssemblyService, AssemblyService>()
             .AddScoped<ISignupService, SignupService>()
             .AddScoped<IExcelRepositoryFactory, ExcelRepositoryFactory>()
-            .AddScoped<ISignupRepository, SignupRepositoryStub>() // TODO lw
+            .AddScoped<ISignupRepository, SignupRepository>()
             .AddDbContextFactory<ExcelDbContext>(
                 options => options.UseJet($"""
                     Provider=Microsoft.ACE.OLEDB.12.0;
