@@ -4,7 +4,10 @@ using ExcelDBviaEntityFramework.Models;
 namespace ExcelDBviaEntityFramework.Services
 {
     /// <summary>
-    /// Classic 'bamiluik'
+    /// Application service that orchestrates signup operations.  
+    /// Wraps <see cref="ISignupRepository"/> to provide higher-level business logic,  
+    /// such as coordinating data persistence with logging, validation, and cleanup.  
+    /// Classic 'bamiluik' that exposes a clean API without exposing EF Core details.  
     /// </summary>
     public class SignupService : ISignupService
     {

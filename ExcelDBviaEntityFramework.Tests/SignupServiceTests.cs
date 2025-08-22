@@ -1,4 +1,4 @@
-﻿using ExcelDBviaEntityFramework.Data.Stubs;
+﻿using ExcelDBviaEntityFramework.Data.Repositories;
 using ExcelDBviaEntityFramework.Models;
 using ExcelDBviaEntityFramework.Services;
 using FluentAssertions;
@@ -10,12 +10,12 @@ namespace ExcelDBviaEntityFramework.Tests
     public class SignupServiceTests
     {
         private SignupService _service;
-        private SignupRepositoryStub _repo;
+        private FakeSignupRepository _repo;
 
         [TestInitialize]
         public void Setup()
         {
-            _repo = new SignupRepositoryStub();
+            _repo = new FakeSignupRepository();
             _service = new SignupService(_repo);
         }
 

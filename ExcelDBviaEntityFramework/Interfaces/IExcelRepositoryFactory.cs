@@ -1,10 +1,10 @@
-﻿using ExcelDBviaEntityFramework.Data;
+﻿using ExcelDBviaEntityFramework.Data.Infrastructure;
 using System.Data.Common;
 
 namespace ExcelDBviaEntityFramework.Interfaces
 {
     public interface IExcelRepositoryFactory
     {
-        ExcelRepository Create(DbConnection connection);
+        ExcelDataGateway Create(DbConnection connection);
     }
 }

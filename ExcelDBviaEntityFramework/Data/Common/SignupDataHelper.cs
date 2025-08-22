@@ -2,7 +2,7 @@
 
 namespace ExcelDBviaEntityFramework.Data.Common
 {
-    public static class DataHelper
+    public static class SignupDataHelper
     {
         public static Signup CreateDummySignup(string newId)
         {

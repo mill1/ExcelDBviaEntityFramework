@@ -3,13 +3,16 @@ using System.Data;
 using System.Data.Common;
 using System.Reflection;
 
-namespace ExcelDBviaEntityFramework.Data
+namespace ExcelDBviaEntityFramework.Data.Infrastructure
 {
-    public class ExcelRepository
+    /// <summary>
+    /// Executes SQL commands against the Excel OLEDB provider. Responsible for parameter building and execution.
+    /// </summary>
+    public class ExcelDataGateway
     {
         private readonly DbConnection _connection;
 
-        public ExcelRepository(DbConnection connection)
+        public ExcelDataGateway(DbConnection connection)
         {
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }

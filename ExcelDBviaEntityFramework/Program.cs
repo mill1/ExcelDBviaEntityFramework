@@ -1,5 +1,7 @@
 ﻿using ExcelDBviaEntityFramework.Console;
 using ExcelDBviaEntityFramework.Data;
+using ExcelDBviaEntityFramework.Data.Infrastructure;
+using ExcelDBviaEntityFramework.Data.Repositories;
 using ExcelDBviaEntityFramework.Data.Stubs;
 using ExcelDBviaEntityFramework.Helpers;
 using ExcelDBviaEntityFramework.Interfaces;
@@ -29,8 +31,8 @@ namespace ExcelDBviaEntityFramework
             .AddSingleton<IUIActions, UIActions>()
             .AddScoped<IAssemblyService, AssemblyService>()
             .AddScoped<ISignupService, SignupService>()
-            .AddScoped<IExcelRepositoryFactory, ExcelRepositoryFactory>()
-            .AddScoped<ISignupRepository, SignupRepository>()
+            .AddScoped<IExcelRepositoryFactory, ExcelDataGatewayFactory>()
+            .AddScoped<ISignupRepository, ExcelSignupRepository>()
             .AddDbContextFactory<ExcelDbContext>(
                 options => options.UseJet($"""
                     Provider=Microsoft.ACE.OLEDB.12.0;

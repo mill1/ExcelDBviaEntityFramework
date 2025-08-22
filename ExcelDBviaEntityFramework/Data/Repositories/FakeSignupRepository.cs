@@ -3,14 +3,17 @@ using ExcelDBviaEntityFramework.Extensions;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 
-namespace ExcelDBviaEntityFramework.Data.Stubs
+namespace ExcelDBviaEntityFramework.Data.Repositories
 {
-    public class SignupRepositoryStub : ISignupRepository
+    /// <summary>
+    /// An in-memory fake implementation of <see cref="ISignupRepository"/> for unit tests. Seeds dummy signups/logs and supports CRUD.
+    /// </summary>
+    public class FakeSignupRepository : ISignupRepository
     {
         private readonly List<Signup> _signups;
         private readonly List<Log> _logs;
 
-        public SignupRepositoryStub()
+        public FakeSignupRepository()
         {
             _signups = CreateSignupList();
             _logs = CreateLogList(_signups);
@@ -46,7 +49,7 @@ namespace ExcelDBviaEntityFramework.Data.Stubs
             var newSignup =  new Signup
             {
                 Deleted = false,
-                Id = DataHelper.GenerateId(_signups),
+                Id = SignupDataHelper.GenerateId(_signups),
                 Name = insert.Name,
                 PhoneNumber = insert.PhoneNumber,
                 PartySize = (int)insert.PartySize,
@@ -55,7 +58,7 @@ namespace ExcelDBviaEntityFramework.Data.Stubs
 
             _signups.Add(newSignup);
 
-            Log log = DataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {insert}");
+            Log log = SignupDataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {insert}");
             _logs.Add(log);
 
             return newSignup;
@@ -85,7 +88,7 @@ namespace ExcelDBviaEntityFramework.Data.Stubs
 
             _signups[index] = signup;
 
-            Log log = DataHelper.CreateLogEntry(id, $"Updated signup: {update}");
+            Log log = SignupDataHelper.CreateLogEntry(id, $"Updated signup: {update}");
             _logs.Add(log);
 
             return signup;
@@ -120,13 +123,13 @@ namespace ExcelDBviaEntityFramework.Data.Stubs
 
         public void TestStuff()
         {
-            var newSignup = DataHelper.CreateDummySignup(DataHelper.GenerateId(_signups));
+            var newSignup = SignupDataHelper.CreateDummySignup(SignupDataHelper.GenerateId(_signups));
 
             var logs = new List<Log>
                 {
-                    DataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {newSignup}"),
-                    DataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: some update"),
-                    DataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: another update"),
+                    SignupDataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {newSignup}"),
+                    SignupDataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: some update"),
+                    SignupDataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: another update"),
                 };
 
             _signups.Add(newSignup);

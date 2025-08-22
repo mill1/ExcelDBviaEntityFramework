@@ -6,13 +6,18 @@ using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExcelDBviaEntityFramework.Data
+namespace ExcelDBviaEntityFramework.Data.Repositories
 {
-    public class SignupRepository : ISignupRepository
+    /// <summary>
+    /// Repository for managing <see cref="Signup"/> entities in an Excel-backed EF Core context.
+    /// Uses <see cref="IDbContextFactory{ExcelDbContext}"/> to ensure a new DbContext per operation,
+    /// preventing file locks.  
+    /// </summary>
+    public class ExcelSignupRepository : ISignupRepository
     {
         private readonly IDbContextFactory<ExcelDbContext> _dbContextFactory;
 
-        public SignupRepository(IDbContextFactory<ExcelDbContext> dbContextFactory)
+        public ExcelSignupRepository(IDbContextFactory<ExcelDbContext> dbContextFactory)
         {
             // Use a db context factory to make sure that the DbContext is disposed after the request.
             // Using a scoped db service somehow keeps the Excel file locked, which prevents subsequent CRUD operations.
@@ -68,7 +73,7 @@ namespace ExcelDBviaEntityFramework.Data
                 var newSignup = new Signup
                 {
                     Deleted = false,
-                    Id = DataHelper.GenerateId(signups),
+                    Id = SignupDataHelper.GenerateId(signups),
                     Name = insert.Name,
                     PhoneNumber = insert.PhoneNumber,
                     PartySize = (int)insert.PartySize
@@ -76,7 +81,7 @@ namespace ExcelDBviaEntityFramework.Data
 
                 ctx.Signups.Add(newSignup);
 
-                Log log = DataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {insert}");
+                Log log = SignupDataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {insert}");
                 ctx.Logs.Add(log);
 
                 ctx.SaveChanges();
@@ -100,7 +105,7 @@ namespace ExcelDBviaEntityFramework.Data
                 if (update.PartySize.HasValue)
                     signup.PartySize = update.PartySize.Value;
 
-                Log log = DataHelper.CreateLogEntry(id, $"Updated signup: {update}");
+                Log log = SignupDataHelper.CreateLogEntry(id, $"Updated signup: {update}");
                 ctx.Logs.Add(log);
 
                 ctx.SaveChanges();
@@ -142,13 +147,13 @@ namespace ExcelDBviaEntityFramework.Data
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
                 var signups = ctx.Signups.ToList();
-                var newSignup = DataHelper.CreateDummySignup(DataHelper.GenerateId(signups));
+                var newSignup = SignupDataHelper.CreateDummySignup(SignupDataHelper.GenerateId(signups));
 
                 var logs = new List<Log>
                 {
-                    DataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {newSignup}"),
-                    DataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: some update"),
-                    DataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: another update"),
+                    SignupDataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {newSignup}"),
+                    SignupDataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: some update"),
+                    SignupDataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: another update"),
                 };
 
                 ctx.Signups.Add(newSignup);

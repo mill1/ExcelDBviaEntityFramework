@@ -1,4 +1,5 @@
-﻿using ExcelDBviaEntityFramework.Interfaces;
+﻿using ExcelDBviaEntityFramework.Data.Infrastructure;
+using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -6,6 +7,9 @@ using System.Data;
 
 namespace ExcelDBviaEntityFramework.Data
 {
+    /// <summary>
+    /// EF Core DbContext that maps <see cref="Signup"/>  and <see cref="Log"/> entities to Excel sheets and overrides SaveChanges to persist changes using <see cref="ExcelDataGateway"/>
+    /// </summary>
     public class ExcelDbContext : DbContext
     {
         private readonly IExcelRepositoryFactory _repoFactory;
@@ -13,7 +17,7 @@ namespace ExcelDBviaEntityFramework.Data
         public ExcelDbContext(DbContextOptions<ExcelDbContext> options, IExcelRepositoryFactory? repoFactory = null)
             : base(options)
         {
-            _repoFactory = repoFactory ?? new ExcelRepositoryFactory();
+            _repoFactory = repoFactory ?? new ExcelDataGatewayFactory();
         }
 
         public DbSet<Signup> Signups { get; set; }
@@ -41,7 +45,7 @@ namespace ExcelDBviaEntityFramework.Data
             return affectedRows;
         }
 
-        private int SaveChangesSignups(ExcelRepository repo, int affectedRows)
+        private int SaveChangesSignups(ExcelDataGateway repo, int affectedRows)
         {
             foreach (var entry in ChangeTracker.Entries<Signup>().ToList())
             {
@@ -64,7 +68,7 @@ namespace ExcelDBviaEntityFramework.Data
             return affectedRows;
         }
 
-        private void SaveChangesLogs(ExcelRepository repo)
+        private void SaveChangesLogs(ExcelDataGateway repo)
         {
             foreach (var entry in ChangeTracker.Entries<Log>().ToList())
             {
@@ -84,7 +88,7 @@ namespace ExcelDBviaEntityFramework.Data
             }
         }
 
-        private int SaveAddition<TEntity>(EntityEntry<TEntity> entry, ExcelRepository repo, string sheetName, string keyPropertyName)
+        private int SaveAddition<TEntity>(EntityEntry<TEntity> entry, ExcelDataGateway repo, string sheetName, string keyPropertyName)
         where TEntity : class
         {
             // Ensure Id is present
@@ -106,7 +110,7 @@ namespace ExcelDBviaEntityFramework.Data
             return 1;
         }
 
-        private int SaveModification(EntityEntry<Signup> entry, ExcelRepository repo)
+        private int SaveModification(EntityEntry<Signup> entry, ExcelDataGateway repo)
         {
             var modifiedProps = entry.Properties.Where(p => p.IsModified).Select(p => p.Metadata.Name).ToList();
             var (setClauses, parameters) = repo.BuildParameters(entry.Entity, includeAll: false, modifiedProps: modifiedProps);
@@ -121,7 +125,7 @@ namespace ExcelDBviaEntityFramework.Data
             return 1;
         }
 
-        private int SaveSoftDeletion<TEntity>(EntityEntry<TEntity> entry, ExcelRepository repo, string sheetName, string keyPropertyName)
+        private int SaveSoftDeletion<TEntity>(EntityEntry<TEntity> entry, ExcelDataGateway repo, string sheetName, string keyPropertyName)
         where TEntity : class
         {
             string sql = $"UPDATE [{sheetName}] SET [{Constants.ColumnNameDeleted}] = @deleted WHERE [{keyPropertyName}] = @id";
