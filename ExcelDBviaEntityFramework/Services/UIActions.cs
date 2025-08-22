@@ -93,6 +93,8 @@ namespace ExcelDBviaEntityFramework.Services
         {
             _signupService.CheckData();
 
+            // TODO: all if id is empty, then list all signups with logs
+
             var id = ConsoleHelper.GetUserInput("Id of the signup:");
 
             var signup = _signupService.GetSignupIncludingLogs(id);

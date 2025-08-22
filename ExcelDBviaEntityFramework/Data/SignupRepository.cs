@@ -1,4 +1,5 @@
-﻿using ExcelDBviaEntityFramework.Exceptions;
+﻿using ExcelDBviaEntityFramework.Data.Common;
+using ExcelDBviaEntityFramework.Exceptions;
 using ExcelDBviaEntityFramework.Extensions;
 using ExcelDBviaEntityFramework.Helpers;
 using ExcelDBviaEntityFramework.Interfaces;
@@ -18,6 +19,14 @@ namespace ExcelDBviaEntityFramework.Data
             _dbContextFactory = dbContextFactory;
         }
 
+        public List<Signup> GetSignups()
+        {
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                return [.. ctx.Signups];
+            }
+        }
+
         public Signup GetSignup(string id)
         {
             using (var ctx = _dbContextFactory.CreateDbContext())
@@ -26,14 +35,40 @@ namespace ExcelDBviaEntityFramework.Data
             }
         }
 
+        public List<Signup> GetSignupsIncludingLogs()
+        {
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                var signups = ctx.Signups.AsNoTracking().ToList();
+                var logs = ctx.Logs.AsNoTracking().ToList();
+
+                return signups.IncludeLogs(logs);
+            }
+        }
+
+        public Signup GetSignupIncludingLogs(string id)
+        {
+            var signup = GetSignup(id);
+
+            if (signup == null)
+                return null;
+
+            using (var ctx = _dbContextFactory.CreateDbContext())
+            {
+                return signup.IncludeLogs(ctx.Logs.AsNoTracking().ToList());
+            }
+        }
+
         public Signup AddSignup(SignupUpsert insert)
         {
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
+                var signups = ctx.Signups.ToList(); // materialize into memory.
+
                 var newSignup = new Signup
                 {
                     Deleted = false,
-                    Id = GenerateId(ctx),
+                    Id = DataHelper.GenerateId(signups),
                     Name = insert.Name,
                     PhoneNumber = insert.PhoneNumber,
                     PartySize = (int)insert.PartySize
@@ -41,7 +76,7 @@ namespace ExcelDBviaEntityFramework.Data
 
                 ctx.Signups.Add(newSignup);
 
-                Log log = CreateLogEntry(newSignup.Id, $"Added signup: {insert}");
+                Log log = DataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {insert}");
                 ctx.Logs.Add(log);
 
                 ctx.SaveChanges();
@@ -54,10 +89,7 @@ namespace ExcelDBviaEntityFramework.Data
         {
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
-                var signup = ctx.Signups.FirstOrDefault(s => s.Id == id);
-
-                if (signup == null)
-                    return null;
+                var signup = ctx.Signups.Single(s => s.Id == id);
 
                 if (!string.IsNullOrWhiteSpace(update.Name))
                     signup.Name = update.Name;
@@ -68,7 +100,7 @@ namespace ExcelDBviaEntityFramework.Data
                 if (update.PartySize.HasValue)
                     signup.PartySize = update.PartySize.Value;
 
-                Log log = CreateLogEntry(id, $"Updated signup: {update}");
+                Log log = DataHelper.CreateLogEntry(id, $"Updated signup: {update}");
                 ctx.Logs.Add(log);
 
                 ctx.SaveChanges();
@@ -102,38 +134,6 @@ namespace ExcelDBviaEntityFramework.Data
             return deleted;
         }
 
-        public List<Signup> GetSignups()
-        {
-            using (var ctx = _dbContextFactory.CreateDbContext())
-            {
-                return [.. ctx.Signups];
-            }
-        }
-
-        public Signup GetSignupIncludingLogs(string id)
-        {
-            var signup = GetSignup(id);
-
-            if (signup == null)
-                return null;
-
-            using (var ctx = _dbContextFactory.CreateDbContext())
-            {
-                return signup.IncludeLogs(ctx.Logs.AsNoTracking().ToList());
-            }
-        }
-
-        public List<Signup> GetSignupsIncludingLogs()
-        {
-            using (var ctx = _dbContextFactory.CreateDbContext())
-            {
-                var signups = ctx.Signups.AsNoTracking().ToList();
-                var logs = ctx.Logs.AsNoTracking().ToList();
-
-                return signups.IncludeLogs(logs);
-            }
-        }
-
         public void TestStuff()
         {
             // Playground to test stuff.
@@ -141,40 +141,21 @@ namespace ExcelDBviaEntityFramework.Data
 
             using (var ctx = _dbContextFactory.CreateDbContext())
             {
-                var newSignup = new Signup
-                {
-                    Deleted = false,
-                    Id = GenerateId(ctx),
-                    Name = "Werner",
-                    PhoneNumber = "555-5553",
-                    PartySize = 1,
-                    Logs = null
-                };
+                var signups = ctx.Signups.ToList();
+                var newSignup = DataHelper.CreateDummySignup(DataHelper.GenerateId(signups));
 
                 var logs = new List<Log>
-            {
-                CreateLogEntry(newSignup.Id, $"Added signup: {newSignup}"),
-                CreateLogEntry(newSignup.Id, $"Updated signup: some update"),
-                CreateLogEntry(newSignup.Id, $"Updated signup: another update"),
-            };
+                {
+                    DataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {newSignup}"),
+                    DataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: some update"),
+                    DataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: another update"),
+                };
 
                 ctx.Signups.Add(newSignup);
                 ctx.Logs.AddRange(logs);
 
                 ctx.SaveChanges();
             }
-        }
-
-        private string GenerateId(ExcelDbContext ctx)
-        {
-
-            var max = ctx.Signups 
-                .ToList() // materialize into memory
-                .Select(s => int.TryParse(s.Id, out var n) ? n : 0)
-                .DefaultIfEmpty(0)
-                .Max();
-
-            return (max + 1).ToString();
         }
 
         public void CheckData(bool checkIdUniqueness = true)
@@ -212,19 +193,6 @@ namespace ExcelDBviaEntityFramework.Data
                     }
                 }
             }
-        }
-
-        private static Log CreateLogEntry(string signupId, string entry)
-        {
-            return new Log
-            {
-                Deleted = false,
-                Id = Guid.NewGuid().ToString("N")[..8],
-                User = Environment.UserName,
-                Timestamp = DateTime.UtcNow,
-                SignupId = signupId,
-                Entry = entry
-            };
         }
     }
 }

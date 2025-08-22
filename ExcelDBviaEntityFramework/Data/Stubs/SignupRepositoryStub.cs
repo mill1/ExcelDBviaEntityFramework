@@ -1,68 +1,19 @@
-﻿using ExcelDBviaEntityFramework.Interfaces;
+﻿using ExcelDBviaEntityFramework.Data.Common;
+using ExcelDBviaEntityFramework.Extensions;
+using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 
-namespace ExcelDBviaEntityFramework.Tests.Fakes
+namespace ExcelDBviaEntityFramework.Data.Stubs
 {
-    public class FakeSignupRepository : ISignupRepository
+    public class SignupRepositoryStub : ISignupRepository
     {
         private readonly List<Signup> _signups;
         private readonly List<Log> _logs;
 
-        public FakeSignupRepository()
+        public SignupRepositoryStub()
         {
             _signups = CreateSignupList();
             _logs = CreateLogList(_signups);
-        }
-
-        public Signup AddSignup(SignupUpsert insert)
-        {
-            return new Signup
-            {
-                Deleted = false,
-                Id = (int.Parse(_signups.Last().Id) + 1).ToString(),
-                Name = insert.Name,
-                PhoneNumber = insert.PhoneNumber,
-                PartySize = (int)insert.PartySize,
-                Logs = null,
-            };
-        }
-
-        public Signup UpdateSignup(string id, SignupUpsert update)
-        {
-            var signup = _signups.FirstOrDefault(s => s.Id == id);
-
-            if (signup == null)
-                return null;
-
-            return new Signup
-            {
-                Deleted = signup.Deleted,
-                Id = signup.Id,
-                Name = update.Name,
-                PhoneNumber = update.PhoneNumber,
-                PartySize = (int)update.PartySize,
-                Logs = null
-            };
-
-        }
-
-        public bool DeleteSignup(string id)
-        {
-            return true;
-        }
-
-        public Signup GetSignup(string id)
-        {
-            return _signups.FirstOrDefault(s => s.Id == id);
-        }
-
-        public Signup GetSignupIncludingLogs(string id)
-        {
-            var signup = GetSignup(id);
-
-            signup.Logs = _logs.Where(l => l.SignupId == id).ToList();
-
-            return signup;
         }
 
         public List<Signup> GetSignups()
@@ -70,20 +21,116 @@ namespace ExcelDBviaEntityFramework.Tests.Fakes
             return _signups;
         }
 
+        public Signup GetSignup(string id)
+        {
+            return _signups.FirstOrDefault(s => s.Id == id);
+        }
+
         public List<Signup> GetSignupsIncludingLogs()
         {
-            for (int i = 0; i < _signups.Count; i++)
+            return _signups.IncludeLogs(_logs);
+        }
+
+        public Signup GetSignupIncludingLogs(string id)
+        {
+            var signup = GetSignup(id);
+
+            if (signup == null)
+                return null;
+
+            return signup.IncludeLogs(_logs);
+        }
+
+        public Signup AddSignup(SignupUpsert insert)
+        {
+            var newSignup =  new Signup
             {
-                var signup = _signups[i];
-                signup.Logs = _logs.Where(l => l.SignupId == signup.Id).ToList();
+                Deleted = false,
+                Id = DataHelper.GenerateId(_signups),
+                Name = insert.Name,
+                PhoneNumber = insert.PhoneNumber,
+                PartySize = (int)insert.PartySize,
+                Logs = null,
+            };
+
+            _signups.Add(newSignup);
+
+            Log log = DataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {insert}");
+            _logs.Add(log);
+
+            return newSignup;
+        }
+
+        public Signup UpdateSignup(string id, SignupUpsert update)
+        {
+            // Update the signup in the list
+            var index = _signups.FindIndex(s => s.Id == id);
+
+            if (index < 0) // -1 == not found
+            {
+                throw new KeyNotFoundException($"Signup with ID {id} not found.");
             }
 
-            return _signups;
+            var existingSignup = _signups[index];
+
+            var signup = new Signup
+            {
+                Deleted = false,
+                Id = id,
+                Name = update.Name ?? existingSignup.Name,
+                PhoneNumber = update.PhoneNumber ?? existingSignup.PhoneNumber,
+                PartySize = update.PartySize.HasValue ? (int)update.PartySize : existingSignup.PartySize,
+                Logs = null
+            };
+
+            _signups[index] = signup;
+
+            Log log = DataHelper.CreateLogEntry(id, $"Updated signup: {update}");
+            _logs.Add(log);
+
+            return signup;
         }
+
+        public bool DeleteSignup(string id)
+        {
+            bool deleted = false;
+
+            var signup = _signups.FirstOrDefault(s => s.Id == id);
+
+            // Not found, nothing to delete
+            if (signup == null)
+                return false;
+
+            _signups.Remove(signup);
+
+            // Remove all logs related to this signup ('Cascade delete')
+            var logsBySignup = _logs.Where(l => l.SignupId == id).ToList();
+
+            if (logsBySignup.Any())
+            {
+                foreach (var log in logsBySignup)
+                {
+                    _logs.Remove(log);
+                }
+                deleted = true;
+            }
+
+            return deleted;
+        }       
 
         public void TestStuff()
         {
-            // tested
+            var newSignup = DataHelper.CreateDummySignup(DataHelper.GenerateId(_signups));
+
+            var logs = new List<Log>
+                {
+                    DataHelper.CreateLogEntry(newSignup.Id, $"Added signup: {newSignup}"),
+                    DataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: some update"),
+                    DataHelper.CreateLogEntry(newSignup.Id, $"Updated signup: another update"),
+                };
+
+            _signups.Add(newSignup);
+            _logs.AddRange(logs);
         }
 
         public void CheckData(bool checkIdUniqueness = true)
@@ -154,7 +201,7 @@ namespace ExcelDBviaEntityFramework.Tests.Fakes
                     User = "Michael.Smith",
                     Timestamp = DateTime.Parse("20-8-2025 10:32:29"),
                     SignupId = signups.ElementAt(1).Id,
-                    Entry = $"Added signup: {signups.ElementAt(1)}"
+                    Entry = "Updated signup: Name: [unchanged], Phone: 555-5552, Party Size: [unchanged]"
                 },
                   new Log
                 {
@@ -166,7 +213,6 @@ namespace ExcelDBviaEntityFramework.Tests.Fakes
                     Entry = $"Added signup: {signups.ElementAt(2)}"
                 }
             }; 
-
         }
     }
 }

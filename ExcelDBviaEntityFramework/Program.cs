@@ -1,5 +1,6 @@
 ﻿using ExcelDBviaEntityFramework.Console;
 using ExcelDBviaEntityFramework.Data;
+using ExcelDBviaEntityFramework.Data.Stubs;
 using ExcelDBviaEntityFramework.Helpers;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Services;
@@ -13,7 +14,7 @@ namespace ExcelDBviaEntityFramework
 {
     public class Program
     {
-        static void Main()
+        static void Main(string[] args)
         {
             var services = BuildServiceCollection();
             using ServiceProvider sp = services.BuildServiceProvider();
@@ -32,7 +33,7 @@ namespace ExcelDBviaEntityFramework
             .AddScoped<IAssemblyService, AssemblyService>()
             .AddScoped<ISignupService, SignupService>()
             .AddScoped<IExcelRepositoryFactory, ExcelRepositoryFactory>()
-            .AddScoped<ISignupRepository, SignupRepository>()
+            .AddScoped<ISignupRepository, SignupRepositoryStub>() // TODO lw
             .AddDbContextFactory<ExcelDbContext>(
                 options => options.UseJet($"""
                     Provider=Microsoft.ACE.OLEDB.12.0;
