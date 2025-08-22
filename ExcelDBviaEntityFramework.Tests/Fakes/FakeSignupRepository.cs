@@ -19,7 +19,7 @@ namespace ExcelDBviaEntityFramework.Tests.Fakes
             return new Signup
             {
                 Deleted = false,
-                Id = (_signups.Count + 1).ToString(),
+                Id = (int.Parse(_signups.Last().Id) + 1).ToString(),
                 Name = insert.Name,
                 PhoneNumber = insert.PhoneNumber,
                 PartySize = (int)insert.PartySize,
@@ -29,7 +29,21 @@ namespace ExcelDBviaEntityFramework.Tests.Fakes
 
         public Signup UpdateSignup(string id, SignupUpsert update)
         {
-            return _signups.FirstOrDefault(s => s.Id == id);
+            var signup = _signups.FirstOrDefault(s => s.Id == id);
+
+            if (signup == null)
+                return null;
+
+            return new Signup
+            {
+                Deleted = signup.Deleted,
+                Id = signup.Id,
+                Name = update.Name,
+                PhoneNumber = update.PhoneNumber,
+                PartySize = (int)update.PartySize,
+                Logs = null
+            };
+
         }
 
         public bool DeleteSignup(string id)
@@ -39,12 +53,16 @@ namespace ExcelDBviaEntityFramework.Tests.Fakes
 
         public Signup GetSignup(string id)
         {
-            return _signups.First(s => s.Id == id);
+            return _signups.FirstOrDefault(s => s.Id == id);
         }
 
         public Signup GetSignupIncludingLogs(string id)
         {
-            throw new NotImplementedException();
+            var signup = GetSignup(id);
+
+            signup.Logs = _logs.Where(l => l.SignupId == id).ToList();
+
+            return signup;
         }
 
         public List<Signup> GetSignups()
@@ -54,17 +72,23 @@ namespace ExcelDBviaEntityFramework.Tests.Fakes
 
         public List<Signup> GetSignupsIncludingLogs()
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < _signups.Count; i++)
+            {
+                var signup = _signups[i];
+                signup.Logs = _logs.Where(l => l.SignupId == signup.Id).ToList();
+            }
+
+            return _signups;
         }
 
         public void TestStuff()
         {
-            throw new NotImplementedException();
+            // tested
         }
 
         public void CheckData(bool checkIdUniqueness = true)
         {
-            throw new NotImplementedException();
+            // checked
         }
 
         private static List<Signup> CreateSignupList()
