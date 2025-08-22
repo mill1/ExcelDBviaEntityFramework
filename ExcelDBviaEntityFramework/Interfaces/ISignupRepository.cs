@@ -2,7 +2,7 @@
 
 namespace ExcelDBviaEntityFramework.Interfaces
 {
-    public interface IExcelRepository
+    public interface ISignupRepository
     {
         List<Signup> GetSignups();
         Signup GetSignup(string id);
