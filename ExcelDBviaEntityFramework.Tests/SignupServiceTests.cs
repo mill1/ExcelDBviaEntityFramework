@@ -54,7 +54,7 @@ namespace ExcelDBviaEntityFramework.Tests
             var result = _service.GetSignups();
 
             result.Should().NotBeNull();
-            result.Count.Should().Be(3); // stub repo seeds 3 signups
+            result.Count.Should().Be(3); // fake repo seeds 3 signups
         }
 
         [TestMethod]
@@ -107,7 +107,7 @@ namespace ExcelDBviaEntityFramework.Tests
         }
 
         [TestMethod]
-        public void UpdateSignup_ShouldReturnNullIfNotFound()
+        public void UpdateSignup_ShouldThrowExceptionIfNotFound()
         {
             string id = "0"; // non-existing
 
@@ -118,9 +118,8 @@ namespace ExcelDBviaEntityFramework.Tests
                 PartySize = 13,
             };
 
-            var result = _service.UpdateSignup(id, update);
-
-            result.Should().BeNull();
+            // Act & Assert
+            Assert.ThrowsException<KeyNotFoundException>(() => _service.UpdateSignup(id, update));
         }
 
         [TestMethod]
@@ -128,6 +127,15 @@ namespace ExcelDBviaEntityFramework.Tests
         {
             var result = _service.DeleteSignup("1");
             result.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void DeleteSignup_ShouldReturnFalseIfNotFound()
+        {
+            string id = "0"; // non-existing
+
+            var result = _service.DeleteSignup(id);
+            result.Should().BeFalse();
         }
 
         [TestMethod]
