@@ -71,7 +71,7 @@ namespace ExcelDBviaEntityFramework.Data.Repositories
 
             if (index < 0) // -1 == not found
             {
-                throw new KeyNotFoundException($"Signup with ID {id} not found.");
+                throw new KeyNotFoundException($"Signup with id {id} not found.");
             }
 
             var existingSignup = _signups[index];
@@ -136,7 +136,7 @@ namespace ExcelDBviaEntityFramework.Data.Repositories
             _logs.AddRange(logs);
         }
 
-        public void CheckData(bool checkIdUniqueness = true)
+        public void CheckData()
         {
             // checked
         }

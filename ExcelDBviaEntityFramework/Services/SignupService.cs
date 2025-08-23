@@ -59,9 +59,9 @@ namespace ExcelDBviaEntityFramework.Services
             _repo.TestStuff();
         }
 
-        public void CheckData(bool checkIdUniqueness = true)
+        public void CheckData()
         {
-            _repo.CheckData(checkIdUniqueness);
+            _repo.CheckData();
         }
     }   
 }

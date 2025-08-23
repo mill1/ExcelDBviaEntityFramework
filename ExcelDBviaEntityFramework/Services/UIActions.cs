@@ -15,8 +15,6 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void AddSignup()
         {
-            _signupService.CheckData();
-
             var name = ConsoleHelper.GetUserInput("Name:");
             var phone = ConsoleHelper.GetUserInput("Phone:");
             int partySize = (int)GetValidInteger("Party size:");
@@ -28,8 +26,6 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void UpdateSignup()
         {
-            _signupService.CheckData();
-
             var id = ConsoleHelper.GetUserInput($"Id of signup to update:");
             var existing = _signupService.GetSignup(id);
 
@@ -57,8 +53,6 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void DeleteSignup()
         {
-            _signupService.CheckData();
-
             var id = ConsoleHelper.GetUserInput("Id of signup to delete:");
             bool result = _signupService.DeleteSignup(id);
             var message = result ? "The signup is deleted" : $"Signup with id '{id}' not found.";
@@ -68,8 +62,6 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void ListSignups()
         {
-            _signupService.CheckData(checkIdUniqueness: false);
-
             var signups = _signupService.GetSignups();
 
             if (!signups.Any())
@@ -98,8 +90,6 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void ListLogsPerSignup()
         {
-            _signupService.CheckData();
-
             var id = ConsoleHelper.GetUserInput("Id of the signup  (leave empty to show all):");
 
             if (string.IsNullOrWhiteSpace(id))
@@ -159,9 +149,12 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void TestStuff()
         {
-            _signupService.CheckData();
-            _signupService.TestStuff();
             ConsoleHelper.WriteLineColored("Stuff has been tested", ConsoleColor.Cyan);
+        }
+
+        public void CheckData()
+        {
+            _signupService.CheckData();
         }
 
         private static SignupUpsert GetUpdateDto(Signup existing)

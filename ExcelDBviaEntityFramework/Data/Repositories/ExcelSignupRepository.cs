@@ -163,7 +163,7 @@ namespace ExcelDBviaEntityFramework.Data.Repositories
             }
         }
 
-        public void CheckData(bool checkIdUniqueness = true)
+        public void CheckData()
         {
             var _filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
             FileHelper.EnsureFileNotLocked(_filePath);
@@ -181,21 +181,18 @@ namespace ExcelDBviaEntityFramework.Data.Repositories
                 }
                 catch (InvalidCastException)
                 {
-                    throw new SignupException($"Empty Signup ID(s) and/or party size(s) found! Fix this in Excel.");
+                    throw new SignupException($"Empty signup id(s) and/or party size(s) found! Fix this in Excel.");
                 }
 
-                if (checkIdUniqueness)
-                {
-                    var ids = ctx.Signups.Select(s => s.Id).ToList();
-                    var duplicates = ids.GroupBy(id => id)
-                                        .Where(g => g.Count() > 1)
-                                        .Select(g => g.Key)
-                                        .ToList();
+                var ids = ctx.Signups.Select(s => s.Id).ToList();
+                var duplicates = ids.GroupBy(id => id)
+                                    .Where(g => g.Count() > 1)
+                                    .Select(g => g.Key)
+                                    .ToList();
 
-                    if (duplicates.Any())
-                    {
-                        throw new SignupException($"Duplicate Signup ID's found: {string.Join(", ", duplicates)}. Fix this in Excel.");
-                    }
+                if (duplicates.Any())
+                {
+                    throw new SignupException($"Duplicate dignup id's found: id {string.Join(", ", duplicates)}. Fix this in Excel.");
                 }
             }
         }
