@@ -3,7 +3,7 @@ using System.Data.Common;
 
 namespace ExcelDBviaEntityFramework.Interfaces
 {
-    public interface IExcelRepositoryFactory
+    public interface IExcelDataGatewayFactory
     {
         ExcelDataGateway Create(DbConnection connection);
     }

@@ -6,7 +6,7 @@ namespace ExcelDBviaEntityFramework.Data.Infrastructure
     /// <summary>
     /// Factory for creating <see cref="ExcelDataGateway"/> instances given a DbConnection.
     /// </summary>
-    public class ExcelDataGatewayFactory : IExcelRepositoryFactory
+    public class ExcelDataGatewayFactory : IExcelDataGatewayFactory
     {
         public ExcelDataGateway Create(DbConnection connection)
         {

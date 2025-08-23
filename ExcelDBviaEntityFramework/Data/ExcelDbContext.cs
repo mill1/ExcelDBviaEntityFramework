@@ -12,9 +12,9 @@ namespace ExcelDBviaEntityFramework.Data
     /// </summary>
     public class ExcelDbContext : DbContext
     {
-        private readonly IExcelRepositoryFactory _repoFactory;
+        private readonly IExcelDataGatewayFactory _repoFactory;
 
-        public ExcelDbContext(DbContextOptions<ExcelDbContext> options, IExcelRepositoryFactory? repoFactory = null)
+        public ExcelDbContext(DbContextOptions<ExcelDbContext> options, IExcelDataGatewayFactory? repoFactory = null)
             : base(options)
         {
             _repoFactory = repoFactory ?? new ExcelDataGatewayFactory();

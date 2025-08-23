@@ -30,7 +30,7 @@ namespace ExcelDBviaEntityFramework
             .AddSingleton<IUIActions, UIActions>()
             .AddScoped<IAssemblyService, AssemblyService>()
             .AddScoped<ISignupService, SignupService>()
-            .AddScoped<IExcelRepositoryFactory, ExcelDataGatewayFactory>()
+            .AddScoped<IExcelDataGatewayFactory, ExcelDataGatewayFactory>()
             .AddScoped<ISignupRepository, ExcelSignupRepository>()
             .AddDbContextFactory<ExcelDbContext>(
                 options => options.UseJet($"""
