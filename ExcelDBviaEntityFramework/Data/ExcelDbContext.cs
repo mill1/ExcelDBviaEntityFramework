@@ -12,12 +12,13 @@ namespace ExcelDBviaEntityFramework.Data
     /// </summary>
     public class ExcelDbContext : DbContext
     {
-        private readonly IExcelDataGatewayFactory _repoFactory;
+        private readonly IExcelDataGatewayFactory _excelDataGatewayFactory;
+        private ExcelDataGateway? _excelDataGateway;
 
-        public ExcelDbContext(DbContextOptions<ExcelDbContext> options, IExcelDataGatewayFactory? repoFactory = null)
+        public ExcelDbContext(DbContextOptions<ExcelDbContext> options, IExcelDataGatewayFactory? excelDataGatewayFactory = null)
             : base(options)
         {
-            _repoFactory = repoFactory ?? new ExcelDataGatewayFactory();
+            _excelDataGatewayFactory = excelDataGatewayFactory ?? new ExcelDataGatewayFactory();
         }
 
         public DbSet<Signup> Signups { get; set; }
@@ -36,29 +37,29 @@ namespace ExcelDBviaEntityFramework.Data
 
         public override int SaveChanges()
         {
-            var repo = _repoFactory.Create(Database.GetDbConnection());
+            _excelDataGateway = _excelDataGatewayFactory.Create(Database.GetDbConnection());
 
             int affectedRows = 0;
-            affectedRows = SaveChangesSignups(repo, affectedRows);
-            SaveChangesLogs(repo);
+            affectedRows = SaveChangesSignups(affectedRows);
+            SaveChangesLogs();
 
             return affectedRows;
         }
 
-        private int SaveChangesSignups(ExcelDataGateway repo, int affectedRows)
+        private int SaveChangesSignups(int affectedRows)
         {
             foreach (var entry in ChangeTracker.Entries<Signup>().ToList())
             {
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        affectedRows += SaveAddition(entry, repo, Constants.SheetNameSignups, nameof(Signup.Id));
+                        affectedRows += SaveAddition(entry, Constants.SheetNameSignups, nameof(Signup.Id));
                         break;
                     case EntityState.Modified:
-                        affectedRows += SaveModification(entry, repo);
+                        affectedRows += SaveModification(entry);
                         break;
                     case EntityState.Deleted:
-                        affectedRows += SaveSoftDeletion(entry, repo, Constants.SheetNameSignups, nameof(Signup.Id));
+                        affectedRows += SaveSoftDeletion(entry, Constants.SheetNameSignups, nameof(Signup.Id));
                         break;
                 }
 
@@ -68,19 +69,19 @@ namespace ExcelDBviaEntityFramework.Data
             return affectedRows;
         }
 
-        private void SaveChangesLogs(ExcelDataGateway repo)
+        private void SaveChangesLogs()
         {
             foreach (var entry in ChangeTracker.Entries<Log>().ToList())
             {
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        SaveAddition(entry, repo, Constants.SheetNameLogs, nameof(Log.Id));
+                        SaveAddition(entry, Constants.SheetNameLogs, nameof(Log.Id));
                         break;
                     case EntityState.Modified:
                         throw new InvalidOperationException("Not allowed.");
                     case EntityState.Deleted:
-                        SaveSoftDeletion(entry, repo, Constants.SheetNameLogs, nameof(Log.Id));
+                        SaveSoftDeletion(entry, Constants.SheetNameLogs, nameof(Log.Id));
                         break;
                 }
 
@@ -88,7 +89,7 @@ namespace ExcelDBviaEntityFramework.Data
             }
         }
 
-        private int SaveAddition<TEntity>(EntityEntry<TEntity> entry, ExcelDataGateway repo, string sheetName, string keyPropertyName)
+        private int SaveAddition<TEntity>(EntityEntry<TEntity> entry, string sheetName, string keyPropertyName)
         where TEntity : class
         {
             // Ensure Id is present
@@ -99,33 +100,33 @@ namespace ExcelDBviaEntityFramework.Data
             entry.CurrentValues[Constants.ColumnNameDeleted] = false;
 
             // Build INSERT statement
-            var (columns, parameters) = repo.BuildParameters(entry.Entity, includeAll: true);
+            var (columns, parameters) = _excelDataGateway.BuildParameters(entry.Entity, includeAll: true);
             string sql = $"INSERT INTO [{sheetName}] " +
                          $"({string.Join(", ", columns)}) " +
                          $"VALUES ({string.Join(", ", parameters.Select(p => p.Name))})";
 
-            repo.Execute(sql, parameters);
+            _excelDataGateway.Execute(sql, parameters);
 
             entry.State = EntityState.Unchanged;
             return 1;
         }
 
-        private int SaveModification(EntityEntry<Signup> entry, ExcelDataGateway repo)
+        private int SaveModification(EntityEntry<Signup> entry)
         {
             var modifiedProps = entry.Properties.Where(p => p.IsModified).Select(p => p.Metadata.Name).ToList();
-            var (setClauses, parameters) = repo.BuildParameters(entry.Entity, includeAll: false, modifiedProps: modifiedProps);
+            var (setClauses, parameters) = _excelDataGateway.BuildParameters(entry.Entity, includeAll: false, modifiedProps: modifiedProps);
 
             if (!setClauses.Any()) return 0;
 
             parameters.Add(("@id", entry.OriginalValues[nameof(Signup.Id)]));
             string sql = $"UPDATE [{Constants.SheetNameSignups}] SET {string.Join(", ", setClauses)} WHERE [{nameof(Signup.Id)}] = @id";
 
-            repo.Execute(sql, parameters);
+            _excelDataGateway.Execute(sql, parameters);
             entry.State = EntityState.Unchanged;
             return 1;
         }
 
-        private int SaveSoftDeletion<TEntity>(EntityEntry<TEntity> entry, ExcelDataGateway repo, string sheetName, string keyPropertyName)
+        private int SaveSoftDeletion<TEntity>(EntityEntry<TEntity> entry, string sheetName, string keyPropertyName)
         where TEntity : class
         {
             string sql = $"UPDATE [{sheetName}] SET [{Constants.ColumnNameDeleted}] = @deleted WHERE [{keyPropertyName}] = @id";
@@ -135,7 +136,7 @@ namespace ExcelDBviaEntityFramework.Data
                 ("@id", entry.OriginalValues[keyPropertyName])
             };
 
-            repo.Execute(sql, parameters);
+            _excelDataGateway.Execute(sql, parameters);
             entry.State = EntityState.Detached;
 
             return 1;

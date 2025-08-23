@@ -1,4 +1,5 @@
 ﻿using ExcelDBviaEntityFramework.Console;
+using ExcelDBviaEntityFramework.Data.Infrastructure;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 
@@ -149,6 +150,7 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void TestStuff()
         {
+            _signupService.TestStuff();
             ConsoleHelper.WriteLineColored("Stuff has been tested", ConsoleColor.Cyan);
         }
 

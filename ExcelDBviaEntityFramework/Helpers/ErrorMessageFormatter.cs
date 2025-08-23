@@ -17,7 +17,7 @@ namespace ExcelDBviaEntityFramework.Helpers
         public static string DatabaseError(System.Data.OleDb.OleDbException ex)
         {
             var sheetSignups = Constants.SheetNameSignups.Replace("$", string.Empty);
-            var sheetLogs = Constants.SheetNameSignups.Replace("$", string.Empty);
+            var sheetLogs = Constants.SheetNameLogs.Replace("$", string.Empty);
 
             return $"""
                 Error connecting to the Excel data. 
@@ -25,8 +25,8 @@ namespace ExcelDBviaEntityFramework.Helpers
                 Requirements w.r. to the Excel file database:
                 - The file name should be {Constants.ExcelFileName}
                 - The file should contain sheets named {sheetSignups} en {sheetLogs}
-                - The first row of {sheetSignups} should contain headers and its fields should match the properties of the {nameof(Signup)} class.                
-                - The first row of {sheetLogs} should contain headers and its fields should match the properties of the {nameof(Log)} class.                
+                - The first row of {sheetSignups} should contain headers and its fields should match the properties of the {nameof(Signup)} class.
+                - The first row of {sheetLogs} should contain headers and its fields should match the properties of the {nameof(Log)} class.
                 """;
         }
 
