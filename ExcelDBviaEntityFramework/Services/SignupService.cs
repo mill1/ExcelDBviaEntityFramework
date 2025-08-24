@@ -1,67 +1,124 @@
-﻿using ExcelDBviaEntityFramework.Interfaces;
+﻿using ExcelDBviaEntityFramework;
+using ExcelDBviaEntityFramework.Exceptions;
+using ExcelDBviaEntityFramework.Helpers;
+using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
+using System.Collections.Generic;
 
-namespace ExcelDBviaEntityFramework.Services
+public class SignupService : ISignupService
 {
-    /// <summary>
-    /// Application service that orchestrates signup operations.  
-    /// Wraps <see cref="ISignupRepository"/> to provide higher-level business logic,  
-    /// such as coordinating data persistence with logging, validation, and cleanup.  
-    /// Classic 'bamiluik' that exposes a clean API without exposing EF Core details.  
-    /// </summary>
-    public class SignupService : ISignupService
+    private readonly ISignupRepository _signupRepository;
+
+    public SignupService(ISignupRepository signupRepository)
     {
-        private readonly ISignupRepository _repo;
+        _signupRepository = signupRepository;
+    }
 
-        public SignupService(ISignupRepository repository)
-        {
-            _repo = repository;
-        }
+    public Signup GetById(string id)
+    {
+        return _signupRepository.GetById(id);
+    }
 
-        public Signup AddSignup(SignupUpsert insert)
-        {
-            return _repo.AddSignup(insert);
-        }
+    public Signup GetByIdIncludingLogs(string id)
+    {
+        return _signupRepository.GetByIdIncludingLogs(id);
+    }
 
-        public Signup UpdateSignup(string id, SignupUpsert update)
-        {
-            return _repo.UpdateSignup(id, update);
-        }
+    public List<Signup> Get()
+    {
+        return _signupRepository.Get();
+    }
 
-        public bool DeleteSignup(string id)
-        {
-            return _repo.DeleteSignup(id);
-        }
+    public List<Signup> GetIncludingLogs()
+    {
+        return _signupRepository.GetIncludingLogs();
+    }
 
-        public Signup GetSignup(string id)
-        {
-            return _repo.GetSignup(id);
-        }
+    public void Add(SignupUpsert insert)
+    {
+        // Business logic ✅
+        var newId = GenerateId(Get());
 
-        public Signup GetSignupIncludingLogs(string id)
+        var signup = new Signup
         {
-            return _repo.GetSignupIncludingLogs(id);
-        }
+            Deleted = false,
+            Id = newId,
+            Name = insert.Name,
+            PhoneNumber = insert.PhoneNumber,
+            PartySize = (int)insert.PartySize,
+            Logs = new List<Log>()
+        };        
 
-        public List<Signup> GetSignups()
-        {
-            return _repo.GetSignups();
-        }
+        // Persistence delegation ✅
+        _signupRepository.Add(signup);
+        _signupRepository.Log(CreateLog(newId, $"Added signup: {insert}"));
+    }
 
-        public List<Signup> GetSignupsIncludingLogs()
-        {
-            return _repo.GetSignupsIncludingLogs();
-        }
+    public Signup Update(Signup existing, SignupUpsert update)
+    {
+        if (string.IsNullOrWhiteSpace(update.Name))
+            update.Name = existing.Name;
 
-        public void TestStuff()
-        {
-            // Playground to test stuff.
-            _repo.TestStuff();
-        }
+        if (string.IsNullOrWhiteSpace(update.PhoneNumber))
+            update.PhoneNumber = existing.PhoneNumber;
 
-        public void CheckData()
+        if (!update.PartySize.HasValue)
+            update.PartySize = existing.PartySize;
+
+        var signup = _signupRepository.Update(existing.Id, update);
+        _signupRepository.Log(CreateLog(existing.Id, $"Updated signup: {update}"));
+
+        return signup;
+    }
+
+    public bool Delete(string id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void TestStuff()
+    {
+        throw new NotImplementedException();
+    }
+
+
+
+    public void CheckData()
+    {
+        var _filePath = FileHelper.ResolveExcelPath(Constants.ExcelFileName);
+        FileHelper.EnsureFileNotLocked(_filePath);
+
+        if (Get().Count == 0)
+            return;
+
+        if(_signupRepository.HasEmptyIntegers())
+            throw new SignupException($"Empty signup id(s) and/or party size(s) found! Fix this in Excel.");
+
+        if(_signupRepository.HasDuplicates())
+            throw new SignupException($"Duplicate signup id(s) found! Fix this in Excel.");
+    }
+
+    private static Log CreateLog(string signupId, string entry)
+    {
+        return new Log
         {
-            _repo.CheckData();
-        }
-    }   
+            Deleted = false,
+            Id = Guid.NewGuid().ToString("N")[..8],
+            User = Environment.UserName,
+            Timestamp = DateTime.Now,
+            SignupId = signupId,
+            Entry = entry
+        };
+    }
+
+    private static string GenerateId(List<Signup> signups)
+    {
+
+        var max = signups
+            .Select(s => int.TryParse(s.Id, out var n) ? n : 0)
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return (max + 1).ToString();
+    }
 }

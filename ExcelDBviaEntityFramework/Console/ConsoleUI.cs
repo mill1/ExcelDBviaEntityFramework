@@ -74,7 +74,7 @@ namespace ExcelDBviaEntityFramework.Console
                 {
                     try
                     {
-                        _uiActions.CheckData();
+                        _uiActions.CheckData();                        
                         action();
                     }
                     catch (SignupException ex)

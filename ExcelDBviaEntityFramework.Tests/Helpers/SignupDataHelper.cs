@@ -1,7 +1,9 @@
 ﻿using ExcelDBviaEntityFramework.Models;
 
-namespace ExcelDBviaEntityFramework.Data.Common
+namespace ExcelDBviaEntityFramework.Tests.Helpers
 {
+    // TODO bekijek lw?
+
     public static class SignupDataHelper
     {
         public static Signup CreateDummySignup(string newId)
@@ -24,7 +26,7 @@ namespace ExcelDBviaEntityFramework.Data.Common
                 Deleted = false,
                 Id = Guid.NewGuid().ToString("N")[..8],
                 User = Environment.UserName,
-                Timestamp = DateTime.UtcNow,
+                Timestamp = DateTime.Now,
                 SignupId = signupId,
                 Entry = entry
             };
