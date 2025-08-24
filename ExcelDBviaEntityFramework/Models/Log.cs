@@ -17,7 +17,7 @@ namespace ExcelDBviaEntityFramework.Models
 
         public override string? ToString()
         {
-            return $"{Timestamp} User: {User} Entry: {Entry})";
+            return $"{Timestamp} User: {User} Entry: {Entry}";
         }
     }
 }
