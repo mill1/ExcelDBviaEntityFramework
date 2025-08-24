@@ -1,8 +1,6 @@
 ﻿using ExcelDBviaEntityFramework.Exceptions;
 using ExcelDBviaEntityFramework.Extensions;
-using ExcelDBviaEntityFramework.Helpers;
 using ExcelDBviaEntityFramework.Interfaces;
-using System.Reflection.PortableExecutable;
 
 namespace ExcelDBviaEntityFramework.Console
 {
@@ -74,7 +72,7 @@ namespace ExcelDBviaEntityFramework.Console
                 {
                     try
                     {
-                        _uiActions.CheckData();
+                        _uiActions.CheckData();                        
                         action();
                     }
                     catch (SignupException ex)

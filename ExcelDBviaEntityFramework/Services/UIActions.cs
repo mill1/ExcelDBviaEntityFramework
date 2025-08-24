@@ -1,5 +1,4 @@
 ﻿using ExcelDBviaEntityFramework.Console;
-using ExcelDBviaEntityFramework.Data.Infrastructure;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 
@@ -20,15 +19,16 @@ namespace ExcelDBviaEntityFramework.Services
             var phone = ConsoleHelper.GetUserInput("Phone:");
             int partySize = (int)GetValidInteger("Party size:");
 
-            var signup = _signupService.AddSignup(MapToDto(name, phone, partySize));
+            _signupService.Add(MapToDto(name, phone, partySize));
 
-            ConsoleHelper.WriteLineColored($"Added signup: {signup}", ConsoleColor.Green);
+            ConsoleHelper.WriteLineColored($"Added signup", ConsoleColor.Green);
         }
 
         public void UpdateSignup()
         {
             var id = ConsoleHelper.GetUserInput($"Id of signup to update:");
-            var existing = _signupService.GetSignup(id);
+            
+            var existing = _signupService.GetById(id);
 
             if (existing == null)
             {
@@ -44,7 +44,7 @@ namespace ExcelDBviaEntityFramework.Services
                 return;
             }
 
-            var updated = _signupService.UpdateSignup(id, update);
+            var updated = _signupService.Update(existing, update);
 
             if (updated == null)
                 ConsoleHelper.WriteLineColored($"Signup set to null by other process", ConsoleColor.Magenta);
@@ -55,7 +55,7 @@ namespace ExcelDBviaEntityFramework.Services
         public void DeleteSignup()
         {
             var id = ConsoleHelper.GetUserInput("Id of signup to delete:");
-            bool result = _signupService.DeleteSignup(id);
+            bool result = _signupService.Delete(id);
             var message = result ? "The signup is deleted" : $"Signup with id '{id}' not found.";
 
             ConsoleHelper.WriteLineColored($"{message}", result ? ConsoleColor.Green : ConsoleColor.Cyan);
@@ -63,7 +63,7 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void ListSignups()
         {
-            var signups = _signupService.GetSignups();
+            var signups = _signupService.Get();
 
             if (!signups.Any())
             {
@@ -104,7 +104,7 @@ namespace ExcelDBviaEntityFramework.Services
 
         private void ListLogsOfSignup(string id)
         {
-            var signup = _signupService.GetSignupIncludingLogs(id);
+            var signup = _signupService.GetByIdIncludingLogs(id);
 
             if (signup == null)
             {
@@ -117,7 +117,7 @@ namespace ExcelDBviaEntityFramework.Services
 
         private void ListLogsOfAllSignups()
         {
-            var signups = _signupService.GetSignupsIncludingLogs();
+            var signups = _signupService.GetIncludingLogs();
 
             if (!signups.Any())
             {
