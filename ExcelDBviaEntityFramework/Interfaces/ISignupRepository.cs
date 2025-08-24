@@ -10,7 +10,9 @@ namespace ExcelDBviaEntityFramework.Interfaces
         Signup GetByIdIncludingLogs(string id);
         void Add(Signup insert);
         Signup Update(string id, SignupUpsert update);
+        bool Delete(string id);
         void Log(Log log);
+        void Log(List<Log> logs);
         bool HasEmptyIntegers();
         bool HasDuplicates();
     }

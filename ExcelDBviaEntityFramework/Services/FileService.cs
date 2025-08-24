@@ -1,10 +1,11 @@
 ﻿using ExcelDBviaEntityFramework.Exceptions;
+using ExcelDBviaEntityFramework.Interfaces;
 
-namespace ExcelDBviaEntityFramework.Helpers
+namespace ExcelDBviaEntityFramework.Services
 {
-    public static class FileHelper
+    public class FileService : IFileService
     {
-        public static string ResolveExcelPath(string fileName)
+        public string ResolveExcelPath(string fileName)
         {
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
@@ -16,7 +17,7 @@ namespace ExcelDBviaEntityFramework.Helpers
             return fullPath;
         }
 
-        public static void EnsureFileNotLocked(string filePath)
+        public void EnsureFileNotLocked(string filePath)
         {
             try
             {

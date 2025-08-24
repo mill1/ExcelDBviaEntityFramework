@@ -1,6 +1,6 @@
 ﻿using ExcelDBviaEntityFramework.Models;
 
-namespace ExcelDBviaEntityFramework.Helpers
+namespace ExcelDBviaEntityFramework.Console
 {
     public static class ErrorMessageFormatter
     {

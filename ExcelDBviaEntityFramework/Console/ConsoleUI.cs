@@ -1,8 +1,6 @@
 ﻿using ExcelDBviaEntityFramework.Exceptions;
 using ExcelDBviaEntityFramework.Extensions;
-using ExcelDBviaEntityFramework.Helpers;
 using ExcelDBviaEntityFramework.Interfaces;
-using System.Reflection.PortableExecutable;
 
 namespace ExcelDBviaEntityFramework.Console
 {

@@ -4,12 +4,16 @@ using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Repository for managing <see cref="Signup"/> entities in an Excel-backed EF Core context.
 public class SignupRepository : ISignupRepository
 {
     private readonly IDbContextFactory<ExcelDbContext> _dbContextFactory;
 
     public SignupRepository(IDbContextFactory<ExcelDbContext> contextFactory)
     {
+        // Use a db context factory to make sure that the DbContext is disposed after the request.
+        // Using a scoped db service somehow keeps the Excel file locked, which prevents subsequent CRUD operations.
         _dbContextFactory = contextFactory;
     }
 
@@ -71,10 +75,37 @@ public class SignupRepository : ISignupRepository
         return signup;
     }
 
+    public bool Delete(string id)
+    {
+        using var ctx = _dbContextFactory.CreateDbContext();
+
+        var signup = ctx.Signups.FirstOrDefault(s => s.Id == id);
+
+        if (signup == null)
+            return false;
+
+        ctx.Signups.Remove(signup);
+
+        // Remove all logs related to this signup ('Cascade delete')
+        var logs = ctx.Logs.Where(l => l.SignupId == id).ToList();
+        ctx.Logs.RemoveRange(logs);
+
+        ctx.SaveChanges();
+        return true;
+    }
+
     public void Log(Log log)
     {
         using var ctx = _dbContextFactory.CreateDbContext();
         ctx.Logs.Add(log);
+
+        ctx.SaveChanges();
+    }
+
+    public void Log(List<Log> logs)
+    {
+        using var ctx = _dbContextFactory.CreateDbContext();
+        ctx.Logs.AddRange(logs);
 
         ctx.SaveChanges();
     }
