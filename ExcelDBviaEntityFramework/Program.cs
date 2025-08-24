@@ -1,5 +1,4 @@
-﻿using ExcelDBviaEntityFramework.Console;
-using ExcelDBviaEntityFramework.Data;
+﻿using ExcelDBviaEntityFramework.Data;
 using ExcelDBviaEntityFramework.Data.Infrastructure;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Services;

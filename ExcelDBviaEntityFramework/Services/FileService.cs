@@ -28,7 +28,7 @@ namespace ExcelDBviaEntityFramework.Services
                     FileAccess.ReadWrite,
                     FileShare.None); // No sharing allowed
             }
-            catch (IOException ex)
+            catch (IOException)
             {
                 throw new SignupException($"The Excel file is currently in use by another process. Check if the file is opened in Excel.\r\nPath: {filePath}");
             }

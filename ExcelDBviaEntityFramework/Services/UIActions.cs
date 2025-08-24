@@ -1,5 +1,4 @@
-﻿using ExcelDBviaEntityFramework.Console;
-using ExcelDBviaEntityFramework.Interfaces;
+﻿using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 
 namespace ExcelDBviaEntityFramework.Services
@@ -15,24 +14,25 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void AddSignup()
         {
-            var name = ConsoleHelper.GetUserInput("Name:");
-            var phone = ConsoleHelper.GetUserInput("Phone:");
-            int partySize = (int)GetValidInteger("Party size:");
+            var name = Console.GetUserInput("Name:");
+            var phone = Console.GetUserInput("Phone:");
+            var inputPartySize = GetValidInteger("Party size:");
+            int partySize =  inputPartySize.HasValue ? inputPartySize.Value : 0;
 
             _signupService.Add(MapToDto(name, phone, partySize));
 
-            ConsoleHelper.WriteLineColored($"Added signup", ConsoleColor.Green);
+            Console.WriteSuccess($"Added signup");
         }
 
         public void UpdateSignup()
         {
-            var id = ConsoleHelper.GetUserInput($"Id of signup to update:");
+            var id = Console.GetUserInput($"Id of signup to update:");
             
             var existing = _signupService.GetById(id);
 
             if (existing == null)
             {
-                ConsoleHelper.WriteLineColored($"Signup with {nameof(Signup.Id)} '{id}' not found.", ConsoleColor.Cyan);
+                Console.WriteInfo($"Signup with {nameof(Signup.Id)} '{id}' not found.");
                 return;
             }
 
@@ -40,25 +40,28 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (update.Name == null && update.PhoneNumber == null && update.PartySize == null)
             {
-                ConsoleHelper.WriteLineColored($"No changes were made.", ConsoleColor.Cyan);
+                Console.WriteInfo($"No changes were made.");
                 return;
             }
 
             var updated = _signupService.Update(existing, update);
 
             if (updated == null)
-                ConsoleHelper.WriteLineColored($"Signup set to null by other process", ConsoleColor.Magenta);
+                Console.WriteWarning($"Signup set to null by other process");
             else
-                ConsoleHelper.WriteLineColored($"Updated: {updated}", ConsoleColor.Green);
+                Console.WriteSuccess($"Updated: {updated}");
         }
 
         public void DeleteSignup()
         {
-            var id = ConsoleHelper.GetUserInput("Id of signup to delete:");
+            var id = Console.GetUserInput("Id of signup to delete:");
             bool result = _signupService.Delete(id);
             var message = result ? "The signup is deleted" : $"Signup with id '{id}' not found.";
 
-            ConsoleHelper.WriteLineColored($"{message}", result ? ConsoleColor.Green : ConsoleColor.Cyan);
+            if(result)
+                Console.WriteSuccess(message);
+            else
+                Console.WriteInfo(message);            
         }
 
         public void ListSignups()
@@ -67,31 +70,31 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (!signups.Any())
             {
-                ConsoleHelper.WriteLineColored("No signups found.", ConsoleColor.Cyan);
+                Console.WriteInfo("No signups found.");
                 return;
             } 
 
             var maxLength = signups.Max(s => $"{s.Id}{s.Name}{s.PhoneNumber}{s.PartySize}".Length) + 9;
             var line = new string('*', maxLength);
 
-            ConsoleHelper.WriteLineColored($"Current signups:", ConsoleColor.Cyan);
-            ConsoleHelper.WriteLineColored(line, ConsoleColor.Cyan);
+            Console.WriteInfo($"Current signups:");
+            Console.WriteInfo(line);
 
             foreach (var signup in signups)
             {
-                ConsoleHelper.WriteLineColored($"{signup}", ConsoleColor.Green);
+                Console.WriteSuccess($"{signup}");
             }
 
-            ConsoleHelper.WriteLineColored(line, ConsoleColor.Cyan);
-            ConsoleHelper.WriteLineColored($"Number of signups: {signups.Count}", ConsoleColor.Cyan);
-            ConsoleHelper.WriteLineColored($"Average party size: {signups.Average(s => s.PartySize):#.##}", ConsoleColor.Cyan);
+            Console.WriteInfo(line);
+            Console.WriteInfo($"Number of signups: {signups.Count}");
+            Console.WriteInfo($"Average party size: {signups.Average(s => s.PartySize):#.##}");
             var largestParty = signups.OrderByDescending(s => s.PartySize).First();
-            ConsoleHelper.WriteLineColored($"Largest: {largestParty.Name}, party of {largestParty.PartySize}", ConsoleColor.Cyan);
+            Console.WriteInfo($"Largest: {largestParty.Name}, party of {largestParty.PartySize}");
         }
 
         public void ListLogsPerSignup()
         {
-            var id = ConsoleHelper.GetUserInput("Id of the signup  (leave empty to show all):");
+            var id = Console.GetUserInput("Id of the signup  (leave empty to show all):");
 
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -108,7 +111,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (signup == null)
             {
-                ConsoleHelper.WriteLineColored($"Signup with {nameof(Signup.Id)} '{id}' not found.", ConsoleColor.Cyan);
+                Console.WriteSuccess($"Signup with {nameof(Signup.Id)} '{id}' not found.");
                 return;
             }
 
@@ -121,11 +124,11 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (!signups.Any())
             {
-                ConsoleHelper.WriteLineColored("No signups found.", ConsoleColor.Cyan);
+                Console.WriteInfo("No signups found.");
                 return;
             }
 
-            ConsoleHelper.WriteLineColored("Signups with logs:", ConsoleColor.Cyan);
+            Console.WriteInfo("Signups with logs:");
 
             foreach (var signup in signups)
             {
@@ -135,23 +138,23 @@ namespace ExcelDBviaEntityFramework.Services
 
         private static void ListLogsPerSignup(Signup signup)
         {
-            ConsoleHelper.WriteLineColored($"Id {signup.Id} ({signup.Name})", ConsoleColor.Green);
+            Console.WriteSuccess($"Id {signup.Id} ({signup.Name})");
 
             if (signup.Logs.Any())
             {
                 foreach (var log in signup.Logs)
-                    ConsoleHelper.WriteLineColored($"  {log}", ConsoleColor.Cyan);
+                    Console.WriteInfo($"  {log}");
             }
             else
             {
-                ConsoleHelper.WriteLineColored("  [No logs]", ConsoleColor.Cyan);
+                Console.WriteInfo("  [No logs]");
             }
         }
 
         public void TestStuff()
         {
             _signupService.TestStuff();
-            ConsoleHelper.WriteLineColored("Stuff has been tested", ConsoleColor.Cyan);
+            Console.WriteInfo("Stuff has been tested");
         }
 
         public void CheckData()
@@ -161,8 +164,8 @@ namespace ExcelDBviaEntityFramework.Services
 
         private static SignupUpsert GetUpdateDto(Signup existing)
         {
-            var newName = ConsoleHelper.GetUserInput($"New name (leave empty to keep '{existing.Name}'):");
-            var newPhone = ConsoleHelper.GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
+            var newName = Console.GetUserInput($"New name (leave empty to keep '{existing.Name}'):");
+            var newPhone = Console.GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
             var partySize = GetValidInteger($"New party size (leave empty to keep {existing.PartySize}):", allowNull: true);
 
             return MapToDto(newName, newPhone, partySize);
@@ -182,21 +185,21 @@ namespace ExcelDBviaEntityFramework.Services
         {
             while (true)
             {
-                string input = ConsoleHelper.GetUserInput(prompt);
+                string input = Console.GetUserInput(prompt);
 
                 if (string.IsNullOrWhiteSpace(input))
                 {
                     if (allowNull)
                         return null;
 
-                    ConsoleHelper.WriteLineColored("Input cannot be empty. Please try again.", ConsoleColor.Magenta);
+                    Console.WriteWarning("Input cannot be empty. Please try again.");
                     continue;
                 }
 
                 if (int.TryParse(input, out int result))
                     return result;
 
-                ConsoleHelper.WriteLineColored("Invalid number. Please try again.", ConsoleColor.Magenta);
+                Console.WriteWarning("Invalid number. Please try again.");
             }
         }
     }
