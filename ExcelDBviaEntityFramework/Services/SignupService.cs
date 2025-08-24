@@ -2,7 +2,6 @@
 using ExcelDBviaEntityFramework.Exceptions;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 /// <summary>
 /// Application service that orchestrates signup operations.  

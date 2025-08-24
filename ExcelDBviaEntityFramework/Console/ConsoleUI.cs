@@ -2,7 +2,7 @@
 using ExcelDBviaEntityFramework.Extensions;
 using ExcelDBviaEntityFramework.Interfaces;
 
-namespace ExcelDBviaEntityFramework.Console
+namespace ExcelDBviaEntityFramework
 {
     public class ConsoleUI
     {
@@ -50,11 +50,11 @@ namespace ExcelDBviaEntityFramework.Console
             }
             catch (Exception e)
             {
-                ConsoleHelper.WriteLineColored(e.ToString(), ConsoleColor.Red);
+                Console.WriteError(e.ToString());
             }
             finally
             {
-                System.Console.ResetColor();
+                Console.ResetColor();
             }
         }
 
@@ -66,7 +66,7 @@ namespace ExcelDBviaEntityFramework.Console
             {
                 PrintMenuOptions();
 
-                string option = ConsoleHelper.GetUserInput();
+                string option = Console.GetUserInput();
 
                 if (_menuOptions.TryGetValue(option, out var action))
                 {
@@ -77,7 +77,7 @@ namespace ExcelDBviaEntityFramework.Console
                     }
                     catch (SignupException ex)
                     {
-                        ConsoleHelper.WriteLineColored(ex.Message, ConsoleColor.Magenta);
+                        Console.WriteWarning(ex.Message);
                     }
                     catch (System.Data.OleDb.OleDbException ex)
                     {
@@ -85,12 +85,12 @@ namespace ExcelDBviaEntityFramework.Console
                     }
                     catch (Exception ex)
                     {
-                        ConsoleHelper.WriteLineColored(ErrorMessageFormatter.UnexpectedError(ex), ConsoleColor.Red);
+                        Console.WriteError(Console.UnexpectedError(ex));
                     }
                 }
                 else
                 {
-                    ConsoleHelper.WriteLineColored(ErrorMessageFormatter.InvalidOption(option), ConsoleColor.Magenta);
+                    Console.WriteWarning(Console.InvalidOption(option));
                 }
             }
         }
@@ -101,22 +101,22 @@ namespace ExcelDBviaEntityFramework.Console
 
             if (ex.Message.Contains(errorMessageExcerpt))
             {
-                ConsoleHelper.WriteLineColored(ErrorMessageFormatter.DualObjectNotFound(errorMessageExcerpt), ConsoleColor.Red);
+                Console.WriteError(Console.DualObjectNotFound(errorMessageExcerpt));
                 return;
             }
-            ConsoleHelper.WriteLineColored(ErrorMessageFormatter.DatabaseError(ex), ConsoleColor.Red);
+            Console.WriteError(Console.DatabaseError(ex));
         }
 
         private void PrintMenuOptions()
         {
-            ConsoleHelper.WriteLineColored(new string('-', TotalWidth), ConsoleColor.Yellow);
+            Console.WriteMenuOption(new string('-', TotalWidth));
 
             foreach (var item in _menuItems)
             {
-                ConsoleHelper.WriteLineColored($"- {item.Label} ({item.Key})", ConsoleColor.Yellow);
+                Console.WriteMenuOption($"- {item.Label} ({item.Key})");
             }
 
-            ConsoleHelper.WriteLineColored(new string('-', TotalWidth), ConsoleColor.Yellow);
+            Console.WriteMenuOption(new string('-', TotalWidth));
         }
 
         private void DrawBanner()
@@ -125,10 +125,10 @@ namespace ExcelDBviaEntityFramework.Console
             string appVersion = _assemblyService.GetAssemblyValue("Version", assemblyName);
             string blankLine = new string(' ', TotalWidth);
 
-            ConsoleHelper.WriteLineColored(blankLine + "\r\n" + blankLine, ConsoleColor.White, ConsoleColor.DarkBlue);
-            ConsoleHelper.WriteLineColored($"{assemblyName.Name}".PadMiddle(TotalWidth, ' '), ConsoleColor.White, ConsoleColor.DarkBlue);
-            ConsoleHelper.WriteLineColored($"version: {appVersion}".PadMiddle(TotalWidth, ' '), ConsoleColor.White, ConsoleColor.DarkBlue);
-            ConsoleHelper.WriteLineColored(blankLine + "\r\n" + blankLine, ConsoleColor.White, ConsoleColor.DarkBlue);
+            Console.WriteBanner(blankLine + "\r\n" + blankLine);
+            Console.WriteBanner($"{assemblyName.Name}".PadMiddle(TotalWidth, ' '));
+            Console.WriteBanner($"version: {appVersion}".PadMiddle(TotalWidth, ' '));
+            Console.WriteBanner(blankLine + "\r\n" + blankLine);
         }
 
         private record MenuItem(string Label, string Key, Action Action);
