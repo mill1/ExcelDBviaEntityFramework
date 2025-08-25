@@ -1,4 +1,5 @@
 ﻿using ExcelDBviaEntityFramework.Data;
+using ExcelDBviaEntityFramework.Data.Infrastructure;
 using ExcelDBviaEntityFramework.Extensions;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
@@ -19,10 +20,8 @@ public class SignupRepository : ISignupRepository
 
     public List<Signup> Get()
     {
-        using (var ctx = _dbContextFactory.CreateDbContext())
-        {
-            return [.. ctx.Signups];
-        }
+        using var ctx = _dbContextFactory.CreateDbContext();       
+        return [.. ctx.Signups];        
     }
 
     public Signup? GetById(string id)
@@ -55,14 +54,14 @@ public class SignupRepository : ISignupRepository
     public void Add(Signup insert)
     {
         using var ctx = _dbContextFactory.CreateDbContext();
-        ctx.Signups.Add(insert);
 
-        ctx.SaveChanges();
+        ctx.Signups.Add(insert);
+        ctx.SaveChangesWithGateway();
     }
 
     public Signup Update(string id, SignupUpsert update)
     {
-        using var ctx = _dbContextFactory.CreateDbContext();
+        using var ctx = _dbContextFactory.CreateDbContext();        
 
         var signup = ctx.Signups.Single(s => s.Id == id);
 
@@ -70,14 +69,14 @@ public class SignupRepository : ISignupRepository
         signup.PhoneNumber = update.PhoneNumber;
         signup.PartySize = (int)update.PartySize;
 
-        ctx.SaveChanges();
+        ctx.SaveChangesWithGateway();
 
         return signup;
     }
 
     public bool Delete(string id)
     {
-        using var ctx = _dbContextFactory.CreateDbContext();
+        using var ctx = _dbContextFactory.CreateDbContext();        
 
         var signup = ctx.Signups.FirstOrDefault(s => s.Id == id);
 
@@ -90,24 +89,27 @@ public class SignupRepository : ISignupRepository
         var logs = ctx.Logs.Where(l => l.SignupId == id).ToList();
         ctx.Logs.RemoveRange(logs);
 
-        ctx.SaveChanges();
+        ctx.SaveChangesWithGateway();
+
         return true;
     }
 
     public void Log(Log log)
     {
         using var ctx = _dbContextFactory.CreateDbContext();
+
         ctx.Logs.Add(log);
 
-        ctx.SaveChanges();
+        ctx.SaveChangesWithGateway();
     }
 
     public void Log(List<Log> logs)
     {
         using var ctx = _dbContextFactory.CreateDbContext();
+
         ctx.Logs.AddRange(logs);
 
-        ctx.SaveChanges();
+        ctx.SaveChangesWithGateway();
     }
 
     public bool HasDuplicates()

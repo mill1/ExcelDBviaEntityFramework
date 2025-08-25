@@ -1,4 +1,5 @@
-﻿using ExcelDBviaEntityFramework.Interfaces;
+﻿using ExcelDBviaEntityFramework.Console;
+using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
 
 namespace ExcelDBviaEntityFramework.Services
@@ -14,25 +15,24 @@ namespace ExcelDBviaEntityFramework.Services
 
         public void AddSignup()
         {
-            var name = Console.GetUserInput("Name:");
-            var phone = Console.GetUserInput("Phone:");
-            var inputPartySize = GetValidInteger("Party size:");
-            int partySize =  inputPartySize.HasValue ? inputPartySize.Value : 0;
+            var name = ConsoleFormatter.GetUserInput("Name:");
+            var phone = ConsoleFormatter.GetUserInput("Phone:");
+            int partySize = (int)GetValidInteger("Party size:");
 
             _signupService.Add(MapToDto(name, phone, partySize));
 
-            Console.WriteSuccess($"Added signup");
+            ConsoleFormatter.WriteSuccess($"Added signup");
         }
 
         public void UpdateSignup()
         {
-            var id = Console.GetUserInput($"Id of signup to update:");
+            var id = ConsoleFormatter.GetUserInput($"Id of signup to update:");
             
             var existing = _signupService.GetById(id);
 
             if (existing == null)
             {
-                Console.WriteInfo($"Signup with {nameof(Signup.Id)} '{id}' not found.");
+                ConsoleFormatter.WriteInfo($"Signup with {nameof(Signup.Id)} '{id}' not found.");
                 return;
             }
 
@@ -40,28 +40,28 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (update.Name == null && update.PhoneNumber == null && update.PartySize == null)
             {
-                Console.WriteInfo($"No changes were made.");
+                ConsoleFormatter.WriteInfo($"No changes were made.");
                 return;
             }
 
             var updated = _signupService.Update(existing, update);
 
             if (updated == null)
-                Console.WriteWarning($"Signup set to null by other process");
+                ConsoleFormatter.WriteWarning($"Signup set to null by other process");
             else
-                Console.WriteSuccess($"Updated: {updated}");
+                ConsoleFormatter.WriteSuccess($"Updated: {updated}");
         }
 
         public void DeleteSignup()
         {
-            var id = Console.GetUserInput("Id of signup to delete:");
+            var id = ConsoleFormatter.GetUserInput("Id of signup to delete:");
             bool result = _signupService.Delete(id);
             var message = result ? "The signup is deleted" : $"Signup with id '{id}' not found.";
 
             if(result)
-                Console.WriteSuccess(message);
+                ConsoleFormatter.WriteSuccess(message);
             else
-                Console.WriteInfo(message);            
+                ConsoleFormatter.WriteInfo(message);            
         }
 
         public void ListSignups()
@@ -70,31 +70,31 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (!signups.Any())
             {
-                Console.WriteInfo("No signups found.");
+                ConsoleFormatter.WriteInfo("No signups found.");
                 return;
             } 
 
             var maxLength = signups.Max(s => $"{s.Id}{s.Name}{s.PhoneNumber}{s.PartySize}".Length) + 9;
             var line = new string('*', maxLength);
 
-            Console.WriteInfo($"Current signups:");
-            Console.WriteInfo(line);
+            ConsoleFormatter.WriteInfo($"Current signups:");
+            ConsoleFormatter.WriteInfo(line);
 
             foreach (var signup in signups)
             {
-                Console.WriteSuccess($"{signup}");
+                ConsoleFormatter.WriteSuccess($"{signup}");
             }
 
-            Console.WriteInfo(line);
-            Console.WriteInfo($"Number of signups: {signups.Count}");
-            Console.WriteInfo($"Average party size: {signups.Average(s => s.PartySize):#.##}");
+            ConsoleFormatter.WriteInfo(line);
+            ConsoleFormatter.WriteInfo($"Number of signups: {signups.Count}");
+            ConsoleFormatter.WriteInfo($"Average party size: {signups.Average(s => s.PartySize):#.##}");
             var largestParty = signups.OrderByDescending(s => s.PartySize).First();
-            Console.WriteInfo($"Largest: {largestParty.Name}, party of {largestParty.PartySize}");
+            ConsoleFormatter.WriteInfo($"Largest: {largestParty.Name}, party of {largestParty.PartySize}");
         }
 
         public void ListLogsPerSignup()
         {
-            var id = Console.GetUserInput("Id of the signup  (leave empty to show all):");
+            var id = ConsoleFormatter.GetUserInput("Id of the signup  (leave empty to show all):");
 
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -111,7 +111,7 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (signup == null)
             {
-                Console.WriteSuccess($"Signup with {nameof(Signup.Id)} '{id}' not found.");
+                ConsoleFormatter.WriteSuccess($"Signup with {nameof(Signup.Id)} '{id}' not found.");
                 return;
             }
 
@@ -124,11 +124,11 @@ namespace ExcelDBviaEntityFramework.Services
 
             if (!signups.Any())
             {
-                Console.WriteInfo("No signups found.");
+                ConsoleFormatter.WriteInfo("No signups found.");
                 return;
             }
 
-            Console.WriteInfo("Signups with logs:");
+            ConsoleFormatter.WriteInfo("Signups with logs:");
 
             foreach (var signup in signups)
             {
@@ -138,23 +138,23 @@ namespace ExcelDBviaEntityFramework.Services
 
         private static void ListLogsPerSignup(Signup signup)
         {
-            Console.WriteSuccess($"Id {signup.Id} ({signup.Name})");
+            ConsoleFormatter.WriteSuccess($"Id {signup.Id} ({signup.Name})");
 
             if (signup.Logs.Any())
             {
                 foreach (var log in signup.Logs)
-                    Console.WriteInfo($"  {log}");
+                    ConsoleFormatter.WriteInfo($"  {log}");
             }
             else
             {
-                Console.WriteInfo("  [No logs]");
+                ConsoleFormatter.WriteInfo("  [No logs]");
             }
         }
 
         public void TestStuff()
         {
             _signupService.TestStuff();
-            Console.WriteInfo("Stuff has been tested");
+            ConsoleFormatter.WriteInfo("Stuff has been tested");
         }
 
         public void CheckData()
@@ -164,8 +164,8 @@ namespace ExcelDBviaEntityFramework.Services
 
         private static SignupUpsert GetUpdateDto(Signup existing)
         {
-            var newName = Console.GetUserInput($"New name (leave empty to keep '{existing.Name}'):");
-            var newPhone = Console.GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
+            var newName = ConsoleFormatter.GetUserInput($"New name (leave empty to keep '{existing.Name}'):");
+            var newPhone = ConsoleFormatter.GetUserInput($"New phone (leave empty to keep '{existing.PhoneNumber}'):");
             var partySize = GetValidInteger($"New party size (leave empty to keep {existing.PartySize}):", allowNull: true);
 
             return MapToDto(newName, newPhone, partySize);
@@ -185,21 +185,21 @@ namespace ExcelDBviaEntityFramework.Services
         {
             while (true)
             {
-                string input = Console.GetUserInput(prompt);
+                string input = ConsoleFormatter.GetUserInput(prompt);
 
                 if (string.IsNullOrWhiteSpace(input))
                 {
                     if (allowNull)
                         return null;
 
-                    Console.WriteWarning("Input cannot be empty. Please try again.");
+                    ConsoleFormatter.WriteWarning("Input cannot be empty. Please try again.");
                     continue;
                 }
 
                 if (int.TryParse(input, out int result))
                     return result;
 
-                Console.WriteWarning("Invalid number. Please try again.");
+                ConsoleFormatter.WriteWarning("Invalid number. Please try again.");
             }
         }
     }

@@ -12,13 +12,11 @@ namespace ExcelDBviaEntityFramework.Data
     /// </summary>
     public class ExcelDbContext : DbContext
     {
-        private readonly IExcelDataGatewayFactory _excelDataGatewayFactory;
-        private ExcelDataGateway? _excelDataGateway;
+        private IExcelDataGateway? _excelDataGateway;
 
-        public ExcelDbContext(DbContextOptions<ExcelDbContext> options, IExcelDataGatewayFactory? excelDataGatewayFactory = null)
+        public ExcelDbContext(DbContextOptions<ExcelDbContext> options)
             : base(options)
         {
-            _excelDataGatewayFactory = excelDataGatewayFactory ?? new ExcelDataGatewayFactory();
         }
 
         public DbSet<Signup> Signups { get; set; }
@@ -37,17 +35,22 @@ namespace ExcelDBviaEntityFramework.Data
 
         public override int SaveChanges()
         {
-            _excelDataGateway = _excelDataGatewayFactory.Create(Database.GetDbConnection());
-
-            int affectedRows = 0;
-            affectedRows = SaveChangesSignups(affectedRows);
+            int affectedRows = SaveChangesSignups();
             SaveChangesLogs();
 
             return affectedRows;
         }
 
-        private int SaveChangesSignups(int affectedRows)
+        public int SaveChanges(IExcelDataGateway? excelDataGateway)
         {
+            _excelDataGateway = excelDataGateway;
+            return SaveChanges();
+        }
+
+        private int SaveChangesSignups()
+        {
+            int affectedRows = 0;
+
             foreach (var entry in ChangeTracker.Entries<Signup>().ToList())
             {
                 switch (entry.State)

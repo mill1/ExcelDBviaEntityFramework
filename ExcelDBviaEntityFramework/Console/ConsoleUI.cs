@@ -2,7 +2,7 @@
 using ExcelDBviaEntityFramework.Extensions;
 using ExcelDBviaEntityFramework.Interfaces;
 
-namespace ExcelDBviaEntityFramework
+namespace ExcelDBviaEntityFramework.Console
 {
     public class ConsoleUI
     {
@@ -50,11 +50,11 @@ namespace ExcelDBviaEntityFramework
             }
             catch (Exception e)
             {
-                Console.WriteError(e.ToString());
+                ConsoleFormatter.WriteError(e.ToString());
             }
             finally
             {
-                Console.ResetColor();
+                ConsoleFormatter.ResetColor();
             }
         }
 
@@ -66,7 +66,7 @@ namespace ExcelDBviaEntityFramework
             {
                 PrintMenuOptions();
 
-                string option = Console.GetUserInput();
+                string option = ConsoleFormatter.GetUserInput();
 
                 if (_menuOptions.TryGetValue(option, out var action))
                 {
@@ -77,7 +77,7 @@ namespace ExcelDBviaEntityFramework
                     }
                     catch (SignupException ex)
                     {
-                        Console.WriteWarning(ex.Message);
+                        ConsoleFormatter.WriteWarning(ex.Message);
                     }
                     catch (System.Data.OleDb.OleDbException ex)
                     {
@@ -85,12 +85,12 @@ namespace ExcelDBviaEntityFramework
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteError(Console.UnexpectedError(ex));
+                        ConsoleFormatter.WriteError(ConsoleFormatter.UnexpectedError(ex));
                     }
                 }
                 else
                 {
-                    Console.WriteWarning(Console.InvalidOption(option));
+                    ConsoleFormatter.WriteWarning(ConsoleFormatter.InvalidOption(option));
                 }
             }
         }
@@ -101,22 +101,22 @@ namespace ExcelDBviaEntityFramework
 
             if (ex.Message.Contains(errorMessageExcerpt))
             {
-                Console.WriteError(Console.DualObjectNotFound(errorMessageExcerpt));
+                ConsoleFormatter.WriteError(ConsoleFormatter.DualObjectNotFound(errorMessageExcerpt));
                 return;
             }
-            Console.WriteError(Console.DatabaseError(ex));
+            ConsoleFormatter.WriteError(ConsoleFormatter.DatabaseError(ex));
         }
 
         private void PrintMenuOptions()
         {
-            Console.WriteMenuOption(new string('-', TotalWidth));
+            ConsoleFormatter.WriteMenuOption(new string('-', TotalWidth));
 
             foreach (var item in _menuItems)
             {
-                Console.WriteMenuOption($"- {item.Label} ({item.Key})");
+                ConsoleFormatter.WriteMenuOption($"- {item.Label} ({item.Key})");
             }
 
-            Console.WriteMenuOption(new string('-', TotalWidth));
+            ConsoleFormatter.WriteMenuOption(new string('-', TotalWidth));
         }
 
         private void DrawBanner()
@@ -125,10 +125,10 @@ namespace ExcelDBviaEntityFramework
             string appVersion = _assemblyService.GetAssemblyValue("Version", assemblyName);
             string blankLine = new string(' ', TotalWidth);
 
-            Console.WriteBanner(blankLine + "\r\n" + blankLine);
-            Console.WriteBanner($"{assemblyName.Name}".PadMiddle(TotalWidth, ' '));
-            Console.WriteBanner($"version: {appVersion}".PadMiddle(TotalWidth, ' '));
-            Console.WriteBanner(blankLine + "\r\n" + blankLine);
+            ConsoleFormatter.WriteBanner(blankLine + "\r\n" + blankLine);
+            ConsoleFormatter.WriteBanner($"{assemblyName.Name}".PadMiddle(TotalWidth, ' '));
+            ConsoleFormatter.WriteBanner($"version: {appVersion}".PadMiddle(TotalWidth, ' '));
+            ConsoleFormatter.WriteBanner(blankLine + "\r\n" + blankLine);
         }
 
         private record MenuItem(string Label, string Key, Action Action);

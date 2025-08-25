@@ -1,5 +1,5 @@
-﻿using ExcelDBviaEntityFramework.Data;
-using ExcelDBviaEntityFramework.Data.Infrastructure;
+﻿using ExcelDBviaEntityFramework.Console;
+using ExcelDBviaEntityFramework.Data;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Services;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +28,6 @@ namespace ExcelDBviaEntityFramework
             .AddScoped<IFileService, FileService>()
             .AddScoped<IAssemblyService, AssemblyService>()
             .AddScoped<ISignupService, SignupService>()
-            .AddScoped<IExcelDataGatewayFactory, ExcelDataGatewayFactory>()
             .AddScoped<ISignupRepository, SignupRepository>()            
             .AddDbContextFactory<ExcelDbContext>(
                 options => options.UseJet($"""
