@@ -104,10 +104,10 @@ public class SignupService : ISignupService
         if (Get().Count == 0)
             return;
 
-        if(_signupRepository.HasEmptyIntegers())
+        if (_signupRepository.HasEmptyIntegers())
             throw new SignupException("Empty signup id(s) and/or party size(s) found! Fix this in Excel.");
 
-        if(_signupRepository.HasDuplicates())
+        if (_signupRepository.HasDuplicates())
             throw new SignupException("Duplicate signup id(s) found! Fix this in Excel.");
     }
 
@@ -138,7 +138,7 @@ public class SignupService : ISignupService
 
     private static string GenerateId(List<Signup> signups)
     {
-        if(signups == null || signups.Count == 0)
+        if (signups == null || signups.Count == 0)
             return "1";
 
         var max = signups

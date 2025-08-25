@@ -27,7 +27,7 @@ namespace ExcelDBviaEntityFramework.Services
         public void UpdateSignup()
         {
             var id = ConsoleFormatter.GetUserInput($"Id of signup to update:");
-            
+
             var existing = _signupService.GetById(id);
 
             if (existing == null)
@@ -58,10 +58,10 @@ namespace ExcelDBviaEntityFramework.Services
             bool result = _signupService.Delete(id);
             var message = result ? "The signup is deleted" : $"Signup with id '{id}' not found.";
 
-            if(result)
+            if (result)
                 ConsoleFormatter.WriteSuccess(message);
             else
-                ConsoleFormatter.WriteInfo(message);            
+                ConsoleFormatter.WriteInfo(message);
         }
 
         public void ListSignups()
@@ -72,7 +72,7 @@ namespace ExcelDBviaEntityFramework.Services
             {
                 ConsoleFormatter.WriteInfo("No signups found.");
                 return;
-            } 
+            }
 
             var maxLength = signups.Max(s => $"{s.Id}{s.Name}{s.PhoneNumber}{s.PartySize}".Length) + 9;
             var line = new string('*', maxLength);

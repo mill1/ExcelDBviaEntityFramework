@@ -1,5 +1,4 @@
 ﻿using ExcelDBviaEntityFramework.Data;
-using ExcelDBviaEntityFramework.Data.Infrastructure;
 using ExcelDBviaEntityFramework.Extensions;
 using ExcelDBviaEntityFramework.Interfaces;
 using ExcelDBviaEntityFramework.Models;
@@ -20,13 +19,15 @@ public class SignupRepository : ISignupRepository
 
     public List<Signup> Get()
     {
-        using var ctx = _dbContextFactory.CreateDbContext();       
-        return [.. ctx.Signups];        
+        using var ctx = _dbContextFactory.CreateDbContext();
+
+        return [.. ctx.Signups];
     }
 
     public Signup? GetById(string id)
     {
         using var ctx = _dbContextFactory.CreateDbContext();
+
         return ctx.Signups.FirstOrDefault(s => s.Id == id);
     }
 
@@ -61,14 +62,13 @@ public class SignupRepository : ISignupRepository
 
     public Signup Update(string id, SignupUpsert update)
     {
-        using var ctx = _dbContextFactory.CreateDbContext();        
+        using var ctx = _dbContextFactory.CreateDbContext();
 
         var signup = ctx.Signups.Single(s => s.Id == id);
 
         signup.Name = update.Name;
         signup.PhoneNumber = update.PhoneNumber;
         signup.PartySize = (int)update.PartySize;
-
         ctx.SaveChangesWithGateway();
 
         return signup;
@@ -76,7 +76,7 @@ public class SignupRepository : ISignupRepository
 
     public bool Delete(string id)
     {
-        using var ctx = _dbContextFactory.CreateDbContext();        
+        using var ctx = _dbContextFactory.CreateDbContext();
 
         var signup = ctx.Signups.FirstOrDefault(s => s.Id == id);
 
@@ -88,7 +88,6 @@ public class SignupRepository : ISignupRepository
         // Remove all logs related to this signup ('Cascade delete')
         var logs = ctx.Logs.Where(l => l.SignupId == id).ToList();
         ctx.Logs.RemoveRange(logs);
-
         ctx.SaveChangesWithGateway();
 
         return true;
@@ -99,7 +98,6 @@ public class SignupRepository : ISignupRepository
         using var ctx = _dbContextFactory.CreateDbContext();
 
         ctx.Logs.Add(log);
-
         ctx.SaveChangesWithGateway();
     }
 
@@ -108,7 +106,6 @@ public class SignupRepository : ISignupRepository
         using var ctx = _dbContextFactory.CreateDbContext();
 
         ctx.Logs.AddRange(logs);
-
         ctx.SaveChangesWithGateway();
     }
 

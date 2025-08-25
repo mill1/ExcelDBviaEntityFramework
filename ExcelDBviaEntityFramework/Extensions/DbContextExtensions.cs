@@ -9,6 +9,7 @@ namespace ExcelDBviaEntityFramework.Extensions
         public static int SaveChangesWithGateway(this ExcelDbContext ctx)
         {
             var gateway = new ExcelDataGateway(ctx.Database.GetDbConnection());
+
             return ctx.SaveChanges(gateway);
         }
     }

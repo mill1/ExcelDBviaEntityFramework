@@ -75,7 +75,7 @@ namespace ExcelDBviaEntityFramework.Console
                     .AsNoTracking()
                     .AsEnumerable()   // forces client-side LINQ
                     .Where(s => !string.IsNullOrEmpty(s.Id));
-            """; 
+            """;
         #endregion
     }
 }
