@@ -57,7 +57,7 @@ public class SignupRepository : ISignupRepository
         using var ctx = _dbContextFactory.CreateDbContext();
 
         ctx.Signups.Add(insert);
-        ctx.SaveChangesWithGateway();
+        ctx.SaveChanges();
     }
 
     public Signup Update(string id, SignupUpsert update)
@@ -69,7 +69,7 @@ public class SignupRepository : ISignupRepository
         signup.Name = update.Name;
         signup.PhoneNumber = update.PhoneNumber;
         signup.PartySize = (int)update.PartySize;
-        ctx.SaveChangesWithGateway();
+        ctx.SaveChanges();
 
         return signup;
     }
@@ -88,7 +88,7 @@ public class SignupRepository : ISignupRepository
         // Remove all logs related to this signup ('Cascade delete')
         var logs = ctx.Logs.Where(l => l.SignupId == id).ToList();
         ctx.Logs.RemoveRange(logs);
-        ctx.SaveChangesWithGateway();
+        ctx.SaveChanges();
 
         return true;
     }
@@ -98,7 +98,7 @@ public class SignupRepository : ISignupRepository
         using var ctx = _dbContextFactory.CreateDbContext();
 
         ctx.Logs.Add(log);
-        ctx.SaveChangesWithGateway();
+        ctx.SaveChanges();
     }
 
     public void Log(List<Log> logs)
@@ -106,7 +106,7 @@ public class SignupRepository : ISignupRepository
         using var ctx = _dbContextFactory.CreateDbContext();
 
         ctx.Logs.AddRange(logs);
-        ctx.SaveChangesWithGateway();
+        ctx.SaveChanges();
     }
 
     public bool HasDuplicates()

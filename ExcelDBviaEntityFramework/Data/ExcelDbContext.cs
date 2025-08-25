@@ -35,16 +35,12 @@ namespace ExcelDBviaEntityFramework.Data
 
         public override int SaveChanges()
         {
+            _excelDataGateway = new ExcelDataGateway(Database.GetDbConnection());
+
             int affectedRows = SaveChangesSignups();
             SaveChangesLogs();
 
             return affectedRows;
-        }
-
-        public int SaveChanges(IExcelDataGateway? excelDataGateway)
-        {
-            _excelDataGateway = excelDataGateway;
-            return SaveChanges();
         }
 
         private int SaveChangesSignups()
