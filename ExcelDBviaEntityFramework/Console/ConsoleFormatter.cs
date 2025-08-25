@@ -1,8 +1,8 @@
 ﻿using ExcelDBviaEntityFramework.Models;
 
-namespace ExcelDBviaEntityFramework
+namespace ExcelDBviaEntityFramework.Console
 {
-    public static class Console
+    public static class ConsoleFormatter
     {
         private static void WriteLine(string message, ConsoleColor foreground = ConsoleColor.White, ConsoleColor background = ConsoleColor.Black)
         {

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using ExcelDBviaEntityFramework.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
 using System.Reflection;
@@ -8,7 +9,7 @@ namespace ExcelDBviaEntityFramework.Data.Infrastructure
     /// <summary>
     /// Executes SQL commands against the Excel OLEDB provider. Responsible for parameter building and execution.
     /// </summary>
-    public class ExcelDataGateway
+    public class ExcelDataGateway : IExcelDataGateway
     {
         private readonly DbConnection _connection;
 
